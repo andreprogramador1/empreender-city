@@ -450,7 +450,8 @@ export const MANUAL_BUILDINGS: ManualBuildingConfig[] =
   generateCenterBuildings();
 
 export const DISTRICT_DESCRIPTIONS: Record<string, string> = {
-  empreender: "O centro da elite. Top 50 devs por ranking global.",
+  empreender:
+    "Somos parceiros de mais de 30 plataformas. Nossos apps estão disponíveis na Shopify, Nuvemshop, Yampi, Tray, Loja Integrada e muito mais!",
   nuvemshop:
     "Plataforma líder de e-commerce na América Latina. Crie e gerencie sua loja virtual com facilidade.",
   google_analytics:
@@ -485,46 +486,46 @@ export const DISTRICT_URLS: Record<string, string> = {
   kiwify: "https://kiwify.com.br",
 };
 
-const LANGUAGE_TO_DISTRICT: Record<string, string> = {
-  TypeScript: "nuvemshop",
-  JavaScript: "nuvemshop",
-  CSS: "nuvemshop",
-  HTML: "nuvemshop",
-  SCSS: "nuvemshop",
-  Vue: "nuvemshop",
-  Svelte: "nuvemshop",
-  Java: "google_analytics",
-  Go: "google_analytics",
-  Rust: "google_analytics",
-  "C#": "google_analytics",
-  PHP: "google_analytics",
-  Ruby: "google_analytics",
-  Elixir: "google_analytics",
-  C: "google_analytics",
-  "C++": "google_analytics",
-  Assembly: "google_analytics",
-  Verilog: "google_analytics",
-  VHDL: "google_analytics",
-  Python: "loja_integrada",
-  "Jupyter Notebook": "loja_integrada",
-  R: "loja_integrada",
-  Julia: "loja_integrada",
-  Swift: "yampi",
-  Kotlin: "yampi",
-  Dart: "yampi",
-  "Objective-C": "yampi",
-  HCL: "tiktok_shop",
-  Shell: "tiktok_shop",
-  Dockerfile: "tiktok_shop",
-  Nix: "tiktok_shop",
-  GDScript: "shopify",
-  Lua: "shopify",
-};
+// const LANGUAGE_TO_DISTRICT: Record<string, string> = {
+//   TypeScript: "nuvemshop",
+//   JavaScript: "nuvemshop",
+//   CSS: "nuvemshop",
+//   HTML: "nuvemshop",
+//   SCSS: "nuvemshop",
+//   Vue: "nuvemshop",
+//   Svelte: "nuvemshop",
+//   Java: "google_analytics",
+//   Go: "google_analytics",
+//   Rust: "google_analytics",
+//   "C#": "google_analytics",
+//   PHP: "google_analytics",
+//   Ruby: "google_analytics",
+//   Elixir: "google_analytics",
+//   C: "google_analytics",
+//   "C++": "google_analytics",
+//   Assembly: "google_analytics",
+//   Verilog: "google_analytics",
+//   VHDL: "google_analytics",
+//   Python: "loja_integrada",
+//   "Jupyter Notebook": "loja_integrada",
+//   R: "loja_integrada",
+//   Julia: "loja_integrada",
+//   Swift: "yampi",
+//   Kotlin: "yampi",
+//   Dart: "yampi",
+//   "Objective-C": "yampi",
+//   HCL: "tiktok_shop",
+//   Shell: "tiktok_shop",
+//   Dockerfile: "tiktok_shop",
+//   Nix: "tiktok_shop",
+//   GDScript: "shopify",
+//   Lua: "shopify",
+// };
 
-export function inferDistrict(lang: string | null): string {
-  if (!lang) return "meta";
-  return LANGUAGE_TO_DISTRICT[lang] ?? "meta";
-}
+// export function inferDistrict(lang: string | null): string {
+//   if (!lang) return "meta";
+//   return LANGUAGE_TO_DISTRICT[lang] ?? "meta";
+// }
 
 function localBlockAxisPos(idx: number, footprint: number): number {
   if (idx === 0) return 0;
@@ -574,11 +575,11 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
   ];
 
   const districtGroups: Record<string, DeveloperRecord[]> = {};
-  for (const dev of devs) {
-    const did = dev.district ?? inferDistrict(dev.primary_language);
-    if (!districtGroups[did]) districtGroups[did] = [];
-    districtGroups[did].push(dev);
-  }
+  // for (const dev of devs) {
+  //   const did = dev.district ?? inferDistrict(dev.primary_language);
+  //   if (!districtGroups[did]) districtGroups[did] = [];
+  //   districtGroups[did].push(dev);
+  // }
 
   // Seeded shuffle for deterministic "random" order
   function seededShuffle<T>(arr: T[], seed: number): T[] {
@@ -708,7 +709,7 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
       const sideWindowsPerFloor = Math.max(3, Math.floor(d / 5));
       const did = empreenderOverride.has(dev.github_login)
         ? "empreender"
-        : (dev.district ?? inferDistrict(dev.primary_language));
+        : dev.district;
 
       buildings.push({
         login: dev.github_login,
@@ -762,7 +763,7 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
           ((dev as unknown as Record<string, unknown>).xp_total as number) ?? 0,
         xp_level:
           ((dev as unknown as Record<string, unknown>).xp_level as number) ?? 1,
-        district: did,
+        district: did ?? undefined,
         district_chosen:
           ((dev as unknown as Record<string, unknown>)
             .district_chosen as boolean) ?? false,
