@@ -3216,29 +3216,15 @@ function HomeContent() {
           <div className="pointer-events-auto flex w-full max-w-2xl flex-col items-center gap-2 sm:gap-5">
             <div className="text-center">
               <h1 className="text-2xl text-cream sm:text-3xl md:text-5xl">
-                Git <span style={{ color: theme.accent }}>City</span>
+                Empreender <span style={{ color: theme.accent }}>City</span>
               </h1>
               <p className="mt-2 text-[10px] leading-relaxed text-cream/80 normal-case">
-                {stats.total_developers > 0
-                  ? `A city of ${stats.total_developers.toLocaleString()} GitHub developers. Find yourself.`
-                  : "A global city of GitHub developers. Find yourself."}
-              </p>
-              <p className="pointer-events-auto mt-1 text-[9px] text-cream/50 normal-case hidden sm:block">
-                built by{" "}
-                <a
-                  href="https://x.com/samuelrizzondev"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="transition-colors hover:text-cream"
-                  style={{ color: theme.accent }}
-                >
-                  @samuelrizzondev
-                </a>
+                Uma cidade com lojistas reais, entre você também.
               </p>
             </div>
 
             {/* Milestone progress banner — hidden on mobile to reduce clutter */}
-            <div className="hidden sm:flex sm:justify-center w-full">
+            {/* <div className="hidden sm:flex sm:justify-center w-full">
               {MILESTONE_MODE === "stars"
                 ? // ── GitHub Stars mode ──
                   (() => {
@@ -3361,7 +3347,7 @@ function HomeContent() {
                       </div>
                     );
                   })()}
-            </div>
+            </div> */}
 
             {/* Search / Welcome CTA takeover */}
             {welcomeCtaVisible && !session ? (
@@ -3633,7 +3619,7 @@ function HomeContent() {
 
               {/* Nav + Auth — desktop only (mobile uses bottom bar) */}
               <div className="hidden sm:flex items-center justify-center gap-2">
-                <Link
+                {/* <Link
                   href={shopHref}
                   className="btn-press border-[3px] border-border bg-bg/80 px-4 py-1.5 text-[10px] backdrop-blur-sm transition-colors hover:border-border-light"
                   style={{ color: theme.accent }}
@@ -3656,7 +3642,7 @@ function HomeContent() {
                   >
                     NEW
                   </span>
-                </Link>
+                </Link> */}
                 <Link
                   href="/leaderboard"
                   className="btn-press border-[3px] border-border bg-bg/80 px-4 py-1.5 text-[10px] backdrop-blur-sm transition-colors hover:border-border-light"
