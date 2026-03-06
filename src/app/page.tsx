@@ -494,6 +494,7 @@ function HomeContent() {
   const [username, setUsername] = useState("");
   const failedUsernamesRef = useRef<Map<string, string>>(new Map()); // username -> error code
   const [buildings, setBuildings] = useState<CityBuilding[]>([]);
+  const addBuildingCounter = useRef(0);
   // Keep raw dev records so we can inject new devs and regenerate layout locally
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const rawDevsRef = useRef<any[]>([]);
@@ -883,6 +884,57 @@ function HomeContent() {
       })
       .catch(() => {});
   }, [sessionUserId]);
+
+  const addRandomBuilding = useCallback(() => {
+    const districtKeys = Object.keys(DISTRICT_NAMES);
+    const district = districtKeys[Math.floor(Math.random() * districtKeys.length)];
+    const color = DISTRICT_COLORS[district] ?? "#888888";
+    const height = 40 + Math.random() * 200;
+    const width = 10 + Math.random() * 20;
+    const id = ++addBuildingCounter.current;
+    const angle = Math.random() * Math.PI * 2;
+    const radius = 200 + Math.random() * 800;
+    const x = Math.round(radius * Math.cos(angle));
+    const z = Math.round(radius * Math.sin(angle));
+    const floorH = 6;
+    const floors = Math.max(3, Math.floor(height / floorH));
+
+    const newBuilding: CityBuilding = {
+      login: `manual-${id}`,
+      rank: 0,
+      contributions: Math.floor(Math.random() * 5000),
+      total_stars: Math.floor(Math.random() * 500),
+      public_repos: Math.floor(Math.random() * 100),
+      name: `Building #${id}`,
+      avatar_url: null,
+      primary_language: null,
+      claimed: false,
+      owned_items: [],
+      custom_color: color,
+      achievements: [],
+      kudos_count: 0,
+      visit_count: 0,
+      app_streak: 0,
+      raid_xp: 0,
+      current_week_contributions: 0,
+      current_week_kudos_given: 0,
+      current_week_kudos_received: 0,
+      rabbit_completed: false,
+      xp_total: 0,
+      xp_level: 1,
+      district,
+      position: [x, 0, z],
+      width: Math.round(width),
+      depth: Math.round(width * 0.7),
+      height: Math.round(height),
+      floors,
+      windowsPerFloor: Math.max(3, Math.floor(width / 5)),
+      sideWindowsPerFloor: Math.max(2, Math.floor((width * 0.7) / 5)),
+      litPercentage: 0.3 + Math.random() * 0.5,
+    };
+
+    setBuildings((prev) => [...prev, newBuilding]);
+  }, []);
 
   // Cycle theme: save to localStorage + sync to DB if logged in
   const cycleTheme = useCallback(() => {
@@ -5206,6 +5258,14 @@ function HomeContent() {
           >
             <span style={{ color: theme.accent }}>&#9654;</span>
             <span className="text-cream">Intro</span>
+          </button>
+          <button
+            onClick={addRandomBuilding}
+            className="btn-press flex items-center gap-1 border-[3px] border-border bg-bg/70 px-2 py-1 text-[10px] backdrop-blur-sm transition-colors hover:border-border-light"
+            title="Add random building"
+          >
+            <span style={{ color: theme.accent }}>+</span>
+            <span className="text-cream">Building</span>
           </button>
         </div>
       )}
