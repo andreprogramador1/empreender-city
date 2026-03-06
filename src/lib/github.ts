@@ -347,27 +347,50 @@ export interface ManualBuildingConfig {
 
 function generateCenterBuildings(): ManualBuildingConfig[] {
   const result: ManualBuildingConfig[] = [];
-  const rings: { r: number; n: number; hMin: number; hMax: number; wMin: number; wMax: number }[] = [
-    { r: 80,  n: 6,  hMin: 400, hMax: 580, wMin: 22, wMax: 34 },
-    { r: 170, n: 10, hMin: 280, hMax: 450, wMin: 20, wMax: 30 },
-    { r: 280, n: 14, hMin: 180, hMax: 320, wMin: 16, wMax: 26 },
-    { r: 400, n: 18, hMin: 100, hMax: 220, wMin: 14, wMax: 24 },
-    { r: 540, n: 22, hMin: 50,  hMax: 150, wMin: 14, wMax: 20 },
+  const CLUSTER_RADIUS = 650;
+
+  const clusters: { id: string; n: number; hMin: number; hMax: number; wMin: number; wMax: number }[] = [
+    { id: 'downtown',   n: 14, hMin: 350, hMax: 580, wMin: 22, wMax: 34 },
+    { id: 'frontend',   n: 12, hMin: 200, hMax: 420, wMin: 18, wMax: 30 },
+    { id: 'backend',    n: 12, hMin: 200, hMax: 420, wMin: 18, wMax: 30 },
+    { id: 'fullstack',  n: 12, hMin: 180, hMax: 360, wMin: 16, wMax: 28 },
+    { id: 'mobile',     n: 10, hMin: 150, hMax: 320, wMin: 16, wMax: 26 },
+    { id: 'data_ai',    n: 10, hMin: 150, hMax: 320, wMin: 16, wMax: 26 },
+    { id: 'devops',     n: 10, hMin: 130, hMax: 280, wMin: 14, wMax: 24 },
+    { id: 'security',   n: 10, hMin: 120, hMax: 260, wMin: 14, wMax: 22 },
+    { id: 'gamedev',    n: 10, hMin: 120, hMax: 260, wMin: 14, wMax: 22 },
+    { id: 'vibe_coder', n: 10, hMin: 100, hMax: 220, wMin: 14, wMax: 20 },
+    { id: 'creator',    n: 10, hMin: 100, hMax: 220, wMin: 14, wMax: 20 },
   ];
 
   let idx = 0;
-  for (let ri = 0; ri < rings.length; ri++) {
-    const { r, n, hMin, hMax, wMin, wMax } = rings[ri];
-    const angleOffset = ri * 0.35;
-    for (let i = 0; i < n; i++) {
-      const angle = angleOffset + (i / n) * Math.PI * 2;
+  let outerIdx = 0;
+  const outerCount = clusters.length - 1;
+
+  for (const cluster of clusters) {
+    let cx: number, cz: number;
+    if (cluster.id === 'downtown') {
+      cx = 0;
+      cz = 0;
+    } else {
+      const angle = (outerIdx / outerCount) * Math.PI * 2 - Math.PI / 2;
+      cx = Math.round(CLUSTER_RADIUS * Math.cos(angle));
+      cz = Math.round(CLUSTER_RADIUS * Math.sin(angle));
+      outerIdx++;
+    }
+
+    for (let i = 0; i < cluster.n; i++) {
+      const ring = Math.floor(i / 6);
+      const posInRing = i % 6;
+      const ringR = 30 + ring * 55;
+      const ringAngle = (posInRing / 6) * Math.PI * 2 + ring * 0.5;
       const jitter = ((idx * 31 + 7) % 13) / 13;
-      const rActual = r + (jitter - 0.5) * 30;
-      const x = Math.round(rActual * Math.cos(angle));
-      const z = Math.round(rActual * Math.sin(angle));
+      const rActual = ringR + (jitter - 0.5) * 20;
+      const x = cx + Math.round(rActual * Math.cos(ringAngle));
+      const z = cz + Math.round(rActual * Math.sin(ringAngle));
       const t = ((idx * 7 + 3) % 11) / 10;
-      const height = Math.round(hMin + t * (hMax - hMin));
-      const width = Math.round(wMin + t * (wMax - wMin));
+      const height = Math.round(cluster.hMin + t * (cluster.hMax - cluster.hMin));
+      const width = Math.round(cluster.wMin + t * (cluster.wMax - cluster.wMin));
       const depth = Math.round(width * 0.7 + t * 6);
       result.push({
         login: `tower-${idx + 1}`,
@@ -376,6 +399,8 @@ function generateCenterBuildings(): ManualBuildingConfig[] {
         width,
         depth,
         height,
+        district: cluster.id,
+        custom_color: DISTRICT_COLORS[cluster.id] ?? null,
         litPercentage: 0.25 + t * 0.65,
       });
       idx++;
@@ -383,8 +408,6 @@ function generateCenterBuildings(): ManualBuildingConfig[] {
   }
   return result;
 }
-
-export const MANUAL_BUILDINGS: ManualBuildingConfig[] = generateCenterBuildings();
 
 function precomputeComposites(
   devs: DeveloperRecord[],
@@ -437,6 +460,8 @@ export const DISTRICT_COLORS: Record<string, string> = {
   vibe_coder: "#8b5cf6",
   creator: "#eab308",
 };
+
+export const MANUAL_BUILDINGS: ManualBuildingConfig[] = generateCenterBuildings();
 
 export const DISTRICT_DESCRIPTIONS: Record<string, string> = {
   downtown: "The elite core. Top 50 devs by global rank.",
