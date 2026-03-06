@@ -17,6 +17,8 @@ import {
   generateCityLayout,
   DISTRICT_NAMES,
   DISTRICT_COLORS,
+  DISTRICT_DESCRIPTIONS,
+  DISTRICT_URLS,
   type CityBuilding,
   type CityPlaza,
   type CityDecoration,
@@ -2293,7 +2295,7 @@ function HomeContent() {
             const dist = dx * dx + dz * dz;
             if (dist < bestDist) {
               bestDist = dist;
-              nearestDistrict = b.district ?? "fullstack";
+              nearestDistrict = b.district ?? "meta";
             }
           }
           const district = nearestDistrict
@@ -4018,6 +4020,51 @@ function HomeContent() {
                   <div className="h-1 w-10 rounded-full bg-border" />
                 </div>
 
+                {selectedBuilding.login.startsWith("tower-") ? (
+                  <>
+                    {/* Tower card: name + description + link */}
+                    <div className="px-4 pb-3 sm:pt-4">
+                      <p className="text-sm text-cream">
+                        {selectedBuilding.name ?? selectedBuilding.login}
+                      </p>
+                      {selectedBuilding.district && (
+                        <span
+                          className="mt-2 inline-block px-2 py-0.5 text-[8px] text-bg"
+                          style={{
+                            backgroundColor:
+                              DISTRICT_COLORS[selectedBuilding.district] ?? "#888",
+                          }}
+                        >
+                          {DISTRICT_NAMES[selectedBuilding.district] ??
+                            selectedBuilding.district}
+                        </span>
+                      )}
+                    </div>
+                    {selectedBuilding.district && DISTRICT_DESCRIPTIONS[selectedBuilding.district] && (
+                      <p className="mx-4 mb-4 text-[10px] leading-relaxed text-muted normal-case">
+                        {DISTRICT_DESCRIPTIONS[selectedBuilding.district]}
+                      </p>
+                    )}
+                    {selectedBuilding.district && DISTRICT_URLS[selectedBuilding.district] && (
+                      <div className="px-4 pb-5 sm:pb-4">
+                        <a
+                          href={DISTRICT_URLS[selectedBuilding.district]}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-press block w-full py-2.5 text-center text-[10px] text-bg"
+                          style={{
+                            backgroundColor:
+                              DISTRICT_COLORS[selectedBuilding.district] ?? theme.accent,
+                            boxShadow: `2px 2px 0 0 ${theme.shadow}`,
+                          }}
+                        >
+                          Acessar {DISTRICT_NAMES[selectedBuilding.district] ?? "plataforma"} &rarr;
+                        </a>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
                 {/* Header with avatar + name */}
                 <div className="flex items-center gap-3 px-4 pb-3 sm:pt-4">
                   {selectedBuilding.avatar_url && (
@@ -4471,17 +4518,11 @@ function HomeContent() {
                       >
                         View Profile
                       </Link>
-                      <a
-                        href={`https://github.com/${selectedBuilding.login}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn-press flex-1 border-[2px] border-border py-2 text-center text-[10px] text-cream transition-colors hover:border-border-light"
-                      >
-                        GitHub
-                      </a>
                     </>
                   )}
                 </div>
+                  </>
+                )}
               </div>
             </div>
           </>

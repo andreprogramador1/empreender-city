@@ -350,17 +350,17 @@ function generateCenterBuildings(): ManualBuildingConfig[] {
   const CLUSTER_RADIUS = 650;
 
   const districts: { id: string; height: number; width: number }[] = [
-    { id: 'downtown',   height: 480, width: 30 },
-    { id: 'frontend',   height: 350, width: 26 },
-    { id: 'backend',    height: 350, width: 26 },
-    { id: 'fullstack',  height: 300, width: 24 },
-    { id: 'mobile',     height: 260, width: 22 },
-    { id: 'data_ai',    height: 260, width: 22 },
-    { id: 'devops',     height: 220, width: 20 },
-    { id: 'security',   height: 200, width: 20 },
-    { id: 'gamedev',    height: 200, width: 20 },
-    { id: 'vibe_coder', height: 170, width: 18 },
-    { id: 'creator',    height: 170, width: 18 },
+    { id: "empreender", height: 480, width: 30 },
+    { id: "nuvemshop", height: 350, width: 26 },
+    { id: "google_analytics", height: 350, width: 26 },
+    { id: "meta", height: 300, width: 24 },
+    { id: "yampi", height: 260, width: 22 },
+    { id: "loja_integrada", height: 260, width: 22 },
+    { id: "tiktok_shop", height: 220, width: 20 },
+    { id: "tray", height: 200, width: 20 },
+    { id: "shopify", height: 200, width: 20 },
+    { id: "bling", height: 170, width: 18 },
+    { id: "kiwify", height: 170, width: 18 },
   ];
 
   let outerIdx = 0;
@@ -369,7 +369,7 @@ function generateCenterBuildings(): ManualBuildingConfig[] {
   for (let i = 0; i < districts.length; i++) {
     const d = districts[i];
     let cx: number, cz: number;
-    if (d.id === 'downtown') {
+    if (d.id === "empreender") {
       cx = 0;
       cz = 0;
     } else {
@@ -381,7 +381,7 @@ function generateCenterBuildings(): ManualBuildingConfig[] {
 
     result.push({
       login: `tower-${i + 1}`,
-      name: `${d.id.replace('_', ' ')} Tower`,
+      name: `Torre ${d.id.replace("_", " ")}`,
       position: [cx, 0, cz],
       width: d.width,
       depth: Math.round(d.width * 0.7),
@@ -419,88 +419,111 @@ function precomputeComposites(
 // ─── District Layout ────────────────────────────────────────
 
 export const DISTRICT_NAMES: Record<string, string> = {
-  downtown: "Downtown",
-  frontend: "Frontend",
-  backend: "Backend",
-  fullstack: "Full Stack",
-  mobile: "Mobile",
-  data_ai: "Data & AI",
-  devops: "DevOps & Cloud",
-  security: "Security",
-  gamedev: "GameDev",
-  vibe_coder: "Vibe Coder",
-  creator: "Creator",
+  empreender: "Empreender",
+  nuvemshop: "Nuvemshop",
+  google_analytics: "Google Analytics",
+  meta: "Meta",
+  yampi: "Yampi",
+  loja_integrada: "Loja Integrada",
+  tiktok_shop: "TikTok Shop",
+  tray: "Tray",
+  shopify: "Shopify",
+  bling: "Bling",
+  kiwify: "Kiwify",
 };
 
 export const DISTRICT_COLORS: Record<string, string> = {
-  downtown: "#fbbf24",
-  frontend: "#3b82f6",
-  backend: "#ef4444",
-  fullstack: "#a855f7",
-  mobile: "#22c55e",
-  data_ai: "#06b6d4",
-  devops: "#f97316",
-  security: "#dc2626",
-  gamedev: "#ec4899",
-  vibe_coder: "#8b5cf6",
-  creator: "#eab308",
+  empreender: "#fbbf24",
+  nuvemshop: "#3b82f6",
+  google_analytics: "#ef4444",
+  meta: "#a855f7",
+  yampi: "#22c55e",
+  loja_integrada: "#06b6d4",
+  tiktok_shop: "#f97316",
+  tray: "#dc2626",
+  shopify: "#ec4899",
+  bling: "#8b5cf6",
+  kiwify: "#eab308",
 };
 
-export const MANUAL_BUILDINGS: ManualBuildingConfig[] = generateCenterBuildings();
+export const MANUAL_BUILDINGS: ManualBuildingConfig[] =
+  generateCenterBuildings();
 
 export const DISTRICT_DESCRIPTIONS: Record<string, string> = {
-  downtown: "The elite core. Top 50 devs by global rank.",
-  frontend: "Pixels, components, and beautiful interfaces.",
-  backend: "APIs, systems, and server-side logic.",
-  fullstack: "Jack of all trades. Ship everything.",
-  mobile: "Native apps for iOS and Android.",
-  data_ai: "Data science, ML, and AI.",
-  devops: "Infrastructure, CI/CD, and cloud.",
-  security: "Hacking, defense, and cryptography.",
-  gamedev: "Game engines, physics, and fun.",
-  vibe_coder: "Aesthetic code. Vibes over velocity.",
-  creator: "Open-source tools and content.",
+  empreender: "O centro da elite. Top 50 devs por ranking global.",
+  nuvemshop:
+    "Plataforma líder de e-commerce na América Latina. Crie e gerencie sua loja virtual com facilidade.",
+  google_analytics:
+    "Monitore o desempenho do seu site com análises detalhadas de tráfego, conversões e comportamento dos usuários.",
+  meta: "Gerencie e otimize campanhas publicitárias no Facebook e Instagram para alcançar seu público-alvo.",
+  yampi:
+    "Checkout transparente e gestão completa de pedidos para maximizar suas conversões.",
+  loja_integrada:
+    "Plataforma brasileira de e-commerce gratuita para criar, personalizar e gerenciar sua loja online.",
+  tiktok_shop:
+    "Venda seus produtos diretamente no TikTok e alcance milhões de usuários pelo social commerce.",
+  tray: "Solução completa de e-commerce com gestão integrada de produtos, pedidos, frete e pagamentos.",
+  shopify:
+    "A maior plataforma global de e-commerce para montar sua loja online com ferramentas profissionais.",
+  bling:
+    "Sistema de gestão empresarial (ERP) para automatizar estoque, notas fiscais e controle financeiro.",
+  kiwify:
+    "Plataforma completa para vender infoprodutos, cursos online e gerenciar programas de afiliados.",
+};
+
+export const DISTRICT_URLS: Record<string, string> = {
+  empreender: "https://empreender.com.br",
+  nuvemshop: "https://www.nuvemshop.com.br",
+  google_analytics: "https://analytics.google.com",
+  meta: "https://www.facebook.com/business/ads",
+  yampi: "https://www.yampi.com.br",
+  loja_integrada: "https://lojaintegrada.com.br",
+  tiktok_shop: "https://shop.tiktok.com",
+  tray: "https://www.tray.com.br",
+  shopify: "https://www.shopify.com.br",
+  bling: "https://www.bling.com.br",
+  kiwify: "https://kiwify.com.br",
 };
 
 const LANGUAGE_TO_DISTRICT: Record<string, string> = {
-  TypeScript: "frontend",
-  JavaScript: "frontend",
-  CSS: "frontend",
-  HTML: "frontend",
-  SCSS: "frontend",
-  Vue: "frontend",
-  Svelte: "frontend",
-  Java: "backend",
-  Go: "backend",
-  Rust: "backend",
-  "C#": "backend",
-  PHP: "backend",
-  Ruby: "backend",
-  Elixir: "backend",
-  C: "backend",
-  "C++": "backend",
-  Assembly: "backend",
-  Verilog: "backend",
-  VHDL: "backend",
-  Python: "data_ai",
-  "Jupyter Notebook": "data_ai",
-  R: "data_ai",
-  Julia: "data_ai",
-  Swift: "mobile",
-  Kotlin: "mobile",
-  Dart: "mobile",
-  "Objective-C": "mobile",
-  HCL: "devops",
-  Shell: "devops",
-  Dockerfile: "devops",
-  Nix: "devops",
-  GDScript: "gamedev",
-  Lua: "gamedev",
+  TypeScript: "nuvemshop",
+  JavaScript: "nuvemshop",
+  CSS: "nuvemshop",
+  HTML: "nuvemshop",
+  SCSS: "nuvemshop",
+  Vue: "nuvemshop",
+  Svelte: "nuvemshop",
+  Java: "google_analytics",
+  Go: "google_analytics",
+  Rust: "google_analytics",
+  "C#": "google_analytics",
+  PHP: "google_analytics",
+  Ruby: "google_analytics",
+  Elixir: "google_analytics",
+  C: "google_analytics",
+  "C++": "google_analytics",
+  Assembly: "google_analytics",
+  Verilog: "google_analytics",
+  VHDL: "google_analytics",
+  Python: "loja_integrada",
+  "Jupyter Notebook": "loja_integrada",
+  R: "loja_integrada",
+  Julia: "loja_integrada",
+  Swift: "yampi",
+  Kotlin: "yampi",
+  Dart: "yampi",
+  "Objective-C": "yampi",
+  HCL: "tiktok_shop",
+  Shell: "tiktok_shop",
+  Dockerfile: "tiktok_shop",
+  Nix: "tiktok_shop",
+  GDScript: "shopify",
+  Lua: "shopify",
 };
 
 export function inferDistrict(lang: string | null): string {
-  if (!lang) return "fullstack";
-  return LANGUAGE_TO_DISTRICT[lang] ?? "fullstack";
+  if (!lang) return "meta";
+  return LANGUAGE_TO_DISTRICT[lang] ?? "meta";
 }
 
 function localBlockAxisPos(idx: number, footprint: number): number {
@@ -538,16 +561,16 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
   );
 
   const DISTRICT_ORDER = [
-    "backend",
-    "frontend",
-    "fullstack",
-    "data_ai",
-    "devops",
-    "mobile",
-    "gamedev",
-    "vibe_coder",
-    "creator",
-    "security",
+    "google_analytics",
+    "nuvemshop",
+    "meta",
+    "loja_integrada",
+    "tiktok_shop",
+    "yampi",
+    "shopify",
+    "bling",
+    "kiwify",
+    "tray",
   ];
 
   const districtGroups: Record<string, DeveloperRecord[]> = {};
@@ -567,32 +590,33 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
     return result;
   }
 
-  // ── Extract top 50 global devs as "downtown" (center, around the spire) ──
-  const DOWNTOWN_COUNT = 50;
+  // ── Extract top 50 global devs as "empreender" (center, around the spire) ──
+  const EMPREENDER_COUNT = 50;
   const LOTS_PER_BLOCK = BLOCK_SIZE * BLOCK_SIZE; // 16
   const allDevsSorted = [...devs].sort(
     (a, b) =>
       (composites.get(b.github_login) ?? 0) -
       (composites.get(a.github_login) ?? 0),
   );
-  const downtownDevs = allDevsSorted.slice(0, DOWNTOWN_COUNT);
-  const downtownSet = new Set(downtownDevs.map((d) => d.github_login));
+  const empreenderDevs = allDevsSorted.slice(0, EMPREENDER_COUNT);
+  const empreenderSet = new Set(empreenderDevs.map((d) => d.github_login));
 
-  for (let i = 0; i < downtownDevs.length; i += LOTS_PER_BLOCK) {
-    const end = Math.min(i + LOTS_PER_BLOCK, downtownDevs.length);
-    const slice = downtownDevs.slice(i, end);
-    const shuffled = seededShuffle(slice, hashStr("downtown") + i);
-    for (let j = 0; j < shuffled.length; j++) downtownDevs[i + j] = shuffled[j];
+  for (let i = 0; i < empreenderDevs.length; i += LOTS_PER_BLOCK) {
+    const end = Math.min(i + LOTS_PER_BLOCK, empreenderDevs.length);
+    const slice = empreenderDevs.slice(i, end);
+    const shuffled = seededShuffle(slice, hashStr("empreender") + i);
+    for (let j = 0; j < shuffled.length; j++)
+      empreenderDevs[i + j] = shuffled[j];
   }
 
-  const downtownOverride = new Set(downtownDevs.map((d) => d.github_login));
+  const empreenderOverride = new Set(empreenderDevs.map((d) => d.github_login));
 
-  // ── Per-district dev arrays (sorted by composite, block-shuffled, minus downtown) ──
+  // ── Per-district dev arrays (sorted by composite, block-shuffled, minus empreender) ──
   const districtDevArrays: { did: string; devs: DeveloperRecord[] }[] = [];
   for (const did of DISTRICT_ORDER) {
     const group = districtGroups[did];
     if (!group || group.length === 0) continue;
-    const filtered = group.filter((d) => !downtownSet.has(d.github_login));
+    const filtered = group.filter((d) => !empreenderSet.has(d.github_login));
     if (filtered.length === 0) continue;
     // Full shuffle: organic mix of tall and short buildings
     districtDevArrays.push({
@@ -602,7 +626,7 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
   }
   for (const [did, group] of Object.entries(districtGroups)) {
     if (!DISTRICT_ORDER.includes(did)) {
-      const filtered = group.filter((d) => !downtownSet.has(d.github_login));
+      const filtered = group.filter((d) => !empreenderSet.has(d.github_login));
       if (filtered.length === 0) continue;
       districtDevArrays.push({
         did,
@@ -682,8 +706,8 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
       const floors = Math.max(3, Math.floor(height / floorH));
       const windowsPerFloor = Math.max(3, Math.floor(w / 5));
       const sideWindowsPerFloor = Math.max(3, Math.floor(d / 5));
-      const did = downtownOverride.has(dev.github_login)
-        ? "downtown"
+      const did = empreenderOverride.has(dev.github_login)
+        ? "empreender"
         : (dev.district ?? inferDistrict(dev.primary_language));
 
       buildings.push({
@@ -894,7 +918,7 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
   }
 
   // ── A) Downtown: spiral at grid (0, 0) ──
-  placeSpiralCluster(downtownDevs, 0, 0, true);
+  placeSpiralCluster(empreenderDevs, 0, 0, true);
 
   // ── B) Districts: spiral at offset grid positions ──
   for (let di = 0; di < districtDevArrays.length; di++) {
@@ -1021,7 +1045,7 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
       rabbit_completed: false,
       xp_total: 0,
       xp_level: 1,
-      district: mb.district ?? "downtown",
+      district: mb.district ?? "empreender",
       position: mb.position,
       width: mb.width,
       depth: mb.depth,
@@ -1036,7 +1060,7 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
   // ── District zones (computed from actual building positions) ──
   const dzMap: Record<string, CityBuilding[]> = {};
   for (const b of buildings) {
-    const did = b.district ?? "fullstack";
+    const did = b.district ?? "meta";
     if (!dzMap[did]) dzMap[did] = [];
     dzMap[did].push(b);
   }

@@ -4,8 +4,8 @@ import { getSupabaseAdmin } from "@/lib/supabase";
 import { rateLimit } from "@/lib/rate-limit";
 
 const VALID_DISTRICTS = [
-  "frontend", "backend", "fullstack", "mobile", "data_ai",
-  "devops", "security", "gamedev", "vibe_coder", "creator",
+  "nuvemshop", "google_analytics", "meta", "yampi", "loja_integrada",
+  "tiktok_shop", "tray", "shopify", "bling", "kiwify",
 ];
 
 export async function POST(request: Request) {

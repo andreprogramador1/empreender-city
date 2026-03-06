@@ -294,7 +294,7 @@ function SlideSolution() {
         />
         <SolutionPoint
           title="Rank = Location"
-          desc="Top contributors live downtown. A living leaderboard."
+          desc="Top contributors live in Empreender. A living leaderboard."
         />
       </div>
     </div>

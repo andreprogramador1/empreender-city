@@ -17,7 +17,7 @@ const DISPLAY = 128;
 const PAD = 3;
 
 const DISTRICT_RGB: Record<string, [number, number, number]> = {
-  downtown:   [200, 153, 29],
+  empreender: [200, 153, 29],
   frontend:   [47, 104, 197],
   backend:    [191, 54, 54],
   fullstack:  [134, 68, 197],
@@ -59,7 +59,7 @@ export default function MiniMap({ buildings, playerX, playerZ, visible, currentD
     return buildings.map(b => ({
       px: Math.round(ox + (b.position[0] - wb.x0) * s),
       py: Math.round(oy + (b.position[2] - wb.z0) * s),
-      d: b.district ?? "fullstack",
+      d: b.district ?? "meta",
     }));
   }, [buildings, wb]);
 

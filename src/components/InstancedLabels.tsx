@@ -4,6 +4,7 @@ import { useRef, useMemo, useEffect, memo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import type { CityBuilding } from "@/lib/github";
+import { DISTRICT_NAMES } from "@/lib/github";
 
 // ─── Atlas Config ──────────────────────────────────────────────
 
@@ -40,11 +41,13 @@ function createTextAtlas(buildings: CityBuilding[]): THREE.CanvasTexture {
     const cx = col * CELL_W + CELL_W / 2;
     const cy = row * CELL_H + CELL_H / 2;
 
-    const login =
-      b.login.length > 16
+    const isTower = b.login.startsWith("tower-");
+    const label = isTower
+      ? (DISTRICT_NAMES[b.district ?? ""] ?? b.login).toUpperCase()
+      : b.login.length > 16
         ? b.login.slice(0, 16).toUpperCase() + "..."
         : b.login.toUpperCase();
-    const text = `@${login}`;
+    const text = isTower ? label : `@${label}`;
 
     // Background pill
     ctx.font = 'bold 22px "Silkscreen", monospace';

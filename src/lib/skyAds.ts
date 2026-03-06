@@ -1,3 +1,10 @@
+import {
+  DISTRICT_NAMES,
+  DISTRICT_COLORS,
+  DISTRICT_URLS,
+  MANUAL_BUILDINGS,
+} from "./github";
+
 export type AdVehicle =
   | "plane"
   | "blimp"
@@ -15,11 +22,13 @@ export interface SkyAd {
   link?: string;
   vehicle: AdVehicle;
   priority: number;
+  /** Optional building login to attach this ad to (e.g. "tower-2") */
+  targetBuilding?: string;
 }
 
 export const MAX_PLANES = 8;
 export const MAX_BLIMPS = 4;
-export const MAX_BILLBOARDS = 10;
+export const MAX_BILLBOARDS = 15;
 export const MAX_ROOFTOP_SIGNS = 10;
 export const MAX_LED_WRAPS = 10;
 export const MAX_TEXT_LENGTH = 80;
@@ -132,58 +141,53 @@ export function trackAdEvents(
   }
 }
 
+// Darken a hex color for billboard backgrounds
+function darkenHex(hex: string): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  const f = 0.15;
+  return `#${[r, g, b]
+    .map((c) =>
+      Math.round(c * f)
+        .toString(16)
+        .padStart(2, "0"),
+    )
+    .join("")}`;
+}
+
+const DISTRICT_BILLBOARDS: SkyAd[] = MANUAL_BUILDINGS.filter(
+  (b) => b.district && DISTRICT_URLS[b.district],
+).map((b, i) => {
+  const did = b.district!;
+  const name = DISTRICT_NAMES[did] ?? did;
+  const color = DISTRICT_COLORS[did] ?? "#ffffff";
+  return {
+    id: `district-bb-${did}`,
+    text: `★ ${name.toUpperCase()} ★`,
+    brand: name,
+    color,
+    bgColor: darkenHex(color),
+    link: DISTRICT_URLS[did],
+    vehicle: "billboard" as const,
+    priority: 50 - i,
+    targetBuilding: b.login,
+  };
+});
+
 export const DEFAULT_SKY_ADS: SkyAd[] = [
-  // {
-  //   id: "gitcity",
-  //   text: "THEGITCITY.COM ★ YOUR CODE, YOUR CITY ★ THEGITCITY.COM",
-  //   brand: "Git City",
-  //   description: "A city built from GitHub contributions. Search your username and find your building among thousands of developers.",
-  //   color: "#f8d880",
-  //   bgColor: "#1a1018",
-  //   link: "https://thegitcity.com",
-  //   vehicle: "plane",
-  //   priority: 100,
-  // },
-  // {
-  //   id: "advertise",
-  //   text: "ADD YOUR AD HERE",
-  //   brand: "Sky Ads",
-  //   description: "Want your brand flying over Git City? Planes, blimps, your colors. Get in touch!",
-  //   color: "#f8d880",
-  //   bgColor: "#1a1018",
-  //   link: "https://thegitcity.com/advertise",
-  //   vehicle: "plane",
-  //   priority: 10,
-  // },
   // ─── Building Ads ──────────────────────────────────────────
-  // These are placed on the top 10 tallest buildings, in order.
-  {
-    id: "billboard-1",
-    text: "★ WELCOME TO GIT CITY ★ BUILD YOUR LEGACY IN CODE ★",
-    brand: "Git City",
-    color: "#00ff88",
-    bgColor: "#0a1a12",
-    link: "https://thegitcity.com",
-    vehicle: "billboard",
-    priority: 90,
-  },
-  {
-    id: "rooftop-1",
-    text: "⚡ EMPREENDER ⚡",
-    brand: "Empreender",
-    color: "#ff6b35",
-    bgColor: "#1a0e08",
-    link: "https://app.empreender.com.br",
-    vehicle: "rooftop_sign",
-    priority: 80,
-  },
-  {
-    id: "ledwrap-1",
-    text: "★ SHIP IT ★ MERGE IT ★ DEPLOY IT ★ SHIP IT ★ MERGE IT ★ DEPLOY IT ★",
-    brand: "Git City",
-    color: "#00d4ff",
-    bgColor: "#081218",
-    vehicle: "led_wrap",
-    priority: 70,
-  },
+  // {
+  //   id: "rooftop-1",
+  //   text: "⚡ EMPREENDER ⚡",
+  //   brand: "Empreender",
+  //   color: "#ff6b35",
+  //   bgColor: "#1a0e08",
+  //   link: "https://app.empreender.com.br",
+  //   vehicle: "rooftop_sign",
+  //   priority: 80,
+  //   targetBuilding: "tower-1",
+  // },
+  // ─── District tower billboards (auto-generated) ────────────
+  ...DISTRICT_BILLBOARDS,
 ];

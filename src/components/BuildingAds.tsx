@@ -375,13 +375,11 @@ export default function BuildingAds({ ads, buildings, onAdClick, onAdViewed, foc
     groupRef.current.visible = _adCamPos.length() < 1500;
   });
 
-  const top10 = useMemo(
-    () =>
-      [...buildings]
-        .sort((a, b) => b.height - a.height)
-        .slice(0, 10),
-    [buildings]
-  );
+  const { top10, buildingByLogin } = useMemo(() => {
+    const sorted = [...buildings].sort((a, b) => b.height - a.height).slice(0, 10);
+    const map = new Map(buildings.map((b) => [b.login.toLowerCase(), b]));
+    return { top10: sorted, buildingByLogin: map };
+  }, [buildings]);
 
   const { billboardAds, rooftopSignAds, ledWrapAds } = useMemo(() => {
     const buildingAds = ads.filter((a) => isBuildingAd(a.vehicle));
@@ -402,7 +400,9 @@ export default function BuildingAds({ ads, buildings, onAdClick, onAdViewed, foc
   return (
     <group ref={groupRef}>
       {billboardAds.map((ad, i) => {
-        const building = top10[i];
+        const building = ad.targetBuilding
+          ? buildingByLogin.get(ad.targetBuilding.toLowerCase())
+          : top10[i];
         if (!building) return null;
         const loginLower = building.login.toLowerCase();
         const isDimmed = !!focusedLower && loginLower !== focusedLower && loginLower !== focusedBLower;
@@ -421,7 +421,9 @@ export default function BuildingAds({ ads, buildings, onAdClick, onAdViewed, foc
         );
       })}
       {rooftopSignAds.map((ad, i) => {
-        const building = top10[i];
+        const building = ad.targetBuilding
+          ? buildingByLogin.get(ad.targetBuilding.toLowerCase())
+          : top10[i];
         if (!building) return null;
         const loginLower = building.login.toLowerCase();
         const isDimmed = !!focusedLower && loginLower !== focusedLower && loginLower !== focusedBLower;
@@ -440,7 +442,9 @@ export default function BuildingAds({ ads, buildings, onAdClick, onAdViewed, foc
         );
       })}
       {ledWrapAds.map((ad, i) => {
-        const building = top10[i];
+        const building = ad.targetBuilding
+          ? buildingByLogin.get(ad.targetBuilding.toLowerCase())
+          : top10[i];
         if (!building) return null;
         const loginLower = building.login.toLowerCase();
         const isDimmed = !!focusedLower && loginLower !== focusedLower && loginLower !== focusedBLower;

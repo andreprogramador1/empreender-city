@@ -15,16 +15,16 @@ CREATE TABLE districts (
 );
 
 INSERT INTO districts (id, name, color) VALUES
-  ('frontend',   'Frontend',       '#3b82f6'),
-  ('backend',    'Backend',        '#ef4444'),
-  ('fullstack',  'Full Stack',     '#a855f7'),
-  ('mobile',     'Mobile',         '#22c55e'),
-  ('data_ai',    'Data & AI',      '#06b6d4'),
-  ('devops',     'DevOps & Cloud', '#f97316'),
-  ('security',   'Security',       '#dc2626'),
-  ('gamedev',    'GameDev',        '#ec4899'),
-  ('vibe_coder', 'Vibe Coder',     '#8b5cf6'),
-  ('creator',    'Creator',        '#eab308');
+  ('nuvemshop',         'Nuvemshop',         '#3b82f6'),
+  ('google_analytics',  'Google Analytics',  '#ef4444'),
+  ('meta',              'Meta',              '#a855f7'),
+  ('yampi',             'Yampi',             '#22c55e'),
+  ('loja_integrada',    'Loja Integrada',    '#06b6d4'),
+  ('tiktok_shop',       'TikTok Shop',       '#f97316'),
+  ('tray',              'Tray',              '#dc2626'),
+  ('shopify',           'Shopify',           '#ec4899'),
+  ('bling',             'Bling',             '#8b5cf6'),
+  ('kiwify',            'Kiwify',            '#eab308');
 
 -- 1b. New columns on developers
 ALTER TABLE developers ADD COLUMN district TEXT REFERENCES districts(id);
@@ -47,13 +47,13 @@ CREATE TABLE district_changes (
 
 -- 1d. Auto-inference for all existing devs
 UPDATE developers SET district = CASE
-  WHEN primary_language IN ('TypeScript','JavaScript','CSS','HTML','SCSS','Vue','Svelte') THEN 'frontend'
-  WHEN primary_language IN ('Java','Go','Rust','C#','PHP','Ruby','Elixir','C','C++','Assembly','Verilog','VHDL') THEN 'backend'
-  WHEN primary_language IN ('Python','Jupyter Notebook','R','Julia') THEN 'data_ai'
-  WHEN primary_language IN ('Swift','Kotlin','Dart','Objective-C') THEN 'mobile'
-  WHEN primary_language IN ('HCL','Shell','Dockerfile','Nix') THEN 'devops'
-  WHEN primary_language IN ('GDScript','Lua') THEN 'gamedev'
-  ELSE 'fullstack'
+  WHEN primary_language IN ('TypeScript','JavaScript','CSS','HTML','SCSS','Vue','Svelte') THEN 'nuvemshop'
+  WHEN primary_language IN ('Java','Go','Rust','C#','PHP','Ruby','Elixir','C','C++','Assembly','Verilog','VHDL') THEN 'google_analytics'
+  WHEN primary_language IN ('Python','Jupyter Notebook','R','Julia') THEN 'loja_integrada'
+  WHEN primary_language IN ('Swift','Kotlin','Dart','Objective-C') THEN 'yampi'
+  WHEN primary_language IN ('HCL','Shell','Dockerfile','Nix') THEN 'tiktok_shop'
+  WHEN primary_language IN ('GDScript','Lua') THEN 'shopify'
+  ELSE 'meta'
 END
 WHERE district IS NULL;
 

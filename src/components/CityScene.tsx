@@ -8,6 +8,7 @@ import InstancedBuildings from "./InstancedBuildings";
 import InstancedLabels from "./InstancedLabels";
 import EffectsLayer from "./EffectsLayer";
 import LiveDots from "./LiveDots";
+import TowerLogos from "./TowerLogos";
 import type { LiveSession } from "@/lib/useCodingPresence";
 import type { CityBuilding } from "@/lib/github";
 import type { BuildingColors } from "./CityCanvas";
@@ -170,6 +171,9 @@ export default function CityScene({
         liveByLogin={liveByLogin}
         cityEnergy={cityEnergy}
       />
+
+      {/* Spinning platform logos above tower buildings */}
+      <TowerLogos buildings={buildings} />
 
       {/* Live presence dots above active buildings */}
       {liveByLogin && liveByLogin.size > 0 && (
