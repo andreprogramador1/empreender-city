@@ -349,27 +349,27 @@ function generateCenterBuildings(): ManualBuildingConfig[] {
   const result: ManualBuildingConfig[] = [];
   const CLUSTER_RADIUS = 650;
 
-  const clusters: { id: string; n: number; hMin: number; hMax: number; wMin: number; wMax: number }[] = [
-    { id: 'downtown',   n: 14, hMin: 350, hMax: 580, wMin: 22, wMax: 34 },
-    { id: 'frontend',   n: 12, hMin: 200, hMax: 420, wMin: 18, wMax: 30 },
-    { id: 'backend',    n: 12, hMin: 200, hMax: 420, wMin: 18, wMax: 30 },
-    { id: 'fullstack',  n: 12, hMin: 180, hMax: 360, wMin: 16, wMax: 28 },
-    { id: 'mobile',     n: 10, hMin: 150, hMax: 320, wMin: 16, wMax: 26 },
-    { id: 'data_ai',    n: 10, hMin: 150, hMax: 320, wMin: 16, wMax: 26 },
-    { id: 'devops',     n: 10, hMin: 130, hMax: 280, wMin: 14, wMax: 24 },
-    { id: 'security',   n: 10, hMin: 120, hMax: 260, wMin: 14, wMax: 22 },
-    { id: 'gamedev',    n: 10, hMin: 120, hMax: 260, wMin: 14, wMax: 22 },
-    { id: 'vibe_coder', n: 10, hMin: 100, hMax: 220, wMin: 14, wMax: 20 },
-    { id: 'creator',    n: 10, hMin: 100, hMax: 220, wMin: 14, wMax: 20 },
+  const districts: { id: string; height: number; width: number }[] = [
+    { id: 'downtown',   height: 480, width: 30 },
+    { id: 'frontend',   height: 350, width: 26 },
+    { id: 'backend',    height: 350, width: 26 },
+    { id: 'fullstack',  height: 300, width: 24 },
+    { id: 'mobile',     height: 260, width: 22 },
+    { id: 'data_ai',    height: 260, width: 22 },
+    { id: 'devops',     height: 220, width: 20 },
+    { id: 'security',   height: 200, width: 20 },
+    { id: 'gamedev',    height: 200, width: 20 },
+    { id: 'vibe_coder', height: 170, width: 18 },
+    { id: 'creator',    height: 170, width: 18 },
   ];
 
-  let idx = 0;
   let outerIdx = 0;
-  const outerCount = clusters.length - 1;
+  const outerCount = districts.length - 1;
 
-  for (const cluster of clusters) {
+  for (let i = 0; i < districts.length; i++) {
+    const d = districts[i];
     let cx: number, cz: number;
-    if (cluster.id === 'downtown') {
+    if (d.id === 'downtown') {
       cx = 0;
       cz = 0;
     } else {
@@ -379,32 +379,17 @@ function generateCenterBuildings(): ManualBuildingConfig[] {
       outerIdx++;
     }
 
-    for (let i = 0; i < cluster.n; i++) {
-      const ring = Math.floor(i / 6);
-      const posInRing = i % 6;
-      const ringR = 30 + ring * 55;
-      const ringAngle = (posInRing / 6) * Math.PI * 2 + ring * 0.5;
-      const jitter = ((idx * 31 + 7) % 13) / 13;
-      const rActual = ringR + (jitter - 0.5) * 20;
-      const x = cx + Math.round(rActual * Math.cos(ringAngle));
-      const z = cz + Math.round(rActual * Math.sin(ringAngle));
-      const t = ((idx * 7 + 3) % 11) / 10;
-      const height = Math.round(cluster.hMin + t * (cluster.hMax - cluster.hMin));
-      const width = Math.round(cluster.wMin + t * (cluster.wMax - cluster.wMin));
-      const depth = Math.round(width * 0.7 + t * 6);
-      result.push({
-        login: `tower-${idx + 1}`,
-        name: `Tower ${idx + 1}`,
-        position: [x, 0, z],
-        width,
-        depth,
-        height,
-        district: cluster.id,
-        custom_color: DISTRICT_COLORS[cluster.id] ?? null,
-        litPercentage: 0.25 + t * 0.65,
-      });
-      idx++;
-    }
+    result.push({
+      login: `tower-${i + 1}`,
+      name: `${d.id.replace('_', ' ')} Tower`,
+      position: [cx, 0, cz],
+      width: d.width,
+      depth: Math.round(d.width * 0.7),
+      height: d.height,
+      district: d.id,
+      custom_color: DISTRICT_COLORS[d.id] ?? null,
+      litPercentage: 0.6,
+    });
   }
   return result;
 }

@@ -5650,9 +5650,9 @@ function HomeContent() {
           onClose={() => setPillModalOpen(false)}
         />
       )} */}
-      {founderMessageOpen && (
+      {/* {founderMessageOpen && (
         <FounderMessage onClose={() => setFounderMessageOpen(false)} />
-      )}
+      )} */}
 
       {/* Rabbit Quest Cinematic Overlay */}
       {rabbitCinematic && (
