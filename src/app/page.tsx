@@ -2506,9 +2506,9 @@ function HomeContent() {
           >
             {/* Narrative texts (phases 0-2) */}
             {[
-              "Somewhere in the internet...",
-              "Developers became buildings",
-              "And commits became floors",
+              "Em algum lugar da internet...",
+              "Lojistas viraram prédios",
+              "E lojas viraram pisos",
             ].map((text, i) => (
               <p
                 key={i}
@@ -2537,7 +2537,8 @@ function HomeContent() {
                 className="text-center font-pixel uppercase text-cream"
                 style={{ fontSize: "clamp(1.2rem, 5vw, 2.8rem)" }}
               >
-                Welcome to <span style={{ color: theme.accent }}>Git City</span>
+                Bem vindo à{" "}
+                <span style={{ color: theme.accent }}>Empreender City</span>
               </p>
             </div>
           </div>
@@ -4032,7 +4033,8 @@ function HomeContent() {
                           className="mt-2 inline-block px-2 py-0.5 text-[8px] text-bg"
                           style={{
                             backgroundColor:
-                              DISTRICT_COLORS[selectedBuilding.district] ?? "#888",
+                              DISTRICT_COLORS[selectedBuilding.district] ??
+                              "#888",
                           }}
                         >
                           {DISTRICT_NAMES[selectedBuilding.district] ??
@@ -4040,487 +4042,511 @@ function HomeContent() {
                         </span>
                       )}
                     </div>
-                    {selectedBuilding.district && DISTRICT_DESCRIPTIONS[selectedBuilding.district] && (
-                      <p className="mx-4 mb-4 text-[10px] leading-relaxed text-muted normal-case">
-                        {DISTRICT_DESCRIPTIONS[selectedBuilding.district]}
-                      </p>
-                    )}
-                    {selectedBuilding.district && DISTRICT_URLS[selectedBuilding.district] && (
-                      <div className="px-4 pb-5 sm:pb-4">
-                        <a
-                          href={DISTRICT_URLS[selectedBuilding.district]}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn-press block w-full py-2.5 text-center text-[10px] text-bg"
-                          style={{
-                            backgroundColor:
-                              DISTRICT_COLORS[selectedBuilding.district] ?? theme.accent,
-                            boxShadow: `2px 2px 0 0 ${theme.shadow}`,
-                          }}
-                        >
-                          Acessar {DISTRICT_NAMES[selectedBuilding.district] ?? "plataforma"} &rarr;
-                        </a>
-                      </div>
-                    )}
+                    {selectedBuilding.district &&
+                      DISTRICT_DESCRIPTIONS[selectedBuilding.district] && (
+                        <p className="mx-4 mb-4 text-[10px] leading-relaxed text-muted normal-case">
+                          {DISTRICT_DESCRIPTIONS[selectedBuilding.district]}
+                        </p>
+                      )}
+                    {selectedBuilding.district &&
+                      DISTRICT_URLS[selectedBuilding.district] && (
+                        <div className="px-4 pb-5 sm:pb-4">
+                          <a
+                            href={DISTRICT_URLS[selectedBuilding.district]}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn-press block w-full py-2.5 text-center text-[10px] text-bg"
+                            style={{
+                              backgroundColor:
+                                DISTRICT_COLORS[selectedBuilding.district] ??
+                                theme.accent,
+                              boxShadow: `2px 2px 0 0 ${theme.shadow}`,
+                            }}
+                          >
+                            Acessar{" "}
+                            {DISTRICT_NAMES[selectedBuilding.district] ??
+                              "plataforma"}{" "}
+                            &rarr;
+                          </a>
+                        </div>
+                      )}
                   </>
                 ) : (
                   <>
-                {/* Header with avatar + name */}
-                <div className="flex items-center gap-3 px-4 pb-3 sm:pt-4">
-                  {selectedBuilding.avatar_url && (
-                    <Image
-                      src={selectedBuilding.avatar_url}
-                      alt={selectedBuilding.login}
-                      width={48}
-                      height={48}
-                      className="border-[2px] border-border flex-shrink-0"
-                      style={{ imageRendering: "pixelated" }}
-                    />
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      {selectedBuilding.name && (
-                        <p className="truncate text-sm text-cream">
-                          {selectedBuilding.name}
-                        </p>
+                    {/* Header with avatar + name */}
+                    <div className="flex items-center gap-3 px-4 pb-3 sm:pt-4">
+                      {selectedBuilding.avatar_url && (
+                        <Image
+                          src={selectedBuilding.avatar_url}
+                          alt={selectedBuilding.login}
+                          width={48}
+                          height={48}
+                          className="border-[2px] border-border flex-shrink-0"
+                          style={{ imageRendering: "pixelated" }}
+                        />
                       )}
-                      {selectedBuilding.claimed && (
-                        <span
-                          className="flex-shrink-0 px-1.5 py-0.5 text-[7px] text-bg"
-                          style={{ backgroundColor: theme.accent }}
-                        >
-                          Claimed
-                        </span>
-                      )}
-                    </div>
-                    <p className="truncate text-[10px] text-muted">
-                      @{selectedBuilding.login}
-                    </p>
-                    {selectedBuilding.active_raid_tag && (
-                      <p className="text-[8px] text-red-400">
-                        Attacked by @
-                        {selectedBuilding.active_raid_tag.attacker_login}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {/* XP Level badge + progress */}
-                {(() => {
-                  const bTier = tierFromLevel(selectedBuilding.xp_level ?? 1);
-                  const bRank = rankFromLevel(selectedBuilding.xp_level ?? 1);
-                  const bProgress = levelProgress(
-                    selectedBuilding.xp_total ?? 0,
-                  );
-                  const bXpCurrent =
-                    (selectedBuilding.xp_total ?? 0) -
-                    xpForLevel(selectedBuilding.xp_level ?? 1);
-                  const bXpNeeded =
-                    xpForLevel((selectedBuilding.xp_level ?? 1) + 1) -
-                    xpForLevel(selectedBuilding.xp_level ?? 1);
-                  return (
-                    <div className="mx-4 mb-2 flex items-center gap-2">
-                      <span
-                        className="flex h-7 w-7 items-center justify-center border-[2px] text-xs font-bold"
-                        style={{ borderColor: bTier.color, color: bTier.color }}
-                      >
-                        {selectedBuilding.xp_level ?? 1}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <span
-                            className="text-[10px] font-bold"
-                            style={{ color: bTier.color }}
-                          >
-                            Lv {selectedBuilding.xp_level ?? 1} · {bRank.title}
-                          </span>
-                          <span
-                            className="px-1 py-px text-[7px] font-bold"
-                            style={{
-                              backgroundColor: bTier.color + "22",
-                              color: bTier.color,
-                            }}
-                          >
-                            {bTier.name.toUpperCase()}
-                          </span>
-                        </div>
-                        <div className="mt-1 flex items-center gap-1.5">
-                          <div className="h-[4px] flex-1 bg-border">
-                            <div
-                              className="h-full"
-                              style={{
-                                width: `${Math.max(2, Math.round(bProgress * 100))}%`,
-                                backgroundColor: bTier.color,
-                              }}
-                            />
-                          </div>
-                          <span className="text-[7px] text-muted">
-                            {bXpCurrent}/{bXpNeeded}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })()}
-
-                {/* District badge */}
-                {selectedBuilding.district && (
-                  <div className="px-4 pb-2">
-                    <span
-                      className="inline-block px-2 py-0.5 text-[8px] text-bg"
-                      style={{
-                        backgroundColor:
-                          DISTRICT_COLORS[selectedBuilding.district] ?? "#888",
-                      }}
-                    >
-                      {DISTRICT_NAMES[selectedBuilding.district] ??
-                        selectedBuilding.district}
-                    </span>
-                  </div>
-                )}
-
-                {/* Stats */}
-                <div className="grid grid-cols-3 gap-px bg-border/30 mx-4 mb-3 border border-border/50">
-                  {[
-                    { label: "Rank", value: `#${selectedBuilding.rank}` },
-                    {
-                      label: "Contribs",
-                      value: selectedBuilding.contributions.toLocaleString(),
-                    },
-                    {
-                      label: "Repos",
-                      value: selectedBuilding.public_repos.toLocaleString(),
-                    },
-                    {
-                      label: "Stars",
-                      value: selectedBuilding.total_stars.toLocaleString(),
-                    },
-                    {
-                      label: "Kudos",
-                      value: (
-                        selectedBuilding.kudos_count ?? 0
-                      ).toLocaleString(),
-                    },
-                    {
-                      label: "Visits",
-                      value: (
-                        selectedBuilding.visit_count ?? 0
-                      ).toLocaleString(),
-                    },
-                  ].map((s) => (
-                    <div key={s.label} className="bg-bg-card p-2 text-center">
-                      <div className="text-xs" style={{ color: theme.accent }}>
-                        {s.value}
-                      </div>
-                      <div className="text-[8px] text-muted mt-0.5">
-                        {s.label}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Achievements with tier colors, sorted by tier */}
-                {selectedBuilding.achievements &&
-                  selectedBuilding.achievements.length > 0 && (
-                    <div className="mx-4 mb-3 flex flex-wrap gap-1">
-                      {[...selectedBuilding.achievements]
-                        .sort((a, b) => {
-                          const tierOrder = [
-                            "diamond",
-                            "gold",
-                            "silver",
-                            "bronze",
-                          ];
-                          const ta = tierOrder.indexOf(
-                            ACHIEVEMENT_TIERS_MAP[a] ?? "bronze",
-                          );
-                          const tb = tierOrder.indexOf(
-                            ACHIEVEMENT_TIERS_MAP[b] ?? "bronze",
-                          );
-                          return ta - tb;
-                        })
-                        .slice(0, 3)
-                        .map((ach) => {
-                          const tier = ACHIEVEMENT_TIERS_MAP[ach];
-                          const color = tier
-                            ? TIER_COLORS_MAP[tier]
-                            : undefined;
-                          const emoji = tier ? TIER_EMOJI_MAP[tier] : "";
-                          return (
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          {selectedBuilding.name && (
+                            <p className="truncate text-sm text-cream">
+                              {selectedBuilding.name}
+                            </p>
+                          )}
+                          {selectedBuilding.claimed && (
                             <span
-                              key={ach}
-                              className="px-1.5 py-0.5 text-[8px] border normal-case"
-                              style={{
-                                borderColor: color ?? "rgba(255,255,255,0.15)",
-                                color: color ?? "#a0a0b0",
-                              }}
+                              className="flex-shrink-0 px-1.5 py-0.5 text-[7px] text-bg"
+                              style={{ backgroundColor: theme.accent }}
                             >
-                              {emoji}{" "}
-                              {ACHIEVEMENT_NAMES_MAP[ach] ??
-                                ach.replace(/_/g, " ")}
-                            </span>
-                          );
-                        })}
-                      {selectedBuilding.achievements.length > 3 && (
-                        <Link
-                          href={`/dev/${selectedBuilding.login}`}
-                          className="px-1.5 py-0.5 text-[8px] transition-colors hover:text-cream"
-                          style={{ color: theme.accent }}
-                        >
-                          +{selectedBuilding.achievements.length - 3} more
-                          &rarr;
-                        </Link>
-                      )}
-                    </div>
-                  )}
-
-                {/* A7: Show equipped items on other devs' buildings (mimetic desire) */}
-                {selectedBuilding.login.toLowerCase() !== authLogin &&
-                  (() => {
-                    const equipped: string[] = [];
-                    if (selectedBuilding.loadout?.crown)
-                      equipped.push(selectedBuilding.loadout.crown);
-                    if (selectedBuilding.loadout?.roof)
-                      equipped.push(selectedBuilding.loadout.roof);
-                    if (selectedBuilding.loadout?.aura)
-                      equipped.push(selectedBuilding.loadout.aura);
-                    for (const fi of [
-                      "custom_color",
-                      "billboard",
-                      "led_banner",
-                    ]) {
-                      if (selectedBuilding.owned_items.includes(fi))
-                        equipped.push(fi);
-                    }
-                    if (equipped.length === 0) return null;
-                    const shown = equipped.slice(0, 3);
-                    const extra = equipped.length - 3;
-                    return (
-                      <div
-                        className="mx-4 mb-3 border-[2px] p-2.5"
-                        style={{
-                          borderColor: `${theme.accent}33`,
-                          backgroundColor: `${theme.accent}08`,
-                        }}
-                      >
-                        <div className="flex flex-wrap gap-1.5">
-                          {shown.map((id) => (
-                            <span
-                              key={id}
-                              className="text-[9px] normal-case"
-                              style={{ color: theme.accent }}
-                            >
-                              {ITEM_EMOJIS[id] ?? "🎁"} {ITEM_NAMES[id] ?? id}
-                            </span>
-                          ))}
-                          {extra > 0 && (
-                            <span className="text-[9px] text-muted">
-                              +{extra} more
+                              Claimed
                             </span>
                           )}
                         </div>
-                        {session && (
+                        <p className="truncate text-[10px] text-muted">
+                          @{selectedBuilding.login}
+                        </p>
+                        {selectedBuilding.active_raid_tag && (
+                          <p className="text-[8px] text-red-400">
+                            Attacked by @
+                            {selectedBuilding.active_raid_tag.attacker_login}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* XP Level badge + progress */}
+                    {(() => {
+                      const bTier = tierFromLevel(
+                        selectedBuilding.xp_level ?? 1,
+                      );
+                      const bRank = rankFromLevel(
+                        selectedBuilding.xp_level ?? 1,
+                      );
+                      const bProgress = levelProgress(
+                        selectedBuilding.xp_total ?? 0,
+                      );
+                      const bXpCurrent =
+                        (selectedBuilding.xp_total ?? 0) -
+                        xpForLevel(selectedBuilding.xp_level ?? 1);
+                      const bXpNeeded =
+                        xpForLevel((selectedBuilding.xp_level ?? 1) + 1) -
+                        xpForLevel(selectedBuilding.xp_level ?? 1);
+                      return (
+                        <div className="mx-4 mb-2 flex items-center gap-2">
+                          <span
+                            className="flex h-7 w-7 items-center justify-center border-[2px] text-xs font-bold"
+                            style={{
+                              borderColor: bTier.color,
+                              color: bTier.color,
+                            }}
+                          >
+                            {selectedBuilding.xp_level ?? 1}
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <span
+                                className="text-[10px] font-bold"
+                                style={{ color: bTier.color }}
+                              >
+                                Lv {selectedBuilding.xp_level ?? 1} ·{" "}
+                                {bRank.title}
+                              </span>
+                              <span
+                                className="px-1 py-px text-[7px] font-bold"
+                                style={{
+                                  backgroundColor: bTier.color + "22",
+                                  color: bTier.color,
+                                }}
+                              >
+                                {bTier.name.toUpperCase()}
+                              </span>
+                            </div>
+                            <div className="mt-1 flex items-center gap-1.5">
+                              <div className="h-[4px] flex-1 bg-border">
+                                <div
+                                  className="h-full"
+                                  style={{
+                                    width: `${Math.max(2, Math.round(bProgress * 100))}%`,
+                                    backgroundColor: bTier.color,
+                                  }}
+                                />
+                              </div>
+                              <span className="text-[7px] text-muted">
+                                {bXpCurrent}/{bXpNeeded}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {/* District badge */}
+                    {selectedBuilding.district && (
+                      <div className="px-4 pb-2">
+                        <span
+                          className="inline-block px-2 py-0.5 text-[8px] text-bg"
+                          style={{
+                            backgroundColor:
+                              DISTRICT_COLORS[selectedBuilding.district] ??
+                              "#888",
+                          }}
+                        >
+                          {DISTRICT_NAMES[selectedBuilding.district] ??
+                            selectedBuilding.district}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Stats */}
+                    <div className="grid grid-cols-3 gap-px bg-border/30 mx-4 mb-3 border border-border/50">
+                      {[
+                        { label: "Rank", value: `#${selectedBuilding.rank}` },
+                        {
+                          label: "Contribs",
+                          value:
+                            selectedBuilding.contributions.toLocaleString(),
+                        },
+                        {
+                          label: "Repos",
+                          value: selectedBuilding.public_repos.toLocaleString(),
+                        },
+                        {
+                          label: "Stars",
+                          value: selectedBuilding.total_stars.toLocaleString(),
+                        },
+                        {
+                          label: "Kudos",
+                          value: (
+                            selectedBuilding.kudos_count ?? 0
+                          ).toLocaleString(),
+                        },
+                        {
+                          label: "Visits",
+                          value: (
+                            selectedBuilding.visit_count ?? 0
+                          ).toLocaleString(),
+                        },
+                      ].map((s) => (
+                        <div
+                          key={s.label}
+                          className="bg-bg-card p-2 text-center"
+                        >
+                          <div
+                            className="text-xs"
+                            style={{ color: theme.accent }}
+                          >
+                            {s.value}
+                          </div>
+                          <div className="text-[8px] text-muted mt-0.5">
+                            {s.label}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Achievements with tier colors, sorted by tier */}
+                    {selectedBuilding.achievements &&
+                      selectedBuilding.achievements.length > 0 && (
+                        <div className="mx-4 mb-3 flex flex-wrap gap-1">
+                          {[...selectedBuilding.achievements]
+                            .sort((a, b) => {
+                              const tierOrder = [
+                                "diamond",
+                                "gold",
+                                "silver",
+                                "bronze",
+                              ];
+                              const ta = tierOrder.indexOf(
+                                ACHIEVEMENT_TIERS_MAP[a] ?? "bronze",
+                              );
+                              const tb = tierOrder.indexOf(
+                                ACHIEVEMENT_TIERS_MAP[b] ?? "bronze",
+                              );
+                              return ta - tb;
+                            })
+                            .slice(0, 3)
+                            .map((ach) => {
+                              const tier = ACHIEVEMENT_TIERS_MAP[ach];
+                              const color = tier
+                                ? TIER_COLORS_MAP[tier]
+                                : undefined;
+                              const emoji = tier ? TIER_EMOJI_MAP[tier] : "";
+                              return (
+                                <span
+                                  key={ach}
+                                  className="px-1.5 py-0.5 text-[8px] border normal-case"
+                                  style={{
+                                    borderColor:
+                                      color ?? "rgba(255,255,255,0.15)",
+                                    color: color ?? "#a0a0b0",
+                                  }}
+                                >
+                                  {emoji}{" "}
+                                  {ACHIEVEMENT_NAMES_MAP[ach] ??
+                                    ach.replace(/_/g, " ")}
+                                </span>
+                              );
+                            })}
+                          {selectedBuilding.achievements.length > 3 && (
+                            <Link
+                              href={`/dev/${selectedBuilding.login}`}
+                              className="px-1.5 py-0.5 text-[8px] transition-colors hover:text-cream"
+                              style={{ color: theme.accent }}
+                            >
+                              +{selectedBuilding.achievements.length - 3} more
+                              &rarr;
+                            </Link>
+                          )}
+                        </div>
+                      )}
+
+                    {/* A7: Show equipped items on other devs' buildings (mimetic desire) */}
+                    {selectedBuilding.login.toLowerCase() !== authLogin &&
+                      (() => {
+                        const equipped: string[] = [];
+                        if (selectedBuilding.loadout?.crown)
+                          equipped.push(selectedBuilding.loadout.crown);
+                        if (selectedBuilding.loadout?.roof)
+                          equipped.push(selectedBuilding.loadout.roof);
+                        if (selectedBuilding.loadout?.aura)
+                          equipped.push(selectedBuilding.loadout.aura);
+                        for (const fi of [
+                          "custom_color",
+                          "billboard",
+                          "led_banner",
+                        ]) {
+                          if (selectedBuilding.owned_items.includes(fi))
+                            equipped.push(fi);
+                        }
+                        if (equipped.length === 0) return null;
+                        const shown = equipped.slice(0, 3);
+                        const extra = equipped.length - 3;
+                        return (
+                          <div
+                            className="mx-4 mb-3 border-[2px] p-2.5"
+                            style={{
+                              borderColor: `${theme.accent}33`,
+                              backgroundColor: `${theme.accent}08`,
+                            }}
+                          >
+                            <div className="flex flex-wrap gap-1.5">
+                              {shown.map((id) => (
+                                <span
+                                  key={id}
+                                  className="text-[9px] normal-case"
+                                  style={{ color: theme.accent }}
+                                >
+                                  {ITEM_EMOJIS[id] ?? "🎁"}{" "}
+                                  {ITEM_NAMES[id] ?? id}
+                                </span>
+                              ))}
+                              {extra > 0 && (
+                                <span className="text-[9px] text-muted">
+                                  +{extra} more
+                                </span>
+                              )}
+                            </div>
+                            {session && (
+                              <Link
+                                href={`/shop/${authLogin}`}
+                                className="btn-press mt-2 block w-full py-1.5 text-center text-[9px] text-bg"
+                                style={{
+                                  backgroundColor: theme.accent,
+                                  boxShadow: `2px 2px 0 0 ${theme.shadow}`,
+                                }}
+                              >
+                                Get these for your building
+                              </Link>
+                            )}
+                          </div>
+                        );
+                      })()}
+
+                    {/* Kudos: give kudos (other's building, logged in) */}
+                    {session &&
+                      selectedBuilding.login.toLowerCase() !== authLogin && (
+                        <div className="relative mx-4 mb-3">
+                          {/* Floating emoji animation on success */}
+                          {kudosSent && (
+                            <div className="pointer-events-none absolute inset-0 overflow-visible">
+                              {Array.from({ length: 6 }).map((_, i) => (
+                                <span
+                                  key={i}
+                                  className="kudos-float absolute text-sm"
+                                  style={{
+                                    left: `${15 + i * 14}%`,
+                                    animationDelay: `${i * 0.08}s`,
+                                  }}
+                                >
+                                  {["👏", "⭐", "💛", "✨", "👏", "⭐"][i]}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          <button
+                            onClick={handleGiveKudos}
+                            disabled={kudosSending || kudosSent || !!kudosError}
+                            className={[
+                              "btn-press w-full py-2 text-[10px] text-bg transition-all duration-300",
+                              kudosSent ? "scale-[1.02]" : "",
+                            ].join(" ")}
+                            style={{
+                              backgroundColor: kudosError
+                                ? "#ff4444"
+                                : kudosSent
+                                  ? "#39d353"
+                                  : theme.accent,
+                              boxShadow: kudosError
+                                ? "0 0 12px rgba(255,68,68,0.4)"
+                                : kudosSent
+                                  ? "0 0 12px rgba(57,211,83,0.4)"
+                                  : `2px 2px 0 0 ${theme.shadow}`,
+                            }}
+                          >
+                            {kudosSending ? (
+                              <span className="animate-pulse">Sending...</span>
+                            ) : kudosError ? (
+                              <span>{kudosError}</span>
+                            ) : kudosSent ? (
+                              <span>+1 Kudos!</span>
+                            ) : (
+                              "Give Kudos"
+                            )}
+                          </button>
+                          <button
+                            onClick={handleOpenGift}
+                            className="btn-press mt-1.5 w-full border-[2px] border-border py-1.5 text-[9px] text-cream transition-colors hover:border-border-light"
+                          >
+                            Send Gift
+                          </button>
+                          {/* Raid button */}
+                          {raidState.phase === "idle" && raidState.error && (
+                            <p className="mt-1.5 text-center text-[10px] text-red-400">
+                              {raidState.error}
+                            </p>
+                          )}
+                          <button
+                            onClick={() => {
+                              if (authLogin && selectedBuilding) {
+                                raidActions.startPreview(
+                                  selectedBuilding.login,
+                                  buildings,
+                                  authLogin,
+                                );
+                              }
+                            }}
+                            disabled={raidState.loading}
+                            className="btn-press mt-1.5 w-full border-[3px] border-red-500/60 px-4 py-2 text-xs text-red-400 transition-colors hover:bg-red-500/10"
+                          >
+                            {raidState.loading
+                              ? "Loading..."
+                              : "\u2694\ufe0f BATTLE \u2014 Win +50 XP"}
+                          </button>
+                        </div>
+                      )}
+
+                    {/* A3: Disabled action buttons for non-logged users */}
+                    {!session && (
+                      <div className="mx-4 mb-3 space-y-1.5">
+                        <button
+                          onClick={() => {
+                            trackDisabledButtonClicked("kudos");
+                            handleSignIn();
+                          }}
+                          className="btn-press w-full py-2 text-[10px] border-[2px] border-dashed border-border/50 text-muted/60 transition-colors hover:border-border hover:text-muted"
+                        >
+                          &#x1F512; Give Kudos
+                        </button>
+                        <button
+                          onClick={() => {
+                            trackDisabledButtonClicked("gift");
+                            handleSignIn();
+                          }}
+                          className="btn-press w-full py-1.5 text-[9px] border-[2px] border-dashed border-border/50 text-muted/60 transition-colors hover:border-border hover:text-muted"
+                        >
+                          &#x1F512; Send Gift
+                        </button>
+                        <button
+                          onClick={() => {
+                            trackDisabledButtonClicked("raid");
+                            handleSignIn();
+                          }}
+                          className="btn-press w-full py-2 text-[10px] border-[2px] border-dashed border-red-500/30 text-red-400/40 transition-colors hover:border-red-500/60 hover:text-red-400/70"
+                        >
+                          &#x1F512; &#x2694;&#xFE0F; BATTLE
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Own building: copy invite link */}
+                    {selectedBuilding.login.toLowerCase() === authLogin && (
+                      <div className="mx-4 mb-3">
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(
+                              `${window.location.origin}/?ref=${authLogin}`,
+                            );
+                            setCopied(true);
+                            setTimeout(() => setCopied(false), 2000);
+                          }}
+                          className="btn-press w-full border-[2px] border-border py-1.5 text-center text-[9px] text-cream transition-colors hover:border-border-light"
+                        >
+                          {copied ? "Copied!" : "\uD83D\uDCCB Copy Invite Link"}
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Compare button */}
+                    {!flyMode && (
+                      <div className="mx-4 mb-3">
+                        <button
+                          onClick={() => {
+                            setCompareBuilding(selectedBuilding);
+                            setSelectedBuilding(null);
+                            if (!exploreMode) setExploreMode(true);
+                          }}
+                          className="btn-press w-full border-[2px] border-border py-1.5 text-center text-[9px] text-cream transition-colors hover:border-border-light"
+                        >
+                          Compare
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Actions */}
+                    <div className="flex gap-2 p-4 pt-0 pb-5 sm:pb-4">
+                      {selectedBuilding.login.toLowerCase() === authLogin ? (
+                        <>
                           <Link
-                            href={`/shop/${authLogin}`}
-                            className="btn-press mt-2 block w-full py-1.5 text-center text-[9px] text-bg"
+                            href={`/shop/${selectedBuilding.login}?tab=loadout`}
+                            className="btn-press flex-1 py-2 text-center text-[10px] text-bg"
                             style={{
                               backgroundColor: theme.accent,
                               boxShadow: `2px 2px 0 0 ${theme.shadow}`,
                             }}
                           >
-                            Get these for your building
+                            Loadout
                           </Link>
-                        )}
-                      </div>
-                    );
-                  })()}
-
-                {/* Kudos: give kudos (other's building, logged in) */}
-                {session &&
-                  selectedBuilding.login.toLowerCase() !== authLogin && (
-                    <div className="relative mx-4 mb-3">
-                      {/* Floating emoji animation on success */}
-                      {kudosSent && (
-                        <div className="pointer-events-none absolute inset-0 overflow-visible">
-                          {Array.from({ length: 6 }).map((_, i) => (
-                            <span
-                              key={i}
-                              className="kudos-float absolute text-sm"
-                              style={{
-                                left: `${15 + i * 14}%`,
-                                animationDelay: `${i * 0.08}s`,
-                              }}
-                            >
-                              {["👏", "⭐", "💛", "✨", "👏", "⭐"][i]}
-                            </span>
-                          ))}
-                        </div>
+                          <Link
+                            href={`/dev/${selectedBuilding.login}`}
+                            className="btn-press flex-1 border-[2px] border-border py-2 text-center text-[10px] text-cream transition-colors hover:border-border-light"
+                          >
+                            Profile
+                          </Link>
+                        </>
+                      ) : (
+                        <>
+                          <Link
+                            href={`/dev/${selectedBuilding.login}`}
+                            className="btn-press flex-1 py-2 text-center text-[10px] text-bg"
+                            style={{
+                              backgroundColor: theme.accent,
+                              boxShadow: `2px 2px 0 0 ${theme.shadow}`,
+                            }}
+                          >
+                            View Profile
+                          </Link>
+                        </>
                       )}
-                      <button
-                        onClick={handleGiveKudos}
-                        disabled={kudosSending || kudosSent || !!kudosError}
-                        className={[
-                          "btn-press w-full py-2 text-[10px] text-bg transition-all duration-300",
-                          kudosSent ? "scale-[1.02]" : "",
-                        ].join(" ")}
-                        style={{
-                          backgroundColor: kudosError
-                            ? "#ff4444"
-                            : kudosSent
-                              ? "#39d353"
-                              : theme.accent,
-                          boxShadow: kudosError
-                            ? "0 0 12px rgba(255,68,68,0.4)"
-                            : kudosSent
-                              ? "0 0 12px rgba(57,211,83,0.4)"
-                              : `2px 2px 0 0 ${theme.shadow}`,
-                        }}
-                      >
-                        {kudosSending ? (
-                          <span className="animate-pulse">Sending...</span>
-                        ) : kudosError ? (
-                          <span>{kudosError}</span>
-                        ) : kudosSent ? (
-                          <span>+1 Kudos!</span>
-                        ) : (
-                          "Give Kudos"
-                        )}
-                      </button>
-                      <button
-                        onClick={handleOpenGift}
-                        className="btn-press mt-1.5 w-full border-[2px] border-border py-1.5 text-[9px] text-cream transition-colors hover:border-border-light"
-                      >
-                        Send Gift
-                      </button>
-                      {/* Raid button */}
-                      {raidState.phase === "idle" && raidState.error && (
-                        <p className="mt-1.5 text-center text-[10px] text-red-400">
-                          {raidState.error}
-                        </p>
-                      )}
-                      <button
-                        onClick={() => {
-                          if (authLogin && selectedBuilding) {
-                            raidActions.startPreview(
-                              selectedBuilding.login,
-                              buildings,
-                              authLogin,
-                            );
-                          }
-                        }}
-                        disabled={raidState.loading}
-                        className="btn-press mt-1.5 w-full border-[3px] border-red-500/60 px-4 py-2 text-xs text-red-400 transition-colors hover:bg-red-500/10"
-                      >
-                        {raidState.loading
-                          ? "Loading..."
-                          : "\u2694\ufe0f BATTLE \u2014 Win +50 XP"}
-                      </button>
                     </div>
-                  )}
-
-                {/* A3: Disabled action buttons for non-logged users */}
-                {!session && (
-                  <div className="mx-4 mb-3 space-y-1.5">
-                    <button
-                      onClick={() => {
-                        trackDisabledButtonClicked("kudos");
-                        handleSignIn();
-                      }}
-                      className="btn-press w-full py-2 text-[10px] border-[2px] border-dashed border-border/50 text-muted/60 transition-colors hover:border-border hover:text-muted"
-                    >
-                      &#x1F512; Give Kudos
-                    </button>
-                    <button
-                      onClick={() => {
-                        trackDisabledButtonClicked("gift");
-                        handleSignIn();
-                      }}
-                      className="btn-press w-full py-1.5 text-[9px] border-[2px] border-dashed border-border/50 text-muted/60 transition-colors hover:border-border hover:text-muted"
-                    >
-                      &#x1F512; Send Gift
-                    </button>
-                    <button
-                      onClick={() => {
-                        trackDisabledButtonClicked("raid");
-                        handleSignIn();
-                      }}
-                      className="btn-press w-full py-2 text-[10px] border-[2px] border-dashed border-red-500/30 text-red-400/40 transition-colors hover:border-red-500/60 hover:text-red-400/70"
-                    >
-                      &#x1F512; &#x2694;&#xFE0F; BATTLE
-                    </button>
-                  </div>
-                )}
-
-                {/* Own building: copy invite link */}
-                {selectedBuilding.login.toLowerCase() === authLogin && (
-                  <div className="mx-4 mb-3">
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(
-                          `${window.location.origin}/?ref=${authLogin}`,
-                        );
-                        setCopied(true);
-                        setTimeout(() => setCopied(false), 2000);
-                      }}
-                      className="btn-press w-full border-[2px] border-border py-1.5 text-center text-[9px] text-cream transition-colors hover:border-border-light"
-                    >
-                      {copied ? "Copied!" : "\uD83D\uDCCB Copy Invite Link"}
-                    </button>
-                  </div>
-                )}
-
-                {/* Compare button */}
-                {!flyMode && (
-                  <div className="mx-4 mb-3">
-                    <button
-                      onClick={() => {
-                        setCompareBuilding(selectedBuilding);
-                        setSelectedBuilding(null);
-                        if (!exploreMode) setExploreMode(true);
-                      }}
-                      className="btn-press w-full border-[2px] border-border py-1.5 text-center text-[9px] text-cream transition-colors hover:border-border-light"
-                    >
-                      Compare
-                    </button>
-                  </div>
-                )}
-
-                {/* Actions */}
-                <div className="flex gap-2 p-4 pt-0 pb-5 sm:pb-4">
-                  {selectedBuilding.login.toLowerCase() === authLogin ? (
-                    <>
-                      <Link
-                        href={`/shop/${selectedBuilding.login}?tab=loadout`}
-                        className="btn-press flex-1 py-2 text-center text-[10px] text-bg"
-                        style={{
-                          backgroundColor: theme.accent,
-                          boxShadow: `2px 2px 0 0 ${theme.shadow}`,
-                        }}
-                      >
-                        Loadout
-                      </Link>
-                      <Link
-                        href={`/dev/${selectedBuilding.login}`}
-                        className="btn-press flex-1 border-[2px] border-border py-2 text-center text-[10px] text-cream transition-colors hover:border-border-light"
-                      >
-                        Profile
-                      </Link>
-                    </>
-                  ) : (
-                    <>
-                      <Link
-                        href={`/dev/${selectedBuilding.login}`}
-                        className="btn-press flex-1 py-2 text-center text-[10px] text-bg"
-                        style={{
-                          backgroundColor: theme.accent,
-                          boxShadow: `2px 2px 0 0 ${theme.shadow}`,
-                        }}
-                      >
-                        View Profile
-                      </Link>
-                    </>
-                  )}
-                </div>
                   </>
                 )}
               </div>
