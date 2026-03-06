@@ -2896,6 +2896,16 @@ function HomeContent() {
           className={`pointer-events-auto fixed top-3 left-3 z-30 items-center gap-1.5 sm:gap-2 sm:left-auto sm:right-4 sm:top-4 ${exploreMode ? "hidden lg:flex" : "flex"}`}
         >
           <a
+            href="https://x.com/samuelrizzondev"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 border-[3px] border-border bg-bg/70 px-2.5 py-1 text-[10px] backdrop-blur-sm transition-colors hover:border-border-light"
+          >
+            <span className="hidden sm:inline text-cream">
+              built by @samuelrizzondev
+            </span>
+          </a>
+          <a
             href="https://app.empreender.com.br"
             target="_blank"
             rel="noopener noreferrer"
