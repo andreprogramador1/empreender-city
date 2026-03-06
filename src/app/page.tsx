@@ -1045,8 +1045,6 @@ function HomeContent() {
       }
     }
 
-    if (allDevs.length === 0) return null;
-
     // Apply loadout override from localStorage (saved in shop, TTL 10 min)
     try {
       const raw = localStorage.getItem("gitcity:loadout_override");
@@ -1177,11 +1175,7 @@ function HomeContent() {
 
         setLoadProgress(30);
 
-        if (!allDevs || allDevs.length === 0) {
-          setLoadProgress(100);
-          setLoadStage("ready");
-          return;
-        }
+        if (!allDevs) allDevs = [];
 
         // Apply loadout override from localStorage (saved in shop, TTL 10 min)
         try {

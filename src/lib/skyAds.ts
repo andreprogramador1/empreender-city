@@ -1,4 +1,9 @@
-export type AdVehicle = "plane" | "blimp" | "billboard" | "rooftop_sign" | "led_wrap";
+export type AdVehicle =
+  | "plane"
+  | "blimp"
+  | "billboard"
+  | "rooftop_sign"
+  | "led_wrap";
 
 export interface SkyAd {
   id: string;
@@ -22,8 +27,14 @@ export const MAX_TEXT_LENGTH = 80;
 const ALLOWED_LINK_PATTERN = /^(https:\/\/|mailto:)/;
 const HEX_COLOR_PATTERN = /^#[0-9a-fA-F]{6}$/;
 
-export function isBuildingAd(vehicle: string): vehicle is "billboard" | "rooftop_sign" | "led_wrap" {
-  return vehicle === "billboard" || vehicle === "rooftop_sign" || vehicle === "led_wrap";
+export function isBuildingAd(
+  vehicle: string,
+): vehicle is "billboard" | "rooftop_sign" | "led_wrap" {
+  return (
+    vehicle === "billboard" ||
+    vehicle === "rooftop_sign" ||
+    vehicle === "led_wrap"
+  );
 }
 
 export function validateAds(ads: SkyAd[]): SkyAd[] {
@@ -43,9 +54,15 @@ export function getActiveAds(ads: SkyAd[]) {
   return {
     planeAds: valid.filter((a) => a.vehicle === "plane").slice(0, MAX_PLANES),
     blimpAds: valid.filter((a) => a.vehicle === "blimp").slice(0, MAX_BLIMPS),
-    billboardAds: valid.filter((a) => a.vehicle === "billboard").slice(0, MAX_BILLBOARDS),
-    rooftopSignAds: valid.filter((a) => a.vehicle === "rooftop_sign").slice(0, MAX_ROOFTOP_SIGNS),
-    ledWrapAds: valid.filter((a) => a.vehicle === "led_wrap").slice(0, MAX_LED_WRAPS),
+    billboardAds: valid
+      .filter((a) => a.vehicle === "billboard")
+      .slice(0, MAX_BILLBOARDS),
+    rooftopSignAds: valid
+      .filter((a) => a.vehicle === "rooftop_sign")
+      .slice(0, MAX_ROOFTOP_SIGNS),
+    ledWrapAds: valid
+      .filter((a) => a.vehicle === "led_wrap")
+      .slice(0, MAX_LED_WRAPS),
   };
 }
 
@@ -66,46 +83,107 @@ export function buildAdLink(ad: SkyAd): string | undefined {
 }
 
 /** Fire a tracking beacon to the sky-ads track API (non-blocking). */
-export function trackAdEvent(adId: string, eventType: "impression" | "click" | "cta_click", githubLogin?: string) {
-  const body = JSON.stringify({ ad_id: adId, event_type: eventType, ...(githubLogin && { github_login: githubLogin }) });
+export function trackAdEvent(
+  adId: string,
+  eventType: "impression" | "click" | "cta_click",
+  githubLogin?: string,
+) {
+  const body = JSON.stringify({
+    ad_id: adId,
+    event_type: eventType,
+    ...(githubLogin && { github_login: githubLogin }),
+  });
   if (typeof navigator !== "undefined" && navigator.sendBeacon) {
-    navigator.sendBeacon("/api/sky-ads/track", new Blob([body], { type: "application/json" }));
+    navigator.sendBeacon(
+      "/api/sky-ads/track",
+      new Blob([body], { type: "application/json" }),
+    );
   } else {
-    fetch("/api/sky-ads/track", { method: "POST", body, keepalive: true }).catch(() => {});
+    fetch("/api/sky-ads/track", {
+      method: "POST",
+      body,
+      keepalive: true,
+    }).catch(() => {});
   }
 }
 
 /** Fire multiple event types in a single beacon (saves rate limit budget). */
-export function trackAdEvents(adId: string, eventTypes: ("impression" | "click" | "cta_click")[], githubLogin?: string) {
-  const body = JSON.stringify({ ad_id: adId, event_types: eventTypes, ...(githubLogin && { github_login: githubLogin }) });
+export function trackAdEvents(
+  adId: string,
+  eventTypes: ("impression" | "click" | "cta_click")[],
+  githubLogin?: string,
+) {
+  const body = JSON.stringify({
+    ad_id: adId,
+    event_types: eventTypes,
+    ...(githubLogin && { github_login: githubLogin }),
+  });
   if (typeof navigator !== "undefined" && navigator.sendBeacon) {
-    navigator.sendBeacon("/api/sky-ads/track", new Blob([body], { type: "application/json" }));
+    navigator.sendBeacon(
+      "/api/sky-ads/track",
+      new Blob([body], { type: "application/json" }),
+    );
   } else {
-    fetch("/api/sky-ads/track", { method: "POST", body, keepalive: true }).catch(() => {});
+    fetch("/api/sky-ads/track", {
+      method: "POST",
+      body,
+      keepalive: true,
+    }).catch(() => {});
   }
 }
 
 export const DEFAULT_SKY_ADS: SkyAd[] = [
+  // {
+  //   id: "gitcity",
+  //   text: "THEGITCITY.COM ★ YOUR CODE, YOUR CITY ★ THEGITCITY.COM",
+  //   brand: "Git City",
+  //   description: "A city built from GitHub contributions. Search your username and find your building among thousands of developers.",
+  //   color: "#f8d880",
+  //   bgColor: "#1a1018",
+  //   link: "https://thegitcity.com",
+  //   vehicle: "plane",
+  //   priority: 100,
+  // },
+  // {
+  //   id: "advertise",
+  //   text: "ADD YOUR AD HERE",
+  //   brand: "Sky Ads",
+  //   description: "Want your brand flying over Git City? Planes, blimps, your colors. Get in touch!",
+  //   color: "#f8d880",
+  //   bgColor: "#1a1018",
+  //   link: "https://thegitcity.com/advertise",
+  //   vehicle: "plane",
+  //   priority: 10,
+  // },
+  // ─── Building Ads ──────────────────────────────────────────
+  // These are placed on the top 10 tallest buildings, in order.
   {
-    id: "gitcity",
-    text: "THEGITCITY.COM ★ YOUR CODE, YOUR CITY ★ THEGITCITY.COM",
+    id: "billboard-1",
+    text: "★ WELCOME TO GIT CITY ★ BUILD YOUR LEGACY IN CODE ★",
     brand: "Git City",
-    description: "A city built from GitHub contributions. Search your username and find your building among thousands of developers.",
-    color: "#f8d880",
-    bgColor: "#1a1018",
+    color: "#00ff88",
+    bgColor: "#0a1a12",
     link: "https://thegitcity.com",
-    vehicle: "plane",
-    priority: 100,
+    vehicle: "billboard",
+    priority: 90,
   },
   {
-    id: "advertise",
-    text: "ADD YOUR AD HERE",
-    brand: "Sky Ads",
-    description: "Want your brand flying over Git City? Planes, blimps, your colors. Get in touch!",
-    color: "#f8d880",
-    bgColor: "#1a1018",
-    link: "https://thegitcity.com/advertise",
-    vehicle: "plane",
-    priority: 10,
+    id: "rooftop-1",
+    text: "⚡ EMPREENDER ⚡",
+    brand: "Empreender",
+    color: "#ff6b35",
+    bgColor: "#1a0e08",
+    link: "https://app.empreender.com.br",
+    vehicle: "rooftop_sign",
+    priority: 80,
+  },
+  {
+    id: "ledwrap-1",
+    text: "★ SHIP IT ★ MERGE IT ★ DEPLOY IT ★ SHIP IT ★ MERGE IT ★ DEPLOY IT ★",
+    brand: "Git City",
+    color: "#00d4ff",
+    bgColor: "#081218",
+    vehicle: "led_wrap",
+    priority: 70,
   },
 ];
