@@ -24,7 +24,8 @@ INSERT INTO districts (id, name, color) VALUES
   ('tray',              'Tray',              '#dc2626'),
   ('shopify',           'Shopify',           '#ec4899'),
   ('bling',             'Bling',             '#8b5cf6'),
-  ('kiwify',            'Kiwify',            '#eab308');
+  ('kiwify',            'Kiwify',            '#eab308'),
+  ('montink',           'Montink',           '#14b8a6');
 
 -- 1b. New columns on developers
 ALTER TABLE developers ADD COLUMN district TEXT REFERENCES districts(id);

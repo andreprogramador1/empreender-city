@@ -5,7 +5,7 @@ import { rateLimit } from "@/lib/rate-limit";
 
 const VALID_DISTRICTS = [
   "nuvemshop", "google_analytics", "meta", "yampi", "loja_integrada",
-  "tiktok_shop", "tray", "shopify", "bling", "kiwify",
+  "tiktok_shop", "tray", "shopify", "bling", "kiwify", "montink",
 ];
 
 export async function POST(request: Request) {

@@ -21,6 +21,7 @@ const DISTRICT_LOGOS: Record<string, string> = {
   shopify: "https://empreender.nyc3.digitaloceanspaces.com/landingpage/690bb1c08272b.png",
   bling: "https://empreender.nyc3.digitaloceanspaces.com/landingpage/69371751ac146.svg%2Bxml",
   kiwify: "https://empreender.nyc3.digitaloceanspaces.com/landingpage/6995f61b69bd7.png",
+  montink: "https://empreender.nyc3.digitaloceanspaces.com/landingpage/682b70efbb509.png",
 };
 
 const _loader = new THREE.TextureLoader();

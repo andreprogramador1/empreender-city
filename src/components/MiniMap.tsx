@@ -28,6 +28,7 @@ const DISTRICT_RGB: Record<string, [number, number, number]> = {
   gamedev:    [189, 58, 122],
   vibe_coder: [111, 74, 197],
   creator:    [187, 143, 6],
+  montink:    [20, 184, 166],
 };
 
 export default function MiniMap({ buildings, playerX, playerZ, visible, currentDistrict }: MiniMapProps) {

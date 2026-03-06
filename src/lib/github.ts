@@ -361,6 +361,7 @@ function generateCenterBuildings(): ManualBuildingConfig[] {
     { id: "shopify", height: 200, width: 20 },
     { id: "bling", height: 170, width: 18 },
     { id: "kiwify", height: 170, width: 18 },
+    { id: "montink", height: 170, width: 18 },
   ];
 
   let outerIdx = 0;
@@ -430,6 +431,7 @@ export const DISTRICT_NAMES: Record<string, string> = {
   shopify: "Shopify",
   bling: "Bling",
   kiwify: "Kiwify",
+  montink: "Montink",
 };
 
 export const DISTRICT_COLORS: Record<string, string> = {
@@ -444,6 +446,7 @@ export const DISTRICT_COLORS: Record<string, string> = {
   shopify: "#ec4899",
   bling: "#8b5cf6",
   kiwify: "#eab308",
+  montink: "#14b8a6",
 };
 
 export const MANUAL_BUILDINGS: ManualBuildingConfig[] =
@@ -470,6 +473,8 @@ export const DISTRICT_DESCRIPTIONS: Record<string, string> = {
     "Sistema de gestão empresarial (ERP) para automatizar estoque, notas fiscais e controle financeiro.",
   kiwify:
     "Plataforma completa para vender infoprodutos, cursos online e gerenciar programas de afiliados.",
+  montink:
+    "Somos uma plataforma de Print On Demand, onde pessoas ou empresas conseguem ter seus produtos personalizados com suas estampas, vender e lucrar muito.",
 };
 
 export const DISTRICT_URLS: Record<string, string> = {
@@ -484,6 +489,7 @@ export const DISTRICT_URLS: Record<string, string> = {
   shopify: "https://www.shopify.com.br",
   bling: "https://www.bling.com.br",
   kiwify: "https://kiwify.com.br",
+  montink: "https://www.montink.com",
 };
 
 // const LANGUAGE_TO_DISTRICT: Record<string, string> = {
@@ -571,6 +577,7 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
     "shopify",
     "bling",
     "kiwify",
+    "montink",
     "tray",
   ];
 
