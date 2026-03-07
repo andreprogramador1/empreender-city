@@ -79,6 +79,7 @@ import {
   trackSignInPromptClicked,
   trackDisabledButtonClicked,
 } from "@/lib/himetrica";
+import { div } from "three/tsl";
 
 const CityCanvas = dynamic(() => import("@/components/CityCanvas"), {
   ssr: false,
@@ -887,7 +888,8 @@ function HomeContent() {
 
   const addRandomBuilding = useCallback(() => {
     const districtKeys = Object.keys(DISTRICT_NAMES);
-    const district = districtKeys[Math.floor(Math.random() * districtKeys.length)];
+    const district =
+      districtKeys[Math.floor(Math.random() * districtKeys.length)];
     const color = DISTRICT_COLORS[district] ?? "#888888";
     const height = 40 + Math.random() * 200;
     const width = 10 + Math.random() * 20;
@@ -2997,272 +2999,273 @@ function HomeContent() {
                   : "bg-[#4ade80]";
             const energyDotAnim = codingCount === 0 ? "" : "live-dot";
             return (
-              <div className="relative hidden sm:block">
-                <button
-                  onClick={() => setCodingPanelOpen((v) => !v)}
-                  className="flex items-center gap-1.5 border-[3px] border-border bg-bg/70 px-2.5 py-1 text-[10px] backdrop-blur-sm transition-colors hover:border-border-light"
-                >
-                  <span
-                    className={`${energyDotAnim} h-1.5 w-1.5 flex-shrink-0 rounded-full ${energyDotColor}`}
-                  />
-                  {codingCount > 0 ? (
-                    <>
-                      <span className="text-cream">{codingCount}</span>
-                      <span className="text-muted">coding now</span>
-                    </>
-                  ) : (
-                    <span className="text-muted">{energyLabel}</span>
-                  )}
-                </button>
-                {codingPanelOpen &&
-                  (() => {
-                    // Creator always first, then up to 4 others
-                    const allDevs = Array.from(liveByLogin.values());
-                    const creator = allDevs.find(
-                      (d) => d.githubLogin.toLowerCase() === "srizzon",
-                    );
-                    const others = allDevs.filter(
-                      (d) => d.githubLogin.toLowerCase() !== "srizzon",
-                    );
-                    const displayDevs = [
-                      ...(creator ? [creator] : []),
-                      ...others.slice(0, creator ? 4 : 5),
-                    ];
-                    const remaining = allDevs.length - displayDevs.length;
+              <div></div>
+              // <div className="relative hidden sm:block">
+              //   <button
+              //     onClick={() => setCodingPanelOpen((v) => !v)}
+              //     className="flex items-center gap-1.5 border-[3px] border-border bg-bg/70 px-2.5 py-1 text-[10px] backdrop-blur-sm transition-colors hover:border-border-light"
+              //   >
+              //     <span
+              //       className={`${energyDotAnim} h-1.5 w-1.5 flex-shrink-0 rounded-full ${energyDotColor}`}
+              //     />
+              //     {codingCount > 0 ? (
+              //       <>
+              //         <span className="text-cream">{codingCount}</span>
+              //         <span className="text-muted">coding now</span>
+              //       </>
+              //     ) : (
+              //       <span className="text-muted">{energyLabel}</span>
+              //     )}
+              //   </button>
+              //   {codingPanelOpen &&
+              //     (() => {
+              //       // Creator always first, then up to 4 others
+              //       const allDevs = Array.from(liveByLogin.values());
+              //       const creator = allDevs.find(
+              //         (d) => d.githubLogin.toLowerCase() === "srizzon",
+              //       );
+              //       const others = allDevs.filter(
+              //         (d) => d.githubLogin.toLowerCase() !== "srizzon",
+              //       );
+              //       const displayDevs = [
+              //         ...(creator ? [creator] : []),
+              //         ...others.slice(0, creator ? 4 : 5),
+              //       ];
+              //       const remaining = allDevs.length - displayDevs.length;
 
-                    return (
-                      <div className="absolute right-0 top-full mt-1 w-80 border-[3px] border-border bg-bg/95 backdrop-blur-sm">
-                        <div className="border-b border-border px-5 py-3 text-xs text-muted">
-                          Coding right now
-                        </div>
-                        <div className="max-h-60 overflow-y-auto">
-                          {displayDevs.map((dev) => {
-                            const isCreator =
-                              dev.githubLogin.toLowerCase() === "srizzon";
-                            return (
-                              <button
-                                key={dev.githubLogin}
-                                onClick={() => {
-                                  const b = buildings.find(
-                                    (b) =>
-                                      b.login.toLowerCase() ===
-                                      dev.githubLogin.toLowerCase(),
-                                  );
-                                  if (b) {
-                                    setSelectedBuilding(null);
-                                    setFocusedBuilding(b.login);
-                                    setCodingPanelOpen(false);
-                                  }
-                                }}
-                                className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-white/5"
-                              >
-                                <div className="relative flex-shrink-0">
-                                  {dev.avatarUrl && (
-                                    <img
-                                      src={dev.avatarUrl}
-                                      alt=""
-                                      className="h-6 w-6 rounded-full"
-                                      style={
-                                        isCreator
-                                          ? { boxShadow: "0 0 6px #fbbf24" }
-                                          : undefined
-                                      }
-                                    />
-                                  )}
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                  <div className="flex items-center gap-1.5">
-                                    <span
-                                      className={`truncate text-[11px] ${isCreator ? "text-[#fbbf24]" : "text-cream"}`}
-                                    >
-                                      {dev.githubLogin}
-                                    </span>
-                                    {isCreator && (
-                                      <span className="shrink-0 text-[8px] text-[#fbbf24]/70">
-                                        CREATOR
-                                      </span>
-                                    )}
-                                  </div>
-                                  <div className="truncate text-[10px] normal-case text-muted">
-                                    {isCreator
-                                      ? "building the city"
-                                      : dev.language || ""}
-                                  </div>
-                                </div>
-                                <span
-                                  className={`live-dot h-2 w-2 flex-shrink-0 rounded-full ${isCreator ? "bg-[#fbbf24]" : "bg-[#4ade80]"}`}
-                                />
-                              </button>
-                            );
-                          })}
-                        </div>
-                        {remaining > 0 && (
-                          <div className="border-t border-border">
-                            <Link
-                              href="/live"
-                              onClick={() => setCodingPanelOpen(false)}
-                              className="block px-4 py-2.5 text-center text-[11px] text-muted transition-colors hover:text-cream"
-                            >
-                              +{remaining} more &rarr;
-                            </Link>
-                          </div>
-                        )}
+              //       return (
+              //         <div className="absolute right-0 top-full mt-1 w-80 border-[3px] border-border bg-bg/95 backdrop-blur-sm">
+              //           <div className="border-b border-border px-5 py-3 text-xs text-muted">
+              //             Coding right now
+              //           </div>
+              //           <div className="max-h-60 overflow-y-auto">
+              //             {displayDevs.map((dev) => {
+              //               const isCreator =
+              //                 dev.githubLogin.toLowerCase() === "srizzon";
+              //               return (
+              //                 <button
+              //                   key={dev.githubLogin}
+              //                   onClick={() => {
+              //                     const b = buildings.find(
+              //                       (b) =>
+              //                         b.login.toLowerCase() ===
+              //                         dev.githubLogin.toLowerCase(),
+              //                     );
+              //                     if (b) {
+              //                       setSelectedBuilding(null);
+              //                       setFocusedBuilding(b.login);
+              //                       setCodingPanelOpen(false);
+              //                     }
+              //                   }}
+              //                   className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-white/5"
+              //                 >
+              //                   <div className="relative flex-shrink-0">
+              //                     {dev.avatarUrl && (
+              //                       <img
+              //                         src={dev.avatarUrl}
+              //                         alt=""
+              //                         className="h-6 w-6 rounded-full"
+              //                         style={
+              //                           isCreator
+              //                             ? { boxShadow: "0 0 6px #fbbf24" }
+              //                             : undefined
+              //                         }
+              //                       />
+              //                     )}
+              //                   </div>
+              //                   <div className="min-w-0 flex-1">
+              //                     <div className="flex items-center gap-1.5">
+              //                       <span
+              //                         className={`truncate text-[11px] ${isCreator ? "text-[#fbbf24]" : "text-cream"}`}
+              //                       >
+              //                         {dev.githubLogin}
+              //                       </span>
+              //                       {isCreator && (
+              //                         <span className="shrink-0 text-[8px] text-[#fbbf24]/70">
+              //                           CREATOR
+              //                         </span>
+              //                       )}
+              //                     </div>
+              //                     <div className="truncate text-[10px] normal-case text-muted">
+              //                       {isCreator
+              //                         ? "building the city"
+              //                         : dev.language || ""}
+              //                     </div>
+              //                   </div>
+              //                   <span
+              //                     className={`live-dot h-2 w-2 flex-shrink-0 rounded-full ${isCreator ? "bg-[#fbbf24]" : "bg-[#4ade80]"}`}
+              //                   />
+              //                 </button>
+              //               );
+              //             })}
+              //           </div>
+              //           {remaining > 0 && (
+              //             <div className="border-t border-border">
+              //               <Link
+              //                 href="/live"
+              //                 onClick={() => setCodingPanelOpen(false)}
+              //                 className="block px-4 py-2.5 text-center text-[11px] text-muted transition-colors hover:text-cream"
+              //               >
+              //                 +{remaining} more &rarr;
+              //               </Link>
+              //             </div>
+              //           )}
 
-                        {/* CTA: Go Live flow */}
-                        <div className="border-t border-border">
-                          {!session ? (
-                            <div className="px-5 py-5 text-center">
-                              <p className="mb-3 text-xs normal-case text-muted">
-                                Keep your city alive while you code
-                              </p>
-                              <Link
-                                href="/auth"
-                                onClick={() => setCodingPanelOpen(false)}
-                                className="btn-press inline-block w-full py-2.5 text-center text-xs text-bg"
-                                style={{
-                                  backgroundColor: "#4ade80",
-                                  boxShadow: "2px 2px 0 0 #16a34a",
-                                }}
-                              >
-                                Sign in with GitHub
-                              </Link>
-                            </div>
-                          ) : liveByLogin.has(authLogin) ? (
-                            <div className="px-5 py-3.5 text-center text-xs normal-case text-[#4ade80]">
-                              Your building is powering the city
-                            </div>
-                          ) : vsCodeKey ? (
-                            <div className="px-5 py-5">
-                              <p className="mb-3 text-sm font-bold text-cream">
-                                Your API Key
-                              </p>
-                              <div className="mb-3 flex items-center gap-2">
-                                <code className="flex-1 truncate bg-white/5 px-3 py-2 text-[11px] normal-case text-cream">
-                                  {vsCodeKey}
-                                </code>
-                                <button
-                                  onClick={() => {
-                                    navigator.clipboard.writeText(vsCodeKey);
-                                    setVsCodeKeyCopied(true);
-                                    setTimeout(
-                                      () => setVsCodeKeyCopied(false),
-                                      2000,
-                                    );
-                                  }}
-                                  className="btn-press shrink-0 border border-border px-3 py-2 text-[11px] text-cream transition-colors hover:border-border-light"
-                                >
-                                  {vsCodeKeyCopied ? "Copied!" : "Copy"}
-                                </button>
-                              </div>
-                              <div className="space-y-2.5 text-xs normal-case text-muted">
-                                <p>
-                                  <span className="text-cream">1.</span> Install{" "}
-                                  <a
-                                    href="https://marketplace.visualstudio.com/items?itemName=git-city.gitcity"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-[#4ade80] hover:underline"
-                                  >
-                                    Git City: Pulse
-                                  </a>{" "}
-                                  in VS Code
-                                </p>
-                                <p>
-                                  <span className="text-cream">2.</span>{" "}
-                                  Cmd+Shift+P &rarr; &ldquo;Pulse:
-                                  Connect&rdquo;
-                                </p>
-                                <p>
-                                  <span className="text-cream">3.</span> Paste
-                                  your key and start coding
-                                </p>
-                              </div>
-                              <p className="mt-3 text-[10px] normal-case text-muted/50">
-                                Your building lights up in ~30s
-                              </p>
-                              <p className="mt-1.5 text-[10px] normal-case text-muted/50">
-                                Only your username and language are shared
-                                publicly. Control what&apos;s sent in VS Code
-                                Settings &gt; Git City &gt; Privacy.
-                              </p>
-                            </div>
-                          ) : (
-                            <div className="px-5 py-5">
-                              <p className="mb-3 text-sm normal-case text-cream font-bold">
-                                Keep your city alive
-                              </p>
-                              <p className="mb-3 text-[11px] normal-case text-muted">
-                                When you code, your building glows and the city
-                                stays lit. Every active dev powers the signal.
-                              </p>
-                              <div className="mb-4 space-y-2.5 text-xs normal-case text-muted">
-                                <p>
-                                  <span className="text-cream">1.</span>{" "}
-                                  Generate your key below
-                                </p>
-                                <p>
-                                  <span className="text-cream">2.</span> Install{" "}
-                                  <a
-                                    href="https://marketplace.visualstudio.com/items?itemName=git-city.gitcity"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-[#4ade80] hover:underline"
-                                  >
-                                    Git City: Pulse
-                                  </a>{" "}
-                                  in VS Code
-                                </p>
-                                <p>
-                                  <span className="text-cream">3.</span> Paste
-                                  key in VS Code, start coding
-                                </p>
-                              </div>
-                              <button
-                                onClick={async () => {
-                                  setVsCodeKeyLoading(true);
-                                  try {
-                                    const res = await fetch("/api/vscode-key", {
-                                      method: "POST",
-                                    });
-                                    const data = await res.json();
-                                    if (data.key) {
-                                      setVsCodeKey(data.key);
-                                      navigator.clipboard.writeText(data.key);
-                                      setVsCodeKeyCopied(true);
-                                      setTimeout(
-                                        () => setVsCodeKeyCopied(false),
-                                        2000,
-                                      );
-                                    }
-                                  } finally {
-                                    setVsCodeKeyLoading(false);
-                                  }
-                                }}
-                                disabled={vsCodeKeyLoading}
-                                className="btn-press w-full py-2.5 text-center text-xs text-bg"
-                                style={{
-                                  backgroundColor: "#4ade80",
-                                  boxShadow: "2px 2px 0 0 #16a34a",
-                                }}
-                              >
-                                {vsCodeKeyLoading
-                                  ? "Generating..."
-                                  : vsCodeKeyCopied
-                                    ? "Key copied to clipboard!"
-                                    : "Generate API Key"}
-                              </button>
-                              <p className="mt-3 text-[10px] normal-case text-muted/50">
-                                Only your username and language are shared
-                                publicly. You can control this in VS Code
-                                Settings &gt; Git City &gt; Privacy.
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })()}
-              </div>
+              //           {/* CTA: Go Live flow */}
+              //           <div className="border-t border-border">
+              //             {!session ? (
+              //               <div className="px-5 py-5 text-center">
+              //                 <p className="mb-3 text-xs normal-case text-muted">
+              //                   Keep your city alive while you code
+              //                 </p>
+              //                 <Link
+              //                   href="/auth"
+              //                   onClick={() => setCodingPanelOpen(false)}
+              //                   className="btn-press inline-block w-full py-2.5 text-center text-xs text-bg"
+              //                   style={{
+              //                     backgroundColor: "#4ade80",
+              //                     boxShadow: "2px 2px 0 0 #16a34a",
+              //                   }}
+              //                 >
+              //                   Sign in with GitHub
+              //                 </Link>
+              //               </div>
+              //             ) : liveByLogin.has(authLogin) ? (
+              //               <div className="px-5 py-3.5 text-center text-xs normal-case text-[#4ade80]">
+              //                 Your building is powering the city
+              //               </div>
+              //             ) : vsCodeKey ? (
+              //               <div className="px-5 py-5">
+              //                 <p className="mb-3 text-sm font-bold text-cream">
+              //                   Your API Key
+              //                 </p>
+              //                 <div className="mb-3 flex items-center gap-2">
+              //                   <code className="flex-1 truncate bg-white/5 px-3 py-2 text-[11px] normal-case text-cream">
+              //                     {vsCodeKey}
+              //                   </code>
+              //                   <button
+              //                     onClick={() => {
+              //                       navigator.clipboard.writeText(vsCodeKey);
+              //                       setVsCodeKeyCopied(true);
+              //                       setTimeout(
+              //                         () => setVsCodeKeyCopied(false),
+              //                         2000,
+              //                       );
+              //                     }}
+              //                     className="btn-press shrink-0 border border-border px-3 py-2 text-[11px] text-cream transition-colors hover:border-border-light"
+              //                   >
+              //                     {vsCodeKeyCopied ? "Copied!" : "Copy"}
+              //                   </button>
+              //                 </div>
+              //                 <div className="space-y-2.5 text-xs normal-case text-muted">
+              //                   <p>
+              //                     <span className="text-cream">1.</span> Install{" "}
+              //                     <a
+              //                       href="https://marketplace.visualstudio.com/items?itemName=git-city.gitcity"
+              //                       target="_blank"
+              //                       rel="noopener noreferrer"
+              //                       className="text-[#4ade80] hover:underline"
+              //                     >
+              //                       Git City: Pulse
+              //                     </a>{" "}
+              //                     in VS Code
+              //                   </p>
+              //                   <p>
+              //                     <span className="text-cream">2.</span>{" "}
+              //                     Cmd+Shift+P &rarr; &ldquo;Pulse:
+              //                     Connect&rdquo;
+              //                   </p>
+              //                   <p>
+              //                     <span className="text-cream">3.</span> Paste
+              //                     your key and start coding
+              //                   </p>
+              //                 </div>
+              //                 <p className="mt-3 text-[10px] normal-case text-muted/50">
+              //                   Your building lights up in ~30s
+              //                 </p>
+              //                 <p className="mt-1.5 text-[10px] normal-case text-muted/50">
+              //                   Only your username and language are shared
+              //                   publicly. Control what&apos;s sent in VS Code
+              //                   Settings &gt; Git City &gt; Privacy.
+              //                 </p>
+              //               </div>
+              //             ) : (
+              //               <div className="px-5 py-5">
+              //                 <p className="mb-3 text-sm normal-case text-cream font-bold">
+              //                   Keep your city alive
+              //                 </p>
+              //                 <p className="mb-3 text-[11px] normal-case text-muted">
+              //                   When you code, your building glows and the city
+              //                   stays lit. Every active dev powers the signal.
+              //                 </p>
+              //                 <div className="mb-4 space-y-2.5 text-xs normal-case text-muted">
+              //                   <p>
+              //                     <span className="text-cream">1.</span>{" "}
+              //                     Generate your key below
+              //                   </p>
+              //                   <p>
+              //                     <span className="text-cream">2.</span> Install{" "}
+              //                     <a
+              //                       href="https://marketplace.visualstudio.com/items?itemName=git-city.gitcity"
+              //                       target="_blank"
+              //                       rel="noopener noreferrer"
+              //                       className="text-[#4ade80] hover:underline"
+              //                     >
+              //                       Git City: Pulse
+              //                     </a>{" "}
+              //                     in VS Code
+              //                   </p>
+              //                   <p>
+              //                     <span className="text-cream">3.</span> Paste
+              //                     key in VS Code, start coding
+              //                   </p>
+              //                 </div>
+              //                 <button
+              //                   onClick={async () => {
+              //                     setVsCodeKeyLoading(true);
+              //                     try {
+              //                       const res = await fetch("/api/vscode-key", {
+              //                         method: "POST",
+              //                       });
+              //                       const data = await res.json();
+              //                       if (data.key) {
+              //                         setVsCodeKey(data.key);
+              //                         navigator.clipboard.writeText(data.key);
+              //                         setVsCodeKeyCopied(true);
+              //                         setTimeout(
+              //                           () => setVsCodeKeyCopied(false),
+              //                           2000,
+              //                         );
+              //                       }
+              //                     } finally {
+              //                       setVsCodeKeyLoading(false);
+              //                     }
+              //                   }}
+              //                   disabled={vsCodeKeyLoading}
+              //                   className="btn-press w-full py-2.5 text-center text-xs text-bg"
+              //                   style={{
+              //                     backgroundColor: "#4ade80",
+              //                     boxShadow: "2px 2px 0 0 #16a34a",
+              //                   }}
+              //                 >
+              //                   {vsCodeKeyLoading
+              //                     ? "Generating..."
+              //                     : vsCodeKeyCopied
+              //                       ? "Key copied to clipboard!"
+              //                       : "Generate API Key"}
+              //                 </button>
+              //                 <p className="mt-3 text-[10px] normal-case text-muted/50">
+              //                   Only your username and language are shared
+              //                   publicly. You can control this in VS Code
+              //                   Settings &gt; Git City &gt; Privacy.
+              //                 </p>
+              //               </div>
+              //             )}
+              //           </div>
+              //         </div>
+              //       );
+              //     })()}
+              // </div>
             );
           })()}
         </div>
@@ -3414,82 +3417,46 @@ function HomeContent() {
                   })()}
             </div> */}
 
-            {/* Search / Welcome CTA takeover */}
-            {welcomeCtaVisible && !session ? (
-              <div
-                className="flex w-full max-w-md flex-col items-center gap-2 border-[3px] bg-bg-raised/90 px-5 py-4 backdrop-blur-sm animate-[slide-up_0.3s_ease-out]"
-                style={{ borderColor: theme.accent }}
+            <form
+              onSubmit={handleSubmit}
+              className="flex w-full max-w-md items-center gap-2"
+            >
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={username}
+                onChange={(e) => {
+                  setUsername(e.target.value);
+                  if (feedback?.type === "error") setFeedback(null);
+                }}
+                placeholder={
+                  session
+                    ? "search any GitHub username"
+                    : "type your GitHub username"
+                }
+                className="min-w-0 flex-1 border-[3px] border-border bg-bg-raised px-3 py-2 text-base sm:text-xs text-cream outline-none transition-colors placeholder:text-dim sm:px-4 sm:py-2.5"
+                style={{ borderColor: undefined }}
+                onFocus={(e) =>
+                  (e.currentTarget.style.borderColor = theme.accent)
+                }
+                onBlur={(e) => (e.currentTarget.style.borderColor = "")}
+              />
+              <button
+                type="submit"
+                disabled={loading || !username.trim()}
+                className="btn-press flex-shrink-0 px-4 py-2 text-xs text-bg disabled:opacity-40 sm:px-5 sm:py-2.5"
+                style={{
+                  backgroundColor: theme.accent,
+                  boxShadow: `4px 4px 0 0 ${theme.shadow}`,
+                }}
               >
-                <p className="text-[11px] text-cream normal-case leading-relaxed">
-                  Find your building in the city
-                </p>
-                <button
-                  onClick={() => {
-                    setWelcomeCtaVisible(false);
-                    localStorage.setItem("gitcity_welcome_seen", "true");
-                    handleSignIn();
-                  }}
-                  className="btn-press w-full max-w-[240px] py-2.5 text-[10px] text-bg"
-                  style={{
-                    backgroundColor: theme.accent,
-                    boxShadow: `3px 3px 0 0 ${theme.shadow}`,
-                  }}
-                >
-                  Sign in with GitHub
-                </button>
-                <button
-                  onClick={() => {
-                    setWelcomeCtaVisible(false);
-                    localStorage.setItem("gitcity_welcome_seen", "true");
-                    setTimeout(() => searchInputRef.current?.focus(), 100);
-                  }}
-                  className="text-[9px] text-dim transition-colors hover:text-muted normal-case"
-                >
-                  or type your username
-                </button>
-              </div>
-            ) : (
-              <form
-                onSubmit={handleSubmit}
-                className="flex w-full max-w-md items-center gap-2"
-              >
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  value={username}
-                  onChange={(e) => {
-                    setUsername(e.target.value);
-                    if (feedback?.type === "error") setFeedback(null);
-                  }}
-                  placeholder={
-                    session
-                      ? "search any GitHub username"
-                      : "type your GitHub username"
-                  }
-                  className="min-w-0 flex-1 border-[3px] border-border bg-bg-raised px-3 py-2 text-base sm:text-xs text-cream outline-none transition-colors placeholder:text-dim sm:px-4 sm:py-2.5"
-                  style={{ borderColor: undefined }}
-                  onFocus={(e) =>
-                    (e.currentTarget.style.borderColor = theme.accent)
-                  }
-                  onBlur={(e) => (e.currentTarget.style.borderColor = "")}
-                />
-                <button
-                  type="submit"
-                  disabled={loading || !username.trim()}
-                  className="btn-press flex-shrink-0 px-4 py-2 text-xs text-bg disabled:opacity-40 sm:px-5 sm:py-2.5"
-                  style={{
-                    backgroundColor: theme.accent,
-                    boxShadow: `4px 4px 0 0 ${theme.shadow}`,
-                  }}
-                >
-                  {loading ? (
-                    <span className="blink-dot inline-block">_</span>
-                  ) : (
-                    "Search"
-                  )}
-                </button>
-              </form>
-            )}
+                {loading ? (
+                  <span className="blink-dot inline-block">_</span>
+                ) : (
+                  "Search"
+                )}
+              </button>
+            </form>
 
             {/* Search Feedback: loading phases + errors */}
             <SearchFeedback
@@ -3531,7 +3498,7 @@ function HomeContent() {
                     boxShadow: `4px 4px 0 0 ${theme.shadow}`,
                   }}
                 >
-                  Explore City
+                  Explorar cidade
                 </button>
                 {!isMobile && (
                   <div className="relative">
@@ -3573,18 +3540,7 @@ function HomeContent() {
                         boxShadow: `4px 4px 0 0 ${theme.shadow}`,
                       }}
                     >
-                      <span className="relative">
-                        &#9992; Fly
-                        <span
-                          className="absolute -top-3 -right-8 animate-pulse rounded-sm px-1 py-px text-[7px] font-bold leading-none text-bg"
-                          style={{ backgroundColor: theme.accent }}
-                        >
-                          NEW
-                        </span>
-                      </span>
-                      <span className="block text-[8px] opacity-60 normal-case">
-                        Collect PX
-                      </span>
+                      <span className="relative">&#9992; Voar</span>
                     </button>
                     {/* Feature 2: First-Fly Tooltip */}
                     {showFlyHint && (
@@ -3708,15 +3664,15 @@ function HomeContent() {
                     NEW
                   </span>
                 </Link> */}
-                <Link
+                {/* <Link
                   href="/leaderboard"
                   className="btn-press border-[3px] border-border bg-bg/80 px-4 py-1.5 text-[10px] backdrop-blur-sm transition-colors hover:border-border-light"
                   style={{ color: theme.accent }}
                 >
                   &#9819; Leaderboard
-                </Link>
+                </Link> */}
               </div>
-              <div className="hidden sm:flex items-center justify-center gap-2">
+              {/* <div className="hidden sm:flex items-center justify-center gap-2">
                 {!session ? (
                   <button
                     onClick={handleSignIn}
@@ -3779,7 +3735,7 @@ function HomeContent() {
                     </button>
                   </>
                 )}
-              </div>
+              </div> */}
             </div>
           )}
 

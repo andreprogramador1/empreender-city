@@ -350,18 +350,18 @@ function generateCenterBuildings(): ManualBuildingConfig[] {
   const CLUSTER_RADIUS = 650;
 
   const districts: { id: string; height: number; width: number }[] = [
-    { id: "empreender", height: 480, width: 30 },
-    { id: "nuvemshop", height: 350, width: 26 },
+    { id: "empreender", height: 480, width: 60 },
+    { id: "nuvemshop", height: 300, width: 45 },
     { id: "google_analytics", height: 350, width: 26 },
     { id: "meta", height: 300, width: 24 },
-    { id: "yampi", height: 260, width: 22 },
+    { id: "yampi", height: 250, width: 35 },
     { id: "loja_integrada", height: 260, width: 22 },
     { id: "tiktok_shop", height: 220, width: 20 },
-    { id: "tray", height: 200, width: 20 },
-    { id: "shopify", height: 200, width: 20 },
-    { id: "bling", height: 170, width: 18 },
-    { id: "kiwify", height: 170, width: 18 },
-    { id: "montink", height: 170, width: 18 },
+    { id: "tray", height: 250, width: 35 },
+    { id: "shopify", height: 350, width: 45 },
+    { id: "bling", height: 250, width: 35 },
+    { id: "kiwify", height: 250, width: 35 },
+    { id: "montink", height: 250, width: 35 },
   ];
 
   let outerIdx = 0;
