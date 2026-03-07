@@ -11,6 +11,7 @@ import {
   type CityRiver,
   type CityBridge,
 } from "@/lib/github";
+import { getMockCitySnapshot, USE_MOCK_CITY_SNAPSHOT } from "@/lib/mockCitySnapshot";
 
 const CityCanvas = dynamic(() => import("@/components/CityCanvas"), { ssr: false });
 
@@ -41,16 +42,22 @@ function WallpaperInner() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let allDevs: any[] = [];
 
-    // Try pre-computed snapshot first
-    try {
-      const v = Math.floor(Date.now() / 300_000);
-      const snapshotUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/city-data/snapshot.json?v=${v}`;
-      const snapshotRes = await fetch(snapshotUrl);
-      if (snapshotRes.ok) {
-        const snapshot = await snapshotRes.json();
-        allDevs = snapshot.developers;
+    if (USE_MOCK_CITY_SNAPSHOT) {
+      const mockSnapshot = getMockCitySnapshot();
+      allDevs = mockSnapshot.developers;
+    } else {
+      try {
+        const v = Math.floor(Date.now() / 300_000);
+        const snapshotUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/city-data/snapshot.json?v=${v}`;
+        const snapshotRes = await fetch(snapshotUrl);
+        if (snapshotRes.ok) {
+          const snapshot = await snapshotRes.json();
+          allDevs = snapshot.developers;
+        }
+      } catch {
+        /* fall through to chunked */
       }
-    } catch { /* fall through to chunked */ }
+    }
 
     // Fallback to chunked API
     if (allDevs.length === 0) {

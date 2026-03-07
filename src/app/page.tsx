@@ -54,6 +54,7 @@ import {
 import LoadingScreen, { type LoadingStage } from "@/components/LoadingScreen";
 import MiniMap from "@/components/MiniMap";
 import { getCityCache, setCityCache, clearCityCache } from "@/lib/cityCache";
+import { getMockCitySnapshot, USE_MOCK_CITY_SNAPSHOT } from "@/lib/mockCitySnapshot";
 import {
   DEFAULT_SKY_ADS,
   buildAdLink,
@@ -80,6 +81,7 @@ import {
   trackDisabledButtonClicked,
 } from "@/lib/himetrica";
 import { div } from "three/tsl";
+import { convertSegmentPathToStaticExportFilename } from "next/dist/shared/lib/segment-cache/segment-value-encoding";
 
 const CityCanvas = dynamic(() => import("@/components/CityCanvas"), {
   ssr: false,
@@ -1375,21 +1377,26 @@ function HomeContent() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let cityStats: any = null;
 
-    // Try pre-computed snapshot first
-    try {
-      const v = Math.floor(Date.now() / 300_000);
-      const snapshotUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/city-data/snapshot.json?v=${v}${cacheBust ? `&_t=${Date.now()}` : ""}`;
-      const snapshotRes = await fetch(snapshotUrl);
-      if (snapshotRes.ok) {
-        const snapshot = await snapshotRes.json();
-        allDevs = snapshot.developers;
-        cityStats = snapshot.stats;
+    if (USE_MOCK_CITY_SNAPSHOT) {
+      const mockSnapshot = getMockCitySnapshot();
+      allDevs = mockSnapshot.developers;
+      cityStats = mockSnapshot.stats;
+    } else {
+      try {
+        const v = Math.floor(Date.now() / 300_000);
+        const snapshotUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/city-data/snapshot.json?v=${v}${cacheBust ? `&_t=${Date.now()}` : ""}`;
+        const snapshotRes = await fetch(snapshotUrl);
+        if (snapshotRes.ok) {
+          const snapshot = await snapshotRes.json();
+          allDevs = snapshot.developers;
+          cityStats = snapshot.stats;
+        }
+      } catch {
+        /* fall through to chunked */
       }
-    } catch {
-      /* fall through to chunked */
     }
 
-    // Fallback to chunked API
+    // Fallback to chunked API (quando não estiver usando mock)
     if (allDevs.length === 0) {
       const cbParam = bustCache ? `&_t=${Date.now()}` : "";
       const CHUNK = 1000;
@@ -1514,18 +1521,23 @@ function HomeContent() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let cityStats: any = null;
 
-        // Try pre-computed snapshot first (single file from Supabase CDN)
-        try {
-          const v = Math.floor(Date.now() / 300_000); // changes every 5 min, aligned with cron
-          const snapshotUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/city-data/snapshot.json?v=${v}`;
-          const snapshotRes = await fetch(snapshotUrl);
-          if (snapshotRes.ok) {
-            const snapshot = await snapshotRes.json();
-            allDevs = snapshot.developers;
-            cityStats = snapshot.stats;
+        if (USE_MOCK_CITY_SNAPSHOT) {
+          const mockSnapshot = getMockCitySnapshot();
+          allDevs = mockSnapshot.developers;
+          cityStats = mockSnapshot.stats;
+        } else {
+          try {
+            const v = Math.floor(Date.now() / 300_000);
+            const snapshotUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/city-data/snapshot.json?v=${v}`;
+            const snapshotRes = await fetch(snapshotUrl);
+            if (snapshotRes.ok) {
+              const snapshot = await snapshotRes.json();
+              allDevs = snapshot.developers;
+              cityStats = snapshot.stats;
+            }
+          } catch {
+            /* fall through to chunked */
           }
-        } catch {
-          /* fall through to chunked */
         }
 
         // Fallback to chunked API

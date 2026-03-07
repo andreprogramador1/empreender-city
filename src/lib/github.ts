@@ -321,6 +321,29 @@ export interface DistrictZone {
   color: string;
 }
 
+/** Dois retângulos (bounds) se sobrepõem se há interseção em X e em Z. */
+export function districtBoundsOverlap(
+  a: { minX: number; maxX: number; minZ: number; maxZ: number },
+  b: { minX: number; maxX: number; minZ: number; maxZ: number },
+): boolean {
+  return a.minX <= b.maxX && a.maxX >= b.minX && a.minZ <= b.maxZ && a.maxZ >= b.minZ;
+}
+
+/** Retorna pares (idA, idB) de distritos cujas áreas se sobrepõem. Com partição Voronoi no layout, não deve haver sobreposição. */
+export function findOverlappingDistrictZones(
+  zones: DistrictZone[],
+): { idA: string; idB: string }[] {
+  const pairs: { idA: string; idB: string }[] = [];
+  for (let i = 0; i < zones.length; i++) {
+    for (let j = i + 1; j < zones.length; j++) {
+      if (districtBoundsOverlap(zones[i].bounds, zones[j].bounds)) {
+        pairs.push({ idA: zones[i].id, idB: zones[j].id });
+      }
+    }
+  }
+  return pairs;
+}
+
 const RIVER_WIDTH = 40;
 
 // ─── Manual Buildings ────────────────────────────────────────
@@ -350,18 +373,18 @@ function generateCenterBuildings(): ManualBuildingConfig[] {
   const CLUSTER_RADIUS = 650;
 
   const districts: { id: string; height: number; width: number }[] = [
-    { id: "empreender", height: 480, width: 60 },
-    { id: "nuvemshop", height: 300, width: 45 },
-    { id: "google_analytics", height: 350, width: 26 },
-    { id: "meta", height: 300, width: 24 },
-    { id: "yampi", height: 250, width: 35 },
-    { id: "loja_integrada", height: 260, width: 22 },
-    { id: "tiktok_shop", height: 220, width: 20 },
-    { id: "tray", height: 250, width: 35 },
-    { id: "shopify", height: 350, width: 45 },
-    { id: "bling", height: 250, width: 35 },
-    { id: "kiwify", height: 250, width: 35 },
-    { id: "montink", height: 250, width: 35 },
+    { id: "empreender", height: 900, width: 250 },
+    { id: "nuvemshop", height: 700, width: 150 },
+    { id: "google_analytics", height: 700, width: 150 },
+    { id: "meta", height: 700, width: 150 },
+    { id: "yampi", height: 700, width: 150 },
+    { id: "loja_integrada", height: 700, width: 150 },
+    { id: "tiktok_shop", height: 700, width: 150 },
+    { id: "tray", height: 700, width: 150 },
+    { id: "shopify", height: 700, width: 150 },
+    { id: "bling", height: 700, width: 150 },
+    { id: "kiwify", height: 700, width: 150 },
+    { id: "montink", height: 700, width: 150 },
   ];
 
   let outerIdx = 0;
@@ -582,11 +605,15 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
   ];
 
   const districtGroups: Record<string, DeveloperRecord[]> = {};
-  // for (const dev of devs) {
-  //   const did = dev.district ?? inferDistrict(dev.primary_language);
-  //   if (!districtGroups[did]) districtGroups[did] = [];
-  //   districtGroups[did].push(dev);
-  // }
+
+  for (const dev of devs) {
+    const did = dev.district;
+
+    if (!did) continue;
+
+    if (!districtGroups[did]) districtGroups[did] = [];
+    districtGroups[did].push(dev);
+  }
 
   // Seeded shuffle for deterministic "random" order
   function seededShuffle<T>(arr: T[], seed: number): T[] {
@@ -643,6 +670,19 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
     }
   }
 
+  // Distritos que têm manual building (publicidade) mas sem devs: entram na lista para ter centro (ogx, ogz) e colocar o manual no meio.
+  const didsInDistrictArrays = new Set(districtDevArrays.map((d) => d.did));
+  for (const mb of MANUAL_BUILDINGS) {
+    const did = mb.district ?? "empreender";
+
+    if (did === 'empreender') continue;
+
+    if (!didsInDistrictArrays.has(did)) {
+      didsInDistrictArrays.add(did);
+      districtDevArrays.push({ did, devs: [] });
+    }
+  }
+
   // ── 2. Place blocks on a GLOBAL axis-aligned grid ──
   // Downtown spiral at center, each district spiral at an offset.
   // occupiedCells prevents any overlap.
@@ -651,8 +691,57 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
   const RIVER_Z_THRESHOLD = BLOCK_STEP_Z / 2;
   const RIVER_PUSH = RIVER_WIDTH + 2 * RIVER_MARGIN - STREET_W;
 
-  // Distance (in grid cells) from center to district spiral origins
-  const DISTRICT_GRID_RADIUS = 4;
+  // Empreender: disco exclusivo no centro (0,0). Nenhum outro distrito pode colocar aqui; empreender é ignorado no Voronoi (só usa esse disco).
+  const CENTER_EXCLUSIVE_RADIUS = 4;
+  // Distritos externos: origens em círculo 3x mais afastado (formato circular mantido)
+  const OUTER_DISTRICT_RADIUS = 4 * 2; // 12 células do centro
+
+  // Origens: empreender em (0,0); demais em círculo de raio OUTER_DISTRICT_RADIUS. Voronoi ponderado só entre os externos.
+  type OriginWithWeight = { ogx: number; ogz: number; weight: number };
+  const districtOrigins: OriginWithWeight[] = [
+    { ogx: 0, ogz: 0, weight: 1 },
+  ];
+  for (let di = 0; di < districtDevArrays.length; di++) {
+    const angle = (di / districtDevArrays.length) * Math.PI * 2 - Math.PI / 2;
+    const devCount = districtDevArrays[di].devs.length;
+    districtOrigins.push({
+      ogx: Math.round(Math.cos(angle) * OUTER_DISTRICT_RADIUS),
+      ogz: Math.round(Math.sin(angle) * OUTER_DISTRICT_RADIUS),
+      weight: Math.max(0.5, Math.sqrt(devCount) * 0.4),
+    });
+  }
+
+  /** True se a célula (gx, gz) pertence ao território da origem no índice thisOriginIdx.
+   * Empreender (índice 0): apenas células dentro do disco exclusivo; ignorado no Voronoi.
+   * Outros distritos: nunca entram no disco do centro; fora dele, Voronoi ponderado entre si. */
+  function cellBelongsToOrigin(
+    gx: number,
+    gz: number,
+    thisOriginIdx: number,
+    origins: OriginWithWeight[],
+  ): boolean {
+    const dist2ToCenter = gx * gx + gz * gz;
+    const centerRadius2 = CENTER_EXCLUSIVE_RADIUS * CENTER_EXCLUSIVE_RADIUS;
+
+    if (thisOriginIdx === 0) {
+      // Empreender: só o disco exclusivo; não compete fora
+      return dist2ToCenter < centerRadius2;
+    }
+    // Distrito externo: não pode entrar no disco do centro
+    if (dist2ToCenter < centerRadius2) return false;
+
+    const oThis = origins[thisOriginIdx];
+    const dist2This = (gx - oThis.ogx) ** 2 + (gz - oThis.ogz) ** 2;
+    const scoreThis = dist2This / (oThis.weight * oThis.weight);
+    for (let i = 1; i < origins.length; i++) {
+      if (i === thisOriginIdx) continue;
+      const o = origins[i];
+      const d2 = (gx - o.ogx) ** 2 + (gz - o.ogz) ** 2;
+      const score = d2 / (o.weight * o.weight);
+      if (score < scoreThis) return false;
+    }
+    return true;
+  }
 
   const occupiedCells = new Set<string>();
   let globalDevIndex = 0;
@@ -665,6 +754,59 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
       localBlockAxisPos(gx, BLOCK_FOOTPRINT_X),
       localBlockAxisPos(gz, BLOCK_FOOTPRINT_Z),
     ];
+  }
+
+  function getManualBuildingForDistrict(did: string): ManualBuildingConfig | undefined {
+    return MANUAL_BUILDINGS.find((mb) => (mb.district ?? "empreender") === did);
+  }
+
+  /** Coloca o manual building no centro do distrito (célula ogx,ogz) e marca a célula como ocupada para o spiral não colocar devs em cima. */
+  function placeManualBuildingAtGrid(ogx: number, ogz: number, mb: ManualBuildingConfig): void {
+    const key = `${ogx},${ogz}`;
+    occupiedCells.add(key);
+    let [cx, cz] = gridToWorld(ogx, ogz);
+    if (cz > RIVER_Z_THRESHOLD) cz += RIVER_PUSH;
+    allBlocks.push({ cx, cz, gx: ogx, gz: ogz });
+    const floorH = 6;
+    const floors = Math.max(3, Math.floor(mb.height / floorH));
+    const windowsPerFloor = Math.max(3, Math.floor(mb.width / 5));
+    const sideWindowsPerFloor = Math.max(3, Math.floor(mb.depth / 5));
+    buildings.push({
+      login: mb.login,
+      rank: 0,
+      contributions: 0,
+      total_stars: 0,
+      public_repos: 0,
+      name: mb.name ?? mb.login,
+      avatar_url: null,
+      primary_language: mb.primary_language ?? null,
+      claimed: false,
+      owned_items: mb.owned_items ?? [],
+      custom_color: mb.custom_color ?? DISTRICT_COLORS[mb.district ?? "empreender"] ?? null,
+      billboard_images: mb.billboard_images ?? [],
+      achievements: [],
+      kudos_count: 0,
+      visit_count: 0,
+      loadout: null,
+      app_streak: 0,
+      raid_xp: 0,
+      current_week_contributions: 0,
+      current_week_kudos_given: 0,
+      current_week_kudos_received: 0,
+      active_raid_tag: null,
+      rabbit_completed: false,
+      xp_total: 0,
+      xp_level: 1,
+      district: mb.district ?? "empreender",
+      position: [cx, 0, cz],
+      width: mb.width,
+      depth: mb.depth,
+      height: mb.height,
+      floors,
+      windowsPerFloor,
+      sideWindowsPerFloor,
+      litPercentage: mb.litPercentage ?? 0.5,
+    });
   }
 
   // ── Helper: create buildings + decorations for one block ──
@@ -732,7 +874,7 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
         primary_language: dev.primary_language,
         claimed: dev.claimed ?? false,
         owned_items: dev.owned_items ?? [],
-        custom_color: dev.custom_color ?? null,
+        custom_color: dev.custom_color ?? DISTRICT_COLORS[did ?? "meta"] ?? null,
         billboard_images: dev.billboard_images ?? [],
         achievements:
           ((dev as unknown as Record<string, unknown>)
@@ -871,15 +1013,17 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
     globalDevIndex += blockDevs.length;
   }
 
-  // ── Helper: place a spiral of devs at grid origin (ogx, ogz) ──
+  // ── Helper: place a spiral of devs at grid origin (ogx, ogz). Só usa células do território Voronoi do distrito para evitar sobreposição. ──
   function placeSpiralCluster(
     clusterDevs: DeveloperRecord[],
     ogx: number,
     ogz: number,
     addPlaza: boolean,
+    origins: OriginWithWeight[],
+    originIndex: number,
   ) {
-    // Plaza at origin cell
-    if (addPlaza) {
+    // Plaza at origin cell (só se a origem pertencer a este distrito)
+    if (addPlaza && cellBelongsToOrigin(ogx, ogz, originIndex, origins)) {
       const key = `${ogx},${ogz}`;
       occupiedCells.add(key);
       let [pcx, pcz] = gridToWorld(ogx, ogz);
@@ -906,6 +1050,11 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
         spiralIdx++;
         continue;
       }
+      // Só coloca bloco se a célula pertencer ao território deste distrito (Voronoi)
+      if (!cellBelongsToOrigin(gx, gz, originIndex, origins)) {
+        spiralIdx++;
+        continue;
+      }
       occupiedCells.add(key);
 
       let [blockCX, blockCZ] = gridToWorld(gx, gz);
@@ -925,16 +1074,26 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
     }
   }
 
-  // ── A) Downtown: spiral at grid (0, 0) ──
-  placeSpiralCluster(empreenderDevs, 0, 0, true);
+  // ── A) Distrito central empreender: apenas o prédio manual no centro (0,0); sem spiral de devs. ──
+  const manualEmpreender = getManualBuildingForDistrict("empreender");
+  if (manualEmpreender) placeManualBuildingAtGrid(0, 0, manualEmpreender);
 
-  // ── B) Districts: spiral at offset grid positions ──
+  // ── B) Districts: manual building no centro de cada distrito; devs do snapshot em volta. ──
   for (let di = 0; di < districtDevArrays.length; di++) {
     const angle = (di / districtDevArrays.length) * Math.PI * 2 - Math.PI / 2;
-    // Snap district origin to global grid
-    const ogx = Math.round(Math.cos(angle) * DISTRICT_GRID_RADIUS);
-    const ogz = Math.round(Math.sin(angle) * DISTRICT_GRID_RADIUS);
-    placeSpiralCluster(districtDevArrays[di].devs, ogx, ogz, true);
+    const ogx = Math.round(Math.cos(angle) * OUTER_DISTRICT_RADIUS);
+    const ogz = Math.round(Math.sin(angle) * OUTER_DISTRICT_RADIUS);
+    const did = districtDevArrays[di].did;
+    const manualDistrict = getManualBuildingForDistrict(did);
+    if (manualDistrict) placeManualBuildingAtGrid(ogx, ogz, manualDistrict);
+    placeSpiralCluster(
+      districtDevArrays[di].devs,
+      ogx,
+      ogz,
+      !manualDistrict,
+      districtOrigins,
+      di + 1,
+    );
   }
 
   // ── Road markings between adjacent blocks (global grid) ──
@@ -1021,49 +1180,7 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
     }
   }
 
-  // ── Manual buildings ──
-  for (const mb of MANUAL_BUILDINGS) {
-    const floorH = 6;
-    const floors = Math.max(3, Math.floor(mb.height / floorH));
-    const windowsPerFloor = Math.max(3, Math.floor(mb.width / 5));
-    const sideWindowsPerFloor = Math.max(3, Math.floor(mb.depth / 5));
-    buildings.push({
-      login: mb.login,
-      rank: 0,
-      contributions: 0,
-      total_stars: 0,
-      public_repos: 0,
-      name: mb.name ?? mb.login,
-      avatar_url: null,
-      primary_language: mb.primary_language ?? null,
-      claimed: false,
-      owned_items: mb.owned_items ?? [],
-      custom_color: mb.custom_color ?? null,
-      billboard_images: mb.billboard_images ?? [],
-      achievements: [],
-      kudos_count: 0,
-      visit_count: 0,
-      loadout: null,
-      app_streak: 0,
-      raid_xp: 0,
-      current_week_contributions: 0,
-      current_week_kudos_given: 0,
-      current_week_kudos_received: 0,
-      active_raid_tag: null,
-      rabbit_completed: false,
-      xp_total: 0,
-      xp_level: 1,
-      district: mb.district ?? "empreender",
-      position: mb.position,
-      width: mb.width,
-      depth: mb.depth,
-      height: mb.height,
-      floors,
-      windowsPerFloor,
-      sideWindowsPerFloor,
-      litPercentage: mb.litPercentage ?? 0.5,
-    });
-  }
+  // Manual buildings já foram colocados no centro de cada distrito (placeManualBuildingAtGrid) e a célula reservada para os devs ficarem em volta.
 
   // ── District zones (computed from actual building positions) ──
   const dzMap: Record<string, CityBuilding[]> = {};
