@@ -347,9 +347,9 @@ export default async function LeaderboardPage({
                 <div className="flex items-center gap-4 border-b-[3px] border-border bg-bg-card px-5 py-3 text-xs text-muted">
                   <span className="w-10 text-center">#</span>
                   <span className="flex-1">Loja</span>
-                  {/* <span className="hidden w-24 text-right sm:block">
-                    {activeTab === "xp" ? "Rank" : "Language"}
-                  </span> */}
+                  <span className="hidden w-24 text-right sm:block">
+                    Pontuação
+                  </span>
                   {/* <span className="w-28 text-right">{metricLabel}</span> */}
                 </div>
 
@@ -398,20 +398,12 @@ export default async function LeaderboardPage({
                         </div>
                       </div>
 
-                      {/* <span className="hidden w-24 text-right text-xs text-muted sm:block">
-                        {activeTab === "xp"
-                          ? (() => {
-                              const badge = getXpBadge(dev);
-                              return badge ? (
-                                <span style={{ color: badge.color }}>
-                                  {badge.title}
-                                </span>
-                              ) : (
-                                "\u2014"
-                              );
-                            })()
-                          : (dev.primary_language ?? "\u2014")}
-                      </span> */}
+                      <span className="hidden w-24 text-right text-xs text-muted sm:block">
+                        {(
+                          Number(dev.contributions ?? 0) +
+                          Number(dev.public_repos ?? 0)
+                        ).toLocaleString()}
+                      </span>
 
                       {/* <span
                         className="w-28 text-right text-sm"
