@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase";
-import { DEFAULT_SKY_ADS, MAX_PLANES, MAX_BLIMPS, MAX_BILLBOARDS, MAX_ROOFTOP_SIGNS, MAX_LED_WRAPS, type SkyAd } from "@/lib/skyAds";
+import { DEFAULT_SKY_ADS, DISTRICT_BILLBOARDS, MAX_PLANES, MAX_BLIMPS, MAX_BILLBOARDS, MAX_ROOFTOP_SIGNS, MAX_LED_WRAPS, type SkyAd } from "@/lib/skyAds";
 
 // Rotation interval in seconds. Every interval, a different set of paid ads is served.
 const ROTATION_INTERVAL = 60;
@@ -77,7 +77,11 @@ export async function GET() {
 
     const planes = rotateAds(allAds.filter((a) => a.vehicle === "plane"), MAX_PLANES);
     const blimps = rotateAds(allAds.filter((a) => a.vehicle === "blimp"), MAX_BLIMPS);
-    const billboards = rotateAds(allAds.filter((a) => a.vehicle === "billboard"), MAX_BILLBOARDS);
+    const billboardCandidates = [
+      ...allAds.filter((a) => a.vehicle === "billboard"),
+      ...DISTRICT_BILLBOARDS,
+    ];
+    const billboards = rotateAds(billboardCandidates, MAX_BILLBOARDS);
     const rooftopSigns = rotateAds(allAds.filter((a) => a.vehicle === "rooftop_sign"), MAX_ROOFTOP_SIGNS);
     const ledWraps = rotateAds(allAds.filter((a) => a.vehicle === "led_wrap"), MAX_LED_WRAPS);
 

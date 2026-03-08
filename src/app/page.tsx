@@ -61,6 +61,7 @@ import {
 } from "@/lib/mockCitySnapshot";
 import {
   DEFAULT_SKY_ADS,
+  DISTRICT_BILLBOARDS,
   buildAdLink,
   trackAdEvent,
   trackAdEvents,
@@ -742,12 +743,21 @@ function HomeContent() {
     }
   }, [raidState.phase]);
 
-  // Fetch ads from DB (fallback to DEFAULT_SKY_ADS on error)
+  // Fetch ads from DB; always merge in district tower billboards so they show on manual buildings
   useEffect(() => {
     fetch("/api/sky-ads")
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
-        if (Array.isArray(data) && data.length > 0) setSkyAds(data);
+        if (!Array.isArray(data)) return;
+        const ids = new Set(data.map((a: { id: string }) => a.id));
+        const withDefaults = [...data];
+        for (const bb of DISTRICT_BILLBOARDS) {
+          if (!ids.has(bb.id)) {
+            ids.add(bb.id);
+            withDefaults.push(bb);
+          }
+        }
+        if (withDefaults.length > 0) setSkyAds(withDefaults);
       })
       .catch(() => {});
   }, []);

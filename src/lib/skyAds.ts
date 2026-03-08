@@ -156,12 +156,12 @@ function darkenHex(hex: string): string {
     .join("")}`;
 }
 
-const DISTRICT_BILLBOARDS: SkyAd[] = MANUAL_BUILDINGS.filter(
-  (b) => b.district && DISTRICT_URLS[b.district],
-).map((b, i) => {
-  const did = b.district!;
+// Derive from DISTRICT_URLS so billboards exist even if MANUAL_BUILDINGS shape changes.
+// Attach to a building when we find one for that district.
+export const DISTRICT_BILLBOARDS: SkyAd[] = Object.keys(DISTRICT_URLS).map((did, i) => {
   const name = DISTRICT_NAMES[did] ?? did;
   const color = DISTRICT_COLORS[did] ?? "#ffffff";
+  const building = MANUAL_BUILDINGS.find((b) => (b.district ?? "") === did);
   return {
     id: `district-bb-${did}`,
     text: `★ ${name.toUpperCase()} ★`,
@@ -171,7 +171,7 @@ const DISTRICT_BILLBOARDS: SkyAd[] = MANUAL_BUILDINGS.filter(
     link: DISTRICT_URLS[did],
     vehicle: "billboard" as const,
     priority: 50 - i,
-    targetBuilding: b.login,
+    ...(building && { targetBuilding: building.login }),
   };
 });
 
