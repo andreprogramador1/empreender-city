@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
 import { createBrowserSupabase } from "@/lib/supabase";
@@ -21,7 +21,7 @@ function parseHashParams(hash: string): Record<string, string> {
  * Extraímos os tokens, chamamos setSession para persistir nos cookies (path=/),
  * e só então redirecionamos para o servidor enxergar a sessão.
  */
-export default function AuthConfirmPage() {
+function AuthConfirmContent() {
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<"loading" | "ok" | "error">("loading");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -135,5 +135,19 @@ export default function AuthConfirmPage() {
     <div style={{ padding: "2rem", textAlign: "center" }}>
       <p>Entrando...</p>
     </div>
+  );
+}
+
+export default function AuthConfirmPage() {
+  return (
+    <Suspense
+      fallback={
+        <div style={{ padding: "2rem", textAlign: "center" }}>
+          <p>Entrando...</p>
+        </div>
+      }
+    >
+      <AuthConfirmContent />
+    </Suspense>
   );
 }

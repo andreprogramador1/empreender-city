@@ -73,10 +73,6 @@ export async function POST(request: Request) {
   }
 
   const { crown, roof, aura } = body;
-    crown?: string | null;
-    roof?: string | null;
-    aura?: string | null;
-  };
 
   // Fetch owned items
   const { data: purchases } = await admin

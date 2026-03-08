@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { getDeveloperOwnedByUser } from "@/lib/api-developer";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

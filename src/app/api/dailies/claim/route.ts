@@ -33,7 +33,14 @@ export async function POST(request: Request) {
   }
 
   const admin = getSupabaseAdmin();
-  const dev = await getDeveloperOwnedByUser(admin, user.id, githubLogin, "id, claimed, contributions, public_repos, total_stars, kudos_count, dailies_completed, dailies_streak, last_dailies_date");
+  const dev = await getDeveloperOwnedByUser<{
+    id: number;
+    last_dailies_date: string | null;
+    contributions?: number;
+    public_repos?: number;
+    total_stars?: number;
+    kudos_count?: number;
+  }>(admin, user.id, githubLogin, "id, claimed, contributions, public_repos, total_stars, kudos_count, dailies_completed, dailies_streak, last_dailies_date");
   if (!dev) {
     return NextResponse.json({ error: "Developer not found or not yours" }, { status: 403 });
   }

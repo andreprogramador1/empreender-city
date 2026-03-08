@@ -21,7 +21,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const formData = await request.formData();
+  let formData: FormData;
+  try {
+    formData = await request.formData();
+  } catch {
+    return NextResponse.json(
+      { error: "Invalid form data" },
+      { status: 400 }
+    );
+  }
+
   const githubLogin = formData.get("github_login");
   if (!githubLogin || typeof githubLogin !== "string") {
     return NextResponse.json({ error: "github_login is required (form field)" }, { status: 400 });
@@ -45,17 +54,6 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { error: "You don't own the billboard item" },
       { status: 403 }
-    );
-  }
-
-  // Parse FormData
-  let formData: FormData;
-  try {
-    formData = await request.formData();
-  } catch {
-    return NextResponse.json(
-      { error: "Invalid form data" },
-      { status: 400 }
     );
   }
 

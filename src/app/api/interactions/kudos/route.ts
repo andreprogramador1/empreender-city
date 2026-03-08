@@ -32,9 +32,18 @@ export async function POST(request: Request) {
   }
 
   const admin = getSupabaseAdmin();
-  const giver = await getDeveloperOwnedByUser(admin, user.id, githubLogin, "id, claimed, contributions, public_repos, total_stars, kudos_count, kudos_streak, last_kudos_given_date");
+  const giver = await getDeveloperOwnedByUser<{
+    id: number;
+    claimed: boolean;
+    last_kudos_given_date?: string | null;
+    kudos_streak?: number;
+    contributions?: number;
+    public_repos?: number;
+    total_stars?: number;
+    kudos_count?: number;
+  }>(admin, user.id, githubLogin, "id, claimed, contributions, public_repos, total_stars, kudos_count, kudos_streak, last_kudos_given_date");
 
-  if (!giver || !(giver as { claimed: boolean }).claimed) {
+  if (!giver || !giver.claimed) {
     return NextResponse.json({ error: "Must claim building first" }, { status: 403 });
   }
 
