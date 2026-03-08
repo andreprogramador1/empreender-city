@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import type { ProfileResponse } from "@/lib/current-developer";
 
 interface ProfileState extends ProfileResponse {}
 
 export default function ProfileAuthorizationToggle() {
+  const router = useRouter();
   const [profile, setProfile] = useState<ProfileState | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
@@ -32,6 +34,7 @@ export default function ProfileAuthorizationToggle() {
       if (res.ok) {
         const data = await res.json();
         setProfile(data);
+        if (next) router.push("/");
       }
     } finally {
       setUpdating(false);
