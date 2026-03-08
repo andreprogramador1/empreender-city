@@ -59,8 +59,8 @@ export async function GET(
       });
 
       if (info) {
-        const contributions = Math.round(info.orders_count);
-        const public_repos = Math.round(info.store_revenue);
+        const contributions = Math.round(info.contributions);
+        const public_repos = Math.round(info.public_repos);
         const fetched_at = new Date().toISOString();
 
         await sb

@@ -14,7 +14,7 @@ export async function GET(request: Request) {
 
   const { data: dev } = await sb
     .from("developers")
-    .select("id, github_login, name, avatar_url, contributions, contributions_total, total_stars, public_repos, rank, referral_count, kudos_count")
+    .select("id, github_login, name, avatar_url, contributions, contributions_total, total_stars, public_repos, rank, referral_count, kudos_count, store_domain")
     .eq("github_login", login)
     .single();
 

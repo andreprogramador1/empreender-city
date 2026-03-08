@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { getSupabaseAdmin } from "@/lib/supabase";
-import { getUserStores, getStoreInfos } from "@/lib/dash-api";
+import { buildDashLogin, getUserStores, getStoreInfos } from "@/lib/dash-api";
 
 /**
  * GET /api/profile
@@ -81,13 +81,15 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: updateError.message }, { status: 500 });
   }
 
-  try {
-    await sb
-      .from("developers")
-      .update({ allow_data_for_buildings: allowData })
-      .eq("claimed_by", user.id);
-  } catch {
-    // column may not exist yet before migration 037
+  if (!allowData) {
+    try {
+      await sb
+        .from("developers")
+        .update({ allow_data_for_buildings: false })
+        .eq("claimed_by", user.id);
+    } catch {
+      // column may not exist yet before migration 037
+    }
   }
 
   if (!wasAllowed && allowData) {
@@ -101,7 +103,7 @@ export async function PATCH(request: NextRequest) {
         const now = new Date().toISOString();
 
         for (const store of stores) {
-          const githubLogin = `${store.platform}_${store.store_id}_${store.user_id}`;
+          const githubLogin = buildDashLogin(store.platform, store.store_id, store.user_id);
           const { data: existingDev } = await sb
             .from("developers")
             .select("id")
@@ -137,12 +139,21 @@ export async function PATCH(request: NextRequest) {
                 await sb
                   .from("developers")
                   .update({
-                    contributions: Math.round(info.orders_count),
-                    public_repos: Math.round(info.store_revenue),
+                    contributions: Math.round(info.contributions),
+                    public_repos: Math.round(info.public_repos),
                     fetched_at: now,
                   })
                   .eq("id", inserted.id);
               }
+            }
+          } else {
+            try {
+              await sb
+                .from("developers")
+                .update({ allow_data_for_buildings: true })
+                .eq("id", existingDev.id);
+            } catch {
+              // column may not exist yet before migration 037
             }
           }
         }

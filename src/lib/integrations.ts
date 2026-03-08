@@ -23,6 +23,34 @@ export function normalizedPlatform(platform: string): string {
   return platform.toLowerCase().replace(/_/g, "").replace(/\s/g, "");
 }
 
+/**
+ * Normaliza store_domain: adiciona https:// se não tiver, remove path/query (só domínio),
+ * deixa minúsculo. Retorna "" se não for um domínio válido.
+ */
+export function normalizedStoreDomain(storeDomain: string): string {
+  const s = storeDomain?.trim() ?? "";
+  if (!s) return "";
+  let urlStr = s;
+  if (!/^https?:\/\//i.test(urlStr)) {
+    urlStr = "https://" + urlStr;
+  }
+
+  urlStr = urlStr.replace("http://", "https://");
+
+  try {
+    const url = new URL(urlStr);
+    const hostname = url.hostname.toLowerCase();
+    // Apenas hostname (sem path, query, port na saída)
+    if (!hostname) return "";
+    // Domínio válido: labels separados por ponto, cada label alfanumérico/hífen, tamanho mínimo
+    const validDomain = /^([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)+[a-z0-9]([a-z0-9-]*[a-z0-9])?$/i;
+    if (!validDomain.test(hostname) || hostname.length < 4) return "";
+    return "https://" + hostname;
+  } catch {
+    return "";
+  }
+}
+
 /** Converte de volta para o mesmo nome que existe no Dash */
 export function unnormalizedPlatform(platform: string): string {
   const map = {

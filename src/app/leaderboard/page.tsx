@@ -113,7 +113,7 @@ export default async function LeaderboardPage({
         ? await supabase
             .from("developers")
             .select(
-              "id, github_login, name, avatar_url, contributions, contributions_total, total_stars, public_repos, primary_language, rank, referral_count, kudos_count, created_at, xp_total, xp_level",
+              "id, github_login, name, avatar_url, contributions, contributions_total, total_stars, public_repos, primary_language, rank, referral_count, kudos_count, created_at, xp_total, xp_level, store_domain",
             )
             .in("id", achieverIds)
         : { data: [] };
@@ -135,7 +135,7 @@ export default async function LeaderboardPage({
     const { data } = await supabase
       .from("developers")
       .select(
-        "github_login, name, avatar_url, contributions, contributions_total, total_stars, public_repos, primary_language, rank, referral_count, kudos_count, created_at, xp_total, xp_level",
+        "github_login, name, avatar_url, contributions, contributions_total, total_stars, public_repos, primary_language, rank, referral_count, kudos_count, created_at, xp_total, xp_level, store_domain",
       )
       .order(orderColumn, { ascending: orderAscending, nullsFirst: false })
       .order("created_at", { ascending: true })
