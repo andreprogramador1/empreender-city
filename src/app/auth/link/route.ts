@@ -2,13 +2,10 @@ import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { getDashUser } from "@/lib/dash-api";
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
 
-  const origin = process.env.NEXT_PUBLIC_BASE_URL ??
-      (process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : "http://localhost:3000")
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const { searchParams, origin } = url;
 
   const token = searchParams.get("auth_token_dash_to_sp");
   const nextPath = searchParams.get("next") ?? "";
