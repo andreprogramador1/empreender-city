@@ -131,10 +131,10 @@ export async function middleware(request: NextRequest) {
   }
 
   // ── 3. Security headers ─────────────────────────────────────────────
-  // Allow iframe embedding from same origin and dash.com.br (no X-Frame-Options DENY)
+  // Allow iframe embedding: same origin, dash.com.br (HTTP/HTTPS), localhost
   supabaseResponse.headers.set(
     "Content-Security-Policy",
-    "frame-ancestors 'self' https://dash.com.br https://*.dash.com.br",
+    "frame-ancestors 'self' https://dash.com.br http://dash.com.br https://*.dash.com.br http://*.dash.com.br http://localhost https://localhost http://localhost:* https://localhost:* http://127.0.0.1 https://127.0.0.1 http://127.0.0.1:* https://127.0.0.1:*",
   );
   supabaseResponse.headers.set("X-Content-Type-Options", "nosniff");
   supabaseResponse.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");

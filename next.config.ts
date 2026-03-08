@@ -1,10 +1,11 @@
 import type { NextConfig } from "next";
 
 const securityHeaders = [
-  // Allow embedding in iframes from same origin and dash.com.br (frame-ancestors overrides X-Frame-Options when set)
+  // Allow embedding in iframes: same origin, dash.com.br (HTTP/HTTPS), localhost
   {
     key: "Content-Security-Policy",
-    value: "frame-ancestors 'self' https://dash.com.br https://*.dash.com.br",
+    value:
+      "frame-ancestors 'self' https://dash.com.br http://dash.com.br https://*.dash.com.br http://*.dash.com.br http://localhost https://localhost http://localhost:* https://localhost:* http://127.0.0.1 https://127.0.0.1 http://127.0.0.1:* https://127.0.0.1:*",
   },
   // Block MIME-type sniffing (e.g. treating a .txt as script)
   { key: "X-Content-Type-Options", value: "nosniff" },
