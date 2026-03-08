@@ -5,7 +5,9 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { MAX_TEXT_LENGTH } from "@/lib/skyAds";
 
-const AdPreview = dynamic(() => import("@/components/AdPreview"), { ssr: false });
+const AdPreview = dynamic(() => import("@/components/AdPreview"), {
+  ssr: false,
+});
 
 const ACCENT = "#c8e64a";
 
@@ -62,9 +64,11 @@ function ClickPreview({
           {brand ? (
             <p className="truncate text-sm text-cream">{brand}</p>
           ) : (
-            <p className="truncate text-sm text-muted/30 normal-case">Brand name</p>
+            <p className="truncate text-sm text-muted/30 normal-case">
+              Brand name
+            </p>
           )}
-          <p className="text-[9px] text-dim">Sponsored</p>
+          {/* <p className="text-[9px] text-dim">Sponsored</p> */}
         </div>
       </div>
 
@@ -269,9 +273,7 @@ export function SetupContent({
 
           {/* Link */}
           <div>
-            <label className="block text-xs text-muted normal-case">
-              Link
-            </label>
+            <label className="block text-xs text-muted normal-case">Link</label>
             <input
               type="url"
               value={link}

@@ -5317,7 +5317,7 @@ function HomeContent() {
                       {clickedAd.brand}
                     </p>
                   )}
-                  <p className="text-[9px] text-dim">Sponsored</p>
+                  {/* <p className="text-[9px] text-dim">Sponsored</p> */}
                 </div>
               </div>
 
