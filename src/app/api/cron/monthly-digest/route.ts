@@ -3,7 +3,7 @@ import { getSupabaseAdmin } from "@/lib/supabase";
 import { sendNotificationAsync } from "@/lib/notifications";
 import { buildButton, buildStatsTable } from "@/lib/email-template";
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://thegitcity.com";
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://city.dash.com.br";
 
 const MONTH_NAMES = [
   "January", "February", "March", "April", "May", "June",

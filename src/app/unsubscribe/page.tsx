@@ -94,7 +94,7 @@ export default async function UnsubscribePage({
         />
 
         <a
-          href="https://thegitcity.com"
+          href="https://city.dash.com.br"
           style={{ color: "#c8e64a", fontSize: 14, textDecoration: "underline" }}
         >
           Back to Git City

@@ -2,7 +2,7 @@ import { sendNotificationAsync } from "../notifications";
 import { buildButton } from "../email-template";
 import { getSupabaseAdmin } from "../supabase";
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://thegitcity.com";
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://city.dash.com.br";
 
 /**
  * Send community milestone notification to all opted-in users.
