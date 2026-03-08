@@ -1,8 +1,11 @@
 import type { NextConfig } from "next";
 
 const securityHeaders = [
-  // Prevent clickjacking – block all framing
-  { key: "X-Frame-Options", value: "DENY" },
+  // Allow embedding in iframes from same origin and dash.com.br (frame-ancestors overrides X-Frame-Options when set)
+  {
+    key: "Content-Security-Policy",
+    value: "frame-ancestors 'self' https://dash.com.br https://*.dash.com.br",
+  },
   // Block MIME-type sniffing (e.g. treating a .txt as script)
   { key: "X-Content-Type-Options", value: "nosniff" },
   // Control what info the Referer header leaks
