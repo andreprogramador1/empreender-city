@@ -9,8 +9,16 @@ export interface FeedEvent {
   target_id: number | null;
   metadata: Record<string, unknown>;
   created_at: string;
-  actor: { login: string; avatar_url: string | null } | null;
-  target: { login: string; avatar_url: string | null } | null;
+  actor: {
+    login: string;
+    name?: string | null;
+    avatar_url: string | null;
+  } | null;
+  target: {
+    login: string;
+    name?: string | null;
+    avatar_url: string | null;
+  } | null;
 }
 
 function formatEvent(e: FeedEvent): string {
@@ -53,21 +61,26 @@ function formatEvent(e: FeedEvent): string {
       return `\u2B50 ${meta.login ? `@${meta.login}` : actor} unlocked the GitHub Star`;
     case "dev_highlight": {
       const login = meta.login ? `@${meta.login}` : actor;
+      const displayName =
+        (meta.name as string) ||
+        (meta.login as string) ||
+        e.actor?.login ||
+        "Someone";
       switch (meta.highlight) {
         case "contributions":
-          return `#  ${login}'s building has ${Number(meta.value).toLocaleString()} contributions`;
-        case "stars":
-          return `*  ${login} has ${Number(meta.value).toLocaleString()} stars across their repos`;
-        case "rank":
-          return `>>  ${login} is ranked #${meta.value} in the city`;
-        case "streak":
-          return `~  ${login} is on a ${meta.value}-day commit streak`;
-        case "language":
-          return `<>  ${login} builds with ${meta.value}`;
-        case "repos":
-          return `{}  ${login} has ${meta.value} public repos`;
+          return `${login}`;
+        // case "stars":
+        //   return `*  ${login} has ${Number(meta.value).toLocaleString()} stars across their repos`;
+        // case "rank":
+        //   return `>>  ${login} is ranked #${meta.value} in the city`;
+        // case "streak":
+        //   return `~  ${login} is on a ${meta.value}-day commit streak`;
+        // case "language":
+        //   return `<>  ${login} builds with ${meta.value}`;
+        // case "repos":
+        //   return `{}  ${login} has ${meta.value} public repos`;
         default:
-          return `${login} is in the city`;
+          return `${displayName} esta na cidade`;
       }
     }
     default:
@@ -82,7 +95,12 @@ interface Props {
   hasBottomBar?: boolean;
 }
 
-export default function ActivityTicker({ events, onEventClick, onOpenPanel, hasBottomBar = false }: Props) {
+export default function ActivityTicker({
+  events,
+  onEventClick,
+  onOpenPanel,
+  hasBottomBar = false,
+}: Props) {
   const tickerText = useMemo(() => {
     return events.map((e) => ({ id: e.id, text: formatEvent(e), event: e }));
   }, [events]);
@@ -99,7 +117,11 @@ export default function ActivityTicker({ events, onEventClick, onOpenPanel, hasB
       >
         <div
           className="ticker-scroll flex whitespace-nowrap"
-          style={{ "--ticker-duration": `${Math.max(20, tickerText.length)}s` } as React.CSSProperties}
+          style={
+            {
+              "--ticker-duration": `${Math.max(20, tickerText.length)}s`,
+            } as React.CSSProperties
+          }
         >
           {[...tickerText, ...tickerText].map((item, i) => (
             <span
@@ -117,13 +139,28 @@ export default function ActivityTicker({ events, onEventClick, onOpenPanel, hasB
       </div>
 
       {/* Footer links */}
-      <div className="hidden sm:flex items-center gap-2 shrink-0 pr-3 pl-2 border-l border-border/30">
-        <a href="/terms" className="text-[8px] text-cream/20 transition-colors hover:text-cream/50">Terms</a>
+      {/* <div className="hidden sm:flex items-center gap-2 shrink-0 pr-3 pl-2 border-l border-border/30">
+        <a
+          href="/terms"
+          className="text-[8px] text-cream/20 transition-colors hover:text-cream/50"
+        >
+          Terms
+        </a>
         <span className="text-[8px] text-cream/10">·</span>
-        <a href="/privacy" className="text-[8px] text-cream/20 transition-colors hover:text-cream/50">Privacy</a>
+        <a
+          href="/privacy"
+          className="text-[8px] text-cream/20 transition-colors hover:text-cream/50"
+        >
+          Privacy
+        </a>
         <span className="text-[8px] text-cream/10">·</span>
-        <a href="/support" className="text-[8px] text-cream/20 transition-colors hover:text-cream/50">Support</a>
-      </div>
+        <a
+          href="/support"
+          className="text-[8px] text-cream/20 transition-colors hover:text-cream/50"
+        >
+          Support
+        </a>
+      </div> */}
 
       <style jsx>{`
         .ticker-scroll {
@@ -133,8 +170,12 @@ export default function ActivityTicker({ events, onEventClick, onOpenPanel, hasB
           animation-play-state: paused;
         }
         @keyframes ticker {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
         }
       `}</style>
     </div>

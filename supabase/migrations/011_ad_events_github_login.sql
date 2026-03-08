@@ -63,10 +63,18 @@ $$;
 
 -- Seed default ads
 insert into sky_ads (id, brand, text, description, color, bg_color, link, vehicle, priority) values
-  ('gitcity', 'Git City', 'THEGITCITY.COM ★ YOUR CODE, YOUR CITY ★ THEGITCITY.COM', 'A city built from GitHub contributions. Search your username and find your building among thousands of developers.', '#f8d880', '#1a1018', 'https://thegitcity.com', 'plane', 100),
-  ('samuel', 'Samuel Rizzon', 'HEY, I BUILD THIS! → SAMUELRIZZON.DEV', 'Full-stack dev who builds weird and cool stuff. This city is one of them.', '#c8e64a', '#1a1018', 'https://www.samuelrizzon.dev/en.html', 'plane', 90),
-  ('build', 'ReplyOS', 'YOUR AI COPILOT TO GROW ON X', 'I grew +1.2k followers and 1M views in 3 weeks using ReplyOS. Viral library, lead radar, post writer, auto-replies. Your AI copilot to grow on X.', '#ffffff', '#2a1838', 'https://reply-os.com', 'blimp', 80),
-  ('advertise', 'Sky Ads', 'ADD YOUR AD HERE', 'Want your brand flying over Git City? Planes, blimps, your colors. Get in touch!', '#f8d880', '#1a1018', 'mailto:samuelrizzondev@gmail.com?subject=Git%20City%20Sky%20Ad', 'plane', 10);
+  ('shopify', 'Shopify', 'CRIE SUA LOJA VIRTUAL', 'A maior plataforma global de e-commerce para montar sua loja online com ferramentas profissionais.', '#95bf47', '#1a1018', 'https://www.shopify.com.br', 'plane', 100),
+  ('yampi', 'Yampi', 'CRIE SUA LOJA VIRTUAL', 'Checkout transparente e gestão completa de pedidos para maximizar suas conversões.', '#ab62ef', '#1a1018', 'https://www.yampi.com.br', 'plane', 90),
+  ('nuvemshop', 'Nuvemshop', 'CRIE SUA LOJA VIRTUAL', 'Plataforma líder de e-commerce na América Latina. Crie e gerencie sua loja virtual com facilidade.', '#0855c5', '#1a1018', 'https://www.nuvemshop.com.br', 'blimp', 80),
+  ('tray', 'Tray', 'CRIE SUA LOJA VIRTUAL', 'Solução completa de e-commerce com gestão integrada de produtos, pedidos, frete e pagamentos.', '#141057', '#1a1018', 'https://www.tray.com.br', 'plane', 70),
+  ('empreender', 'Empreender', 'EMPREENDA SEU NEGÓCIO', 'Somos parceiros de mais de 30 plataformas. Nossos apps estão disponíveis na Shopify, Nuvemshop, Yampi, Tray, Loja Integrada e muito mais!', '#a16bf9', '#1a1018', 'https://empreender.com.br', 'plane', 60),
+  ('montink', 'Montink', 'PRINT ON DEMAND', 'Somos uma plataforma de Print On Demand, onde pessoas ou empresas conseguem ter seus produtos personalizados com suas estampas, vender e lucrar muito.', '#f70293', '#1a1018', 'https://www.montink.com', 'blimp', 50),
+  ('kiwify', 'Kiwify', 'VENDA INFOPRODUTOS', 'Plataforma completa para vender infoprodutos, cursos online e gerenciar programas de afiliados.', '#09b36e', '#1a1018', 'https://kiwify.com.br', 'plane', 45),
+  ('googleanalytics4', 'Google Analytics', 'ANÁLISE DO SEU SITE', 'Monitore o desempenho do seu site com análises detalhadas de tráfego, conversões e comportamento dos usuários.', '#f27e0a', '#1a1018', 'https://analytics.google.com', 'blimp', 40),
+  ('meta', 'Meta', 'CAMPANHAS FACEBOOK E INSTAGRAM', 'Gerencie e otimize campanhas publicitárias no Facebook e Instagram para alcançar seu público-alvo.', '#0a69d4', '#1a1018', 'https://www.facebook.com/business/ads', 'plane', 35),
+  ('bling', 'Bling', 'GESTÃO EMPRESARIAL', 'Sistema de gestão empresarial (ERP) para automatizar estoque, notas fiscais e controle financeiro.', '#3aaf67', '#1a1018', 'https://www.bling.com.br', 'plane', 30),
+  ('tiktokshop', 'TikTok Shop', 'VENDA NO TIKTOK', 'Venda seus produtos diretamente no TikTok e alcance milhões de usuários pelo social commerce.', '#ff3156', '#1a1018', 'https://shop.tiktok.com', 'blimp', 25),
+  ('lojaintegrada', 'CRIE SUA LOJA VIRTUAL', 'LOJA VIRTUAL GRATUITA', 'Plataforma brasileira de e-commerce gratuita para criar, personalizar e gerenciar sua loja online.', '#32c6c5', '#1a1018', 'https://lojaintegrada.com.br', 'plane', 20);
 
 -- Add github_login to sky_ad_events so we know which logged-in user
 -- triggered the event (nullable — anonymous visitors won't have it).

@@ -326,7 +326,9 @@ export function districtBoundsOverlap(
   a: { minX: number; maxX: number; minZ: number; maxZ: number },
   b: { minX: number; maxX: number; minZ: number; maxZ: number },
 ): boolean {
-  return a.minX <= b.maxX && a.maxX >= b.minX && a.minZ <= b.maxZ && a.maxZ >= b.minZ;
+  return (
+    a.minX <= b.maxX && a.maxX >= b.minX && a.minZ <= b.maxZ && a.maxZ >= b.minZ
+  );
 }
 
 /** Retorna pares (idA, idB) de distritos cujas áreas se sobrepõem. Com partição Voronoi no layout, não deve haver sobreposição. */
@@ -458,18 +460,18 @@ export const DISTRICT_NAMES: Record<string, string> = {
 };
 
 export const DISTRICT_COLORS: Record<string, string> = {
-  empreender: "#fbbf24",
-  nuvemshop: "#3b82f6",
-  googleanalytics4: "#ef4444",
-  meta: "#a855f7",
-  yampi: "#22c55e",
-  lojaintegrada: "#06b6d4",
-  tiktokshop: "#f97316",
-  tray: "#dc2626",
-  shopify: "#ec4899",
-  bling: "#8b5cf6",
-  kiwify: "#eab308",
-  montink: "#14b8a6",
+  shopify: "#95bf47",
+  yampi: "#ab62ef",
+  nuvemshop: "#0855c5",
+  kiwify: "#09b36e",
+  tray: "#141057",
+  googleanalytics4: "#f27e0a",
+  meta: "#0a69d4",
+  empreender: "#a16bf9",
+  montink: "#f70293",
+  bling: "#3aaf67",
+  tiktokshop: "#ff3156",
+  lojaintegrada: "#32c6c5",
 };
 
 export const MANUAL_BUILDINGS: ManualBuildingConfig[] =
@@ -652,7 +654,7 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
   for (const mb of MANUAL_BUILDINGS) {
     const did = mb.district ?? "empreender";
 
-    if (did === 'empreender') continue;
+    if (did === "empreender") continue;
 
     if (!didsInDistrictArrays.has(did)) {
       didsInDistrictArrays.add(did);
@@ -675,9 +677,7 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
 
   // Origens: empreender em (0,0); demais em círculo de raio OUTER_DISTRICT_RADIUS. Voronoi ponderado só entre os externos.
   type OriginWithWeight = { ogx: number; ogz: number; weight: number };
-  const districtOrigins: OriginWithWeight[] = [
-    { ogx: 0, ogz: 0, weight: 1 },
-  ];
+  const districtOrigins: OriginWithWeight[] = [{ ogx: 0, ogz: 0, weight: 1 }];
   for (let di = 0; di < districtDevArrays.length; di++) {
     const angle = (di / districtDevArrays.length) * Math.PI * 2 - Math.PI / 2;
     const devCount = districtDevArrays[di].devs.length;
@@ -733,12 +733,18 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
     ];
   }
 
-  function getManualBuildingForDistrict(did: string): ManualBuildingConfig | undefined {
+  function getManualBuildingForDistrict(
+    did: string,
+  ): ManualBuildingConfig | undefined {
     return MANUAL_BUILDINGS.find((mb) => (mb.district ?? "empreender") === did);
   }
 
   /** Coloca o manual building no centro do distrito (célula ogx,ogz) e marca a célula como ocupada para o spiral não colocar devs em cima. */
-  function placeManualBuildingAtGrid(ogx: number, ogz: number, mb: ManualBuildingConfig): void {
+  function placeManualBuildingAtGrid(
+    ogx: number,
+    ogz: number,
+    mb: ManualBuildingConfig,
+  ): void {
     const key = `${ogx},${ogz}`;
     occupiedCells.add(key);
     let [cx, cz] = gridToWorld(ogx, ogz);
@@ -759,7 +765,8 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
       primary_language: mb.primary_language ?? null,
       claimed: false,
       owned_items: mb.owned_items ?? [],
-      custom_color: mb.custom_color ?? DISTRICT_COLORS[mb.district ?? "empreender"] ?? null,
+      custom_color:
+        mb.custom_color ?? DISTRICT_COLORS[mb.district ?? "empreender"] ?? null,
       billboard_images: mb.billboard_images ?? [],
       achievements: [],
       kudos_count: 0,
@@ -849,7 +856,8 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
         primary_language: dev.primary_language,
         claimed: dev.claimed ?? false,
         owned_items: dev.owned_items ?? [],
-        custom_color: dev.custom_color ?? DISTRICT_COLORS[did ?? "meta"] ?? null,
+        custom_color:
+          dev.custom_color ?? DISTRICT_COLORS[did ?? "meta"] ?? null,
         billboard_images: dev.billboard_images ?? [],
         achievements:
           ((dev as unknown as Record<string, unknown>)

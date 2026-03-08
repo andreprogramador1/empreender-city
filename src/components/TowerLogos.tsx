@@ -5,23 +5,33 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import type { CityBuilding } from "@/lib/github";
 
-const LOGO_SIZE = 28;
-const FLOAT_OFFSET = 40;
+const LOGO_SIZE = 80;
+const FLOAT_OFFSET = 100;
 const SPIN_SPEED = 0.3;
 
 const DISTRICT_LOGOS: Record<string, string> = {
-  empreender: "https://empreender.nyc3.digitaloceanspaces.com/landingpage/688cf51938fb3.png",
-  nuvemshop: "https://empreender.nyc3.digitaloceanspaces.com/landingpage/6823a9b518c5b.png",
-  googleanalytics4: "https://empreender.nyc3.digitaloceanspaces.com/landingpage/688a7cf10c973.png",
+  empreender:
+    "https://empreender.nyc3.digitaloceanspaces.com/landingpage/688cf51938fb3.png",
+  nuvemshop:
+    "https://empreender.nyc3.digitaloceanspaces.com/landingpage/6823a9b518c5b.png",
+  googleanalytics4:
+    "https://empreender.nyc3.digitaloceanspaces.com/landingpage/688a7cf10c973.png",
   meta: "https://empreender.nyc3.digitaloceanspaces.com/landingpage/68d59e00a9272.png",
-  yampi: "https://empreender.nyc3.digitaloceanspaces.com/landingpage/689cbec11b503.png",
-  lojaintegrada: "https://empreender.nyc3.digitaloceanspaces.com/landingpage/68c0881c5ef9b.png",
-  tiktokshop: "https://empreender.nyc3.digitaloceanspaces.com/landingpage/68f92c7db0284.png",
+  yampi:
+    "https://empreender.nyc3.digitaloceanspaces.com/landingpage/689cbec11b503.png",
+  lojaintegrada:
+    "https://empreender.nyc3.digitaloceanspaces.com/landingpage/68c0881c5ef9b.png",
+  tiktokshop:
+    "https://empreender.nyc3.digitaloceanspaces.com/landingpage/68f92c7db0284.png",
   tray: "https://empreender.nyc3.digitaloceanspaces.com/landingpage/68ee872faa496.png",
-  shopify: "https://empreender.nyc3.digitaloceanspaces.com/landingpage/690bb1c08272b.png",
-  bling: "https://empreender.nyc3.digitaloceanspaces.com/landingpage/69371751ac146.svg%2Bxml",
-  kiwify: "https://empreender.nyc3.digitaloceanspaces.com/landingpage/6995f61b69bd7.png",
-  montink: "https://empreender.nyc3.digitaloceanspaces.com/landingpage/682b70efbb509.png",
+  shopify:
+    "https://empreender.nyc3.digitaloceanspaces.com/landingpage/690bb1c08272b.png",
+  bling:
+    "https://empreender.nyc3.digitaloceanspaces.com/landingpage/69371751ac146.svg%2Bxml",
+  kiwify:
+    "https://empreender.nyc3.digitaloceanspaces.com/landingpage/6995f61b69bd7.png",
+  montink:
+    "https://empreender.nyc3.digitaloceanspaces.com/landingpage/682b70efbb509.png",
 };
 
 const _loader = new THREE.TextureLoader();
@@ -37,7 +47,10 @@ function useLogoTexture(districtId: string | undefined) {
     let cancelled = false;
 
     const apply = (tex: THREE.Texture) => {
-      if (cancelled) { tex.dispose(); return; }
+      if (cancelled) {
+        tex.dispose();
+        return;
+      }
       if (texRef.current) texRef.current.dispose();
       texRef.current = tex;
       setTexture(tex);
@@ -52,10 +65,14 @@ function useLogoTexture(districtId: string | undefined) {
         apply(tex);
       },
       undefined,
-      () => { if (!cancelled) setTexture(null); },
+      () => {
+        if (!cancelled) setTexture(null);
+      },
     );
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [districtId]);
 
   useEffect(() => {
@@ -70,11 +87,7 @@ function useLogoTexture(districtId: string | undefined) {
   return texture;
 }
 
-function SpinningLogo({
-  building,
-}: {
-  building: CityBuilding;
-}) {
+function SpinningLogo({ building }: { building: CityBuilding }) {
   const groupRef = useRef<THREE.Group>(null);
   const tex = useLogoTexture(building.district ?? undefined);
 

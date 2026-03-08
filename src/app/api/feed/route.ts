@@ -86,15 +86,15 @@ export async function GET(request: Request) {
     if (e.target_id) devIds.add(e.target_id);
   }
 
-  const devMap: Record<number, { login: string; avatar_url: string | null }> = {};
+  const devMap: Record<number, { login: string; name: string | null; avatar_url: string | null }> = {};
   if (devIds.size > 0) {
     const { data: devs } = await sb
       .from("developers")
-      .select("id, github_login, avatar_url")
+      .select("id, github_login, name, avatar_url")
       .in("id", Array.from(devIds));
 
     for (const d of devs ?? []) {
-      devMap[d.id] = { login: d.github_login, avatar_url: d.avatar_url };
+      devMap[d.id] = { login: d.github_login, name: d.name, avatar_url: d.avatar_url };
     }
   }
 
@@ -125,7 +125,7 @@ export async function GET(request: Request) {
 async function generateSyntheticEvents(sb: ReturnType<typeof getSupabaseAdmin>, count: number) {
   const { data: devs } = await sb
     .from("developers")
-    .select("id, github_login, contributions, total_stars, rank, contributions_total, current_streak, primary_language, public_repos")
+    .select("id, github_login, name, contributions, total_stars, rank, contributions_total, current_streak, primary_language, public_repos")
     .order("contributions", { ascending: false })
     .limit(50);
 
@@ -157,6 +157,7 @@ async function generateSyntheticEvents(sb: ReturnType<typeof getSupabaseAdmin>, 
         target_id: null,
         metadata: {
           login: dev.github_login,
+          name: dev.name,
           highlight: "contributions",
           value: dev.contributions,
         },
@@ -170,6 +171,7 @@ async function generateSyntheticEvents(sb: ReturnType<typeof getSupabaseAdmin>, 
         target_id: null,
         metadata: {
           login: dev.github_login,
+          name: dev.name,
           highlight: "stars",
           value: dev.total_stars,
         },
@@ -183,6 +185,7 @@ async function generateSyntheticEvents(sb: ReturnType<typeof getSupabaseAdmin>, 
         target_id: null,
         metadata: {
           login: dev.github_login,
+          name: dev.name,
           highlight: "rank",
           value: dev.rank,
         },
@@ -196,6 +199,7 @@ async function generateSyntheticEvents(sb: ReturnType<typeof getSupabaseAdmin>, 
         target_id: null,
         metadata: {
           login: dev.github_login,
+          name: dev.name,
           highlight: "streak",
           value: dev.current_streak,
         },
@@ -209,6 +213,7 @@ async function generateSyntheticEvents(sb: ReturnType<typeof getSupabaseAdmin>, 
         target_id: null,
         metadata: {
           login: dev.github_login,
+          name: dev.name,
           highlight: "language",
           value: dev.primary_language,
         },
@@ -222,6 +227,7 @@ async function generateSyntheticEvents(sb: ReturnType<typeof getSupabaseAdmin>, 
         target_id: null,
         metadata: {
           login: dev.github_login,
+          name: dev.name,
           highlight: "repos",
           value: dev.public_repos,
         },

@@ -42,12 +42,13 @@ function createTextAtlas(buildings: CityBuilding[]): THREE.CanvasTexture {
     const cy = row * CELL_H + CELL_H / 2;
 
     const isTower = b.login.startsWith("tower-");
+    const displayName = (b.name ?? b.login).trim() || b.login;
     const label = isTower
-      ? (DISTRICT_NAMES[b.district ?? ""] ?? b.login).toUpperCase()
-      : b.login.length > 16
-        ? b.login.slice(0, 16).toUpperCase() + "..."
-        : b.login.toUpperCase();
-    const text = isTower ? label : `@${label}`;
+      ? (DISTRICT_NAMES[b.district ?? ""] ?? displayName).toUpperCase()
+      : displayName.length > 16
+        ? displayName.slice(0, 16).toUpperCase() + "..."
+        : displayName.toUpperCase();
+    const text = isTower ? label : (b.name ? label : `@${label}`);
 
     // Background pill
     ctx.font = 'bold 22px "Silkscreen", monospace';

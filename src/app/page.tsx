@@ -45,6 +45,7 @@ import RabbitCompletion from "@/components/RabbitCompletion";
 import DistrictChooser from "@/components/DistrictChooser";
 import XpBar from "@/components/XpBar";
 import LevelUpToast from "@/components/LevelUpToast";
+import { parseDashLogin } from "@/lib/dash-api";
 import {
   rankFromLevel,
   tierFromLevel,
@@ -54,7 +55,10 @@ import {
 import LoadingScreen, { type LoadingStage } from "@/components/LoadingScreen";
 import MiniMap from "@/components/MiniMap";
 import { getCityCache, setCityCache, clearCityCache } from "@/lib/cityCache";
-import { getMockCitySnapshot, USE_MOCK_CITY_SNAPSHOT } from "@/lib/mockCitySnapshot";
+import {
+  getMockCitySnapshot,
+  USE_MOCK_CITY_SNAPSHOT,
+} from "@/lib/mockCitySnapshot";
 import {
   DEFAULT_SKY_ADS,
   buildAdLink,
@@ -236,13 +240,7 @@ const CELEBRATION_MILESTONES = [
 ];
 
 // ─── Loading phases for search feedback ─────────────────────
-const LOADING_PHASES = [
-  { delay: 0, text: "Fetching GitHub profile..." },
-  { delay: 2000, text: "Analyzing contributions..." },
-  { delay: 5000, text: "Building the city block..." },
-  { delay: 9000, text: "Almost there..." },
-  { delay: 13000, text: "This one's a big profile. Hang tight..." },
-];
+const LOADING_PHASES = [{ delay: 0, text: "Buscando loja..." }];
 
 // Errors that won't change if you retry the same username
 const PERMANENT_ERROR_CODES = new Set(["not-found", "org", "no-activity"]);
@@ -257,14 +255,13 @@ const ERROR_MESSAGES: Record<
   }
 > = {
   "not-found": {
-    primary: (u) => `"@${u}" doesn't exist on GitHub`,
-    secondary:
-      "Check the spelling — could be a typo. GitHub usernames are case-insensitive.",
+    primary: (u) => `"${u}" não existe no Dash`,
+    secondary: "Verifique a ortografia — pode ser um erro de digitação.",
   },
   org: {
-    primary: (u) => `"@${u}" is an organization, not a person`,
+    primary: (u) => `"@${u}" é uma organização, não uma pessoa`,
     secondary:
-      "Git City is for individual profiles. Try searching for one of its contributors by their personal username.",
+      "O Dash é para lojas individuais. Tente buscar uma das lojas de seus contribuidores pelo seu nome de usuário pessoal.",
   },
   "no-activity": {
     primary: (u) => `"@${u}" has no public activity yet`,
@@ -397,9 +394,9 @@ function SearchFeedback({
 }
 
 const LEADERBOARD_CATEGORIES = [
-  { label: "Contributors", key: "contributions" as const, tab: "contributors" },
-  { label: "Stars", key: "total_stars" as const, tab: "stars" },
-  { label: "Repos", key: "public_repos" as const, tab: "architects" },
+  { label: "Lojas", key: "contributions" as const, tab: "contributors" },
+  // { label: "Stars", key: "total_stars" as const, tab: "stars" },
+  // { label: "Repos", key: "public_repos" as const, tab: "architects" },
 ] as const;
 
 function MiniLeaderboard({
@@ -421,7 +418,7 @@ function MiniLeaderboard({
 
   const cat = LEADERBOARD_CATEGORIES[catIndex];
   const sorted = buildings
-    .slice()
+    .filter((b) => !b.login.startsWith("tower-"))
     .sort((a, b) => (b[cat.key] as number) - (a[cat.key] as number))
     .slice(0, 5);
 
@@ -441,7 +438,7 @@ function MiniLeaderboard({
           href={`/leaderboard?tab=${cat.tab}`}
           className="text-[9px] text-muted transition-colors hover:text-cream normal-case"
         >
-          View all &rarr;
+          Ver todos &rarr;
         </a>
       </div>
       <div className="border-[2px] border-border bg-bg-raised/80 backdrop-blur-sm">
@@ -468,12 +465,12 @@ function MiniLeaderboard({
                 #{i + 1}
               </span>
               <span className="truncate text-[10px] text-cream normal-case">
-                {b.login}
+                {b.name}
               </span>
             </span>
-            <span className="ml-2 flex-shrink-0 text-[10px] text-muted">
+            {/* <span className="ml-2 flex-shrink-0 text-[10px] text-muted">
               {(b[cat.key] as number).toLocaleString()}
-            </span>
+            </span> */}
           </a>
         ))}
       </div>
@@ -1855,7 +1852,9 @@ function HomeContent() {
 
       // Check if dev already exists in the city before the fetch
       const existedBefore = buildings.some(
-        (b) => b.login.toLowerCase() === trimmed || b?.name?.toLowerCase() === trimmed.toLowerCase(),
+        (b) =>
+          b.login.toLowerCase() === trimmed ||
+          b?.name?.toLowerCase() === trimmed.toLowerCase(),
       );
 
       // Add/refresh the developer
@@ -2573,8 +2572,8 @@ function HomeContent() {
             {/* Narrative texts (phases 0-2) */}
             {[
               "Em algum lugar da internet...",
-              "Lojistas viraram prédios",
-              "E lojas viraram pisos",
+              "E-commerces viraram cidades",
+              "E vendas viraram andares",
             ].map((text, i) => (
               <p
                 key={i}
@@ -2756,13 +2755,13 @@ function HomeContent() {
                 style={{ borderColor: districtAnnouncement.color }}
               >
                 <div className="text-[8px] uppercase tracking-widest text-muted">
-                  District
+                  Distrito
                 </div>
                 <div className="font-pixel text-sm text-cream">
                   {districtAnnouncement.name}
                 </div>
                 <div className="text-[8px] text-muted">
-                  {districtAnnouncement.population.toLocaleString()} devs
+                  {districtAnnouncement.population.toLocaleString()} Lojas
                 </div>
               </div>
             </div>
@@ -2773,16 +2772,16 @@ function HomeContent() {
             {flyPaused ? (
               <>
                 <div>
-                  <span className="text-cream">Drag</span> orbit
+                  <span className="text-cream">Arrastar</span> orbit
                 </div>
                 <div>
-                  <span className="text-cream">Scroll</span> zoom
+                  <span className="text-cream">Rolar</span> zoom
                 </div>
                 <div>
-                  <span className="text-cream">WASD</span> resume
+                  <span className="text-cream">WASD</span> continuar
                 </div>
                 <div>
-                  <span style={{ color: theme.accent }}>ESC</span> exit
+                  <span style={{ color: theme.accent }}>ESC</span> sair
                 </div>
               </>
             ) : (
@@ -3450,9 +3449,7 @@ function HomeContent() {
                   if (feedback?.type === "error") setFeedback(null);
                 }}
                 placeholder={
-                  session
-                    ? "search any GitHub username"
-                    : "type your GitHub username"
+                  session ? "Busque por uma loja" : "Busque por uma loja"
                 }
                 className="min-w-0 flex-1 border-[3px] border-border bg-bg-raised px-3 py-2 text-base sm:text-xs text-cream outline-none transition-colors placeholder:text-dim sm:px-4 sm:py-2.5"
                 style={{ borderColor: undefined }}
@@ -3473,7 +3470,7 @@ function HomeContent() {
                 {loading ? (
                   <span className="blink-dot inline-block">_</span>
                 ) : (
-                  "Search"
+                  "Buscar"
                 )}
               </button>
             </form>
@@ -4051,7 +4048,7 @@ function HomeContent() {
 
                 {selectedBuilding.login.startsWith("tower-") ? (
                   <>
-                    {/* Tower card: name + description + link */}
+                    {/* Manual building (tower): original card — name, district, description, Acessar link */}
                     <div className="px-4 pb-3 sm:pt-4">
                       <p className="text-sm text-cream">
                         {selectedBuilding.name ?? selectedBuilding.login}
@@ -4099,7 +4096,85 @@ function HomeContent() {
                         </div>
                       )}
                   </>
-                ) : (
+                ) : parseDashLogin(selectedBuilding.login) !== null ? (
+                  <>
+                    {/* Non–manual building (Dash/store): only name, level, platform, and store link */}
+                    {(() => {
+                      const dashParsed = parseDashLogin(
+                        selectedBuilding.login,
+                      )!;
+                      const platformDistrict =
+                        selectedBuilding.district ??
+                        dashParsed.platform.toLowerCase();
+                      const platformName =
+                        DISTRICT_NAMES[platformDistrict] ?? dashParsed.platform;
+                      const storeUrl = DISTRICT_URLS[platformDistrict] ?? null;
+                      return (
+                        <>
+                          <div className="px-4 pb-3 sm:pt-4">
+                            <p className="text-sm text-cream">
+                              {selectedBuilding.name ?? selectedBuilding.login}
+                            </p>
+                            {/* {selectedBuilding.claimed && (
+                              <span className="ml-2 inline-block px-1.5 py-0.5 text-[8px] text-bg" style={{ backgroundColor: theme.accent }}>
+                                CLAIMED
+                              </span>
+                            )} */}
+                          </div>
+                          {/* <div className="mx-4 mb-2 flex items-center gap-2">
+                            <span
+                              className="flex h-7 w-7 items-center justify-center border-[2px] text-xs font-bold"
+                              style={{
+                                borderColor: "#39d353",
+                                color: "#39d353",
+                              }}
+                            >
+                              {selectedBuilding.xp_level ?? 1}
+                            </span>
+                            <span className="text-[10px] text-muted">
+                              Lv {selectedBuilding.xp_level ?? 1}
+                            </span>
+                          </div> */}
+                          {platformName && (
+                            <div className="mx-4 mb-2">
+                              <span
+                                className="inline-block px-3 py-1.5 text-[10px] font-medium text-bg"
+                                style={{
+                                  backgroundColor:
+                                    DISTRICT_COLORS[platformDistrict] ??
+                                    theme.accent,
+                                  boxShadow: `2px 2px 0 0 ${theme.shadow}`,
+                                }}
+                              >
+                                {platformName.toUpperCase()}
+                              </span>
+                            </div>
+                          )}
+                          {storeUrl && (
+                            <div className="px-4 pb-5 sm:pb-4">
+                              <a
+                                href={storeUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="btn-press block w-full py-2.5 text-center text-[10px] text-bg"
+                                style={{
+                                  backgroundColor:
+                                    DISTRICT_COLORS[platformDistrict] ??
+                                    theme.accent,
+                                  boxShadow: `2px 2px 0 0 ${theme.shadow}`,
+                                }}
+                              >
+                                Ir para loja &rarr;
+                              </a>
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </>
+                ) : null}
+                {!selectedBuilding.login.startsWith("tower-") &&
+                parseDashLogin(selectedBuilding.login) === null ? (
                   <>
                     {/* Header with avatar + name */}
                     <div className="flex items-center gap-3 px-4 pb-3 sm:pt-4">
@@ -4225,7 +4300,7 @@ function HomeContent() {
                     )}
 
                     {/* Stats */}
-                    <div className="grid grid-cols-3 gap-px bg-border/30 mx-4 mb-3 border border-border/50">
+                    {/* <div className="grid grid-cols-3 gap-px bg-border/30 mx-4 mb-3 border border-border/50">
                       {[
                         { label: "Rank", value: `#${selectedBuilding.rank}` },
                         {
@@ -4269,7 +4344,7 @@ function HomeContent() {
                           </div>
                         </div>
                       ))}
-                    </div>
+                    </div> */}
 
                     {/* Achievements with tier colors, sorted by tier */}
                     {selectedBuilding.achievements &&
@@ -4576,7 +4651,7 @@ function HomeContent() {
                       )}
                     </div>
                   </>
-                )}
+                ) : null}
               </div>
             </div>
           </>
@@ -5235,14 +5310,14 @@ function HomeContent() {
             <span style={{ color: theme.accent }}>&#9654;</span>
             <span className="text-cream">Intro</span>
           </button>
-          <button
+          {/* <button
             onClick={addRandomBuilding}
             className="btn-press flex items-center gap-1 border-[3px] border-border bg-bg/70 px-2 py-1 text-[10px] backdrop-blur-sm transition-colors hover:border-border-light"
             title="Add random building"
           >
             <span style={{ color: theme.accent }}>+</span>
             <span className="text-cream">Building</span>
-          </button>
+          </button> */}
         </div>
       )}
 

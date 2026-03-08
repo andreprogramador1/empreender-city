@@ -9,7 +9,12 @@ import { getOwnedItems } from "@/lib/items";
 import { TIER_COLORS } from "@/lib/achievements";
 import { DISTRICT_NAMES, DISTRICT_COLORS } from "@/lib/github";
 import { ITEM_NAMES } from "@/lib/zones";
-import { rankFromLevel, tierFromLevel, levelProgress, xpForLevel } from "@/lib/xp";
+import {
+  rankFromLevel,
+  tierFromLevel,
+  levelProgress,
+  xpForLevel,
+} from "@/lib/xp";
 import ClaimButton from "@/components/ClaimButton";
 import ShareButtons from "@/components/ShareButtons";
 import CompareChallenge from "@/components/CompareChallenge";
@@ -40,9 +45,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: "Developer Not Found - Git City" };
   }
 
-  const contribs = (dev.contributions_total && dev.contributions_total > 0) ? dev.contributions_total : dev.contributions;
+  const contribs =
+    dev.contributions_total && dev.contributions_total > 0
+      ? dev.contributions_total
+      : dev.contributions;
   const title = `@${dev.github_login} - Git City | ${contribs.toLocaleString()} contributions`;
-  const description = `See @${dev.github_login}'s building in Git City. ${contribs.toLocaleString()} contributions, ${dev.public_repos.toLocaleString()} repos, ${dev.total_stars.toLocaleString()} stars. Rank #${dev.rank ?? "?"} in the city.`;
+  const description = `See @${dev.github_login}'s building in Git City. ${contribs.toLocaleString()} contributions, ${dev.public_repos.toLocaleString()} repos, ${dev.total_stars.toLocaleString()} stars. Rank #${dev.rank ?? "?"} na cidade.`;
 
   return {
     title,
@@ -81,11 +89,17 @@ export default async function DevPage({ params }: Props) {
     .from("developer_achievements")
     .select("achievement_id, achievements(name, tier)")
     .eq("developer_id", dev.id);
-  const achievements: AchievementRow[] = (devAchievements ?? []).map((a: Record<string, unknown>) => ({
-    achievement_id: a.achievement_id as string,
-    name: (a.achievements as Record<string, unknown>)?.name as string ?? (a.achievement_id as string),
-    tier: (a.achievements as Record<string, unknown>)?.tier as string ?? "bronze",
-  }));
+  const achievements: AchievementRow[] = (devAchievements ?? []).map(
+    (a: Record<string, unknown>) => ({
+      achievement_id: a.achievement_id as string,
+      name:
+        ((a.achievements as Record<string, unknown>)?.name as string) ??
+        (a.achievement_id as string),
+      tier:
+        ((a.achievements as Record<string, unknown>)?.tier as string) ??
+        "bronze",
+    }),
+  );
 
   // Fetch referred developers (who this dev brought to the city)
   const { data: referredDevs } = await sb
@@ -97,13 +111,16 @@ export default async function DevPage({ params }: Props) {
 
   // Check if the logged-in user owns this building
   const supabase = await createServerSupabase();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const authLogin = (
     user?.user_metadata?.user_name ??
     user?.user_metadata?.preferred_username ??
     ""
   ).toLowerCase();
-  const isOwner = !!user && authLogin === dev.github_login.toLowerCase() && dev.claimed;
+  const isOwner =
+    !!user && authLogin === dev.github_login.toLowerCase() && dev.claimed;
 
   const baseUrl =
     process.env.NEXT_PUBLIC_BASE_URL ??
@@ -137,7 +154,7 @@ export default async function DevPage({ params }: Props) {
       },
     ],
   };
-
+  console.log({ dev });
   return (
     <main className="min-h-screen bg-bg font-pixel uppercase text-warm">
       <ProfileTracker login={dev.github_login} />
@@ -155,7 +172,7 @@ export default async function DevPage({ params }: Props) {
           href="/"
           className="mb-6 inline-block text-sm text-muted transition-colors hover:text-cream sm:mb-8"
         >
-          &larr; Back to City
+          &larr; Voltar para a cidade
         </Link>
 
         {/* Profile Card */}
@@ -177,12 +194,14 @@ export default async function DevPage({ params }: Props) {
               {dev.name && (
                 <h1 className="text-xl text-cream sm:text-2xl">{dev.name}</h1>
               )}
-              <p className="mt-1 text-sm text-muted">@{dev.github_login}</p>
 
               {/* Rank Badge */}
               {dev.rank && (
-                <div className="mt-3 inline-block border-[2px] px-3 py-1 text-sm" style={{ borderColor: accent, color: accent }}>
-                  #{dev.rank} in the city
+                <div
+                  className="mt-3 inline-block border-[2px] px-3 py-1 text-sm"
+                  style={{ borderColor: accent, color: accent }}
+                >
+                  #{dev.rank} na cidade
                 </div>
               )}
 
@@ -191,22 +210,30 @@ export default async function DevPage({ params }: Props) {
                 <div className="mt-2 flex items-center gap-2">
                   <span
                     className="px-2 py-0.5 text-[10px] text-bg"
-                    style={{ backgroundColor: DISTRICT_COLORS[dev.district] ?? '#888' }}
+                    style={{
+                      backgroundColor: DISTRICT_COLORS[dev.district] ?? "#888",
+                    }}
                   >
                     {DISTRICT_NAMES[dev.district] ?? dev.district}
                   </span>
                   {dev.district_rank && (
                     <span className="text-[10px] text-muted">
-                      {dev.district_rank === 1 ? 'Mayor' : `#${dev.district_rank}`} in {DISTRICT_NAMES[dev.district]}
+                      {dev.district_rank === 1
+                        ? "Mayor"
+                        : `#${dev.district_rank}`}{" "}
+                      in {DISTRICT_NAMES[dev.district]}
                     </span>
                   )}
                 </div>
               )}
 
               {/* Claim */}
-              <div className="mt-3">
-                <ClaimButton githubLogin={dev.github_login} claimed={dev.claimed ?? false} />
-              </div>
+              {/* <div className="mt-3">
+                <ClaimButton
+                  githubLogin={dev.github_login}
+                  claimed={dev.claimed ?? false}
+                />
+              </div> */}
             </div>
           </div>
 
@@ -219,7 +246,7 @@ export default async function DevPage({ params }: Props) {
         </div>
 
         {/* XP & Level */}
-        {(() => {
+        {/* {(() => {
           const xpLevel = dev.xp_level ?? 1;
           const xpTotal = dev.xp_total ?? 0;
           const tier = tierFromLevel(xpLevel);
@@ -238,12 +265,18 @@ export default async function DevPage({ params }: Props) {
                 </span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold" style={{ color: tier.color }}>
+                    <span
+                      className="text-sm font-bold"
+                      style={{ color: tier.color }}
+                    >
                       {rank.title}
                     </span>
                     <span
                       className="px-1.5 py-0.5 text-[8px] font-bold"
-                      style={{ backgroundColor: tier.color + "22", color: tier.color }}
+                      style={{
+                        backgroundColor: tier.color + "22",
+                        color: tier.color,
+                      }}
                     >
                       {tier.name.toUpperCase()}
                     </span>
@@ -259,7 +292,8 @@ export default async function DevPage({ params }: Props) {
                       />
                     </div>
                     <span className="text-[9px] text-muted whitespace-nowrap">
-                      {xpCurrent.toLocaleString()} / {xpNeeded.toLocaleString()} XP
+                      {xpCurrent.toLocaleString()} / {xpNeeded.toLocaleString()}{" "}
+                      XP
                     </span>
                   </div>
                 </div>
@@ -269,7 +303,7 @@ export default async function DevPage({ params }: Props) {
               </div>
             </div>
           );
-        })()}
+        })()} */}
 
         {/* View in City (prominent) */}
         <div className="mt-5">
@@ -281,12 +315,12 @@ export default async function DevPage({ params }: Props) {
               boxShadow: `4px 4px 0 0 ${shadow}`,
             }}
           >
-            View in City
+            Ver na cidade
           </Link>
         </div>
 
         {/* Customize Building — only for the logged-in owner */}
-        {isOwner && (
+        {/* {isOwner && (
           <div className="mt-3">
             <Link
               href={`/shop/${dev.github_login}`}
@@ -295,10 +329,10 @@ export default async function DevPage({ params }: Props) {
               Customize Building
             </Link>
           </div>
-        )}
+        )} */}
 
         {/* Share + Compare */}
-        <div className="mt-5 space-y-3">
+        {/* <div className="mt-5 space-y-3">
           <div className="flex flex-wrap items-center justify-center gap-2">
             <ShareButtons
               login={dev.github_login}
@@ -309,17 +343,26 @@ export default async function DevPage({ params }: Props) {
             />
           </div>
           <CompareChallenge login={dev.github_login} accent={accent} shadow={shadow} />
-        </div>
+        </div> */}
 
         {/* Stats Grid */}
-        <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3">
+        {/* <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3">
           {[
-            { label: "Contributions", value: ((dev.contributions_total && dev.contributions_total > 0) ? dev.contributions_total : dev.contributions).toLocaleString() },
+            {
+              label: "Contributions",
+              value: (dev.contributions_total && dev.contributions_total > 0
+                ? dev.contributions_total
+                : dev.contributions
+              ).toLocaleString(),
+            },
             { label: "Repos", value: dev.public_repos.toLocaleString() },
             { label: "Stars", value: dev.total_stars.toLocaleString() },
             { label: "Kudos", value: (dev.kudos_count ?? 0).toLocaleString() },
             { label: "Visits", value: (dev.visit_count ?? 0).toLocaleString() },
-            { label: "Referrals", value: (dev.referral_count ?? 0).toLocaleString() },
+            {
+              label: "Referrals",
+              value: (dev.referral_count ?? 0).toLocaleString(),
+            },
           ].map((stat) => (
             <div
               key={stat.label}
@@ -331,14 +374,16 @@ export default async function DevPage({ params }: Props) {
               <div className="mt-2 text-xs text-muted">{stat.label}</div>
             </div>
           ))}
-        </div>
+        </div> */}
 
         {/* Achievements */}
         {achievements.length > 0 && (
           <div className="mt-5">
             <h2 className="mb-3 text-sm text-cream">
               Achievements
-              <span className="ml-2 text-[10px] text-muted">{achievements.length}</span>
+              <span className="ml-2 text-[10px] text-muted">
+                {achievements.length}
+              </span>
             </h2>
             <div className="flex flex-wrap gap-2">
               {achievements
@@ -392,7 +437,9 @@ export default async function DevPage({ params }: Props) {
           <div className="mt-5">
             <h2 className="mb-3 text-sm text-cream">
               Invited Devs
-              <span className="ml-2 text-[10px] text-muted">{dev.referral_count ?? referredDevs.length}</span>
+              <span className="ml-2 text-[10px] text-muted">
+                {dev.referral_count ?? referredDevs.length}
+              </span>
             </h2>
             <div className="flex flex-wrap gap-2">
               {referredDevs.map((rd) => (
@@ -419,7 +466,7 @@ export default async function DevPage({ params }: Props) {
         )}
 
         {/* GitHub link */}
-        <div className="mt-8 text-center">
+        {/* <div className="mt-8 text-center">
           <a
             href={`https://github.com/${dev.github_login}`}
             target="_blank"
@@ -428,7 +475,7 @@ export default async function DevPage({ params }: Props) {
           >
             github.com/{dev.github_login} &rarr;
           </a>
-        </div>
+        </div> */}
 
         {/* Creator credit */}
         <div className="mt-10 border-t border-border/50 pt-4 text-center">

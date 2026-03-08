@@ -217,10 +217,11 @@ function createFarLabel(building: CityBuilding): THREE.CanvasTexture {
   canvas.height = H;
   const ctx = canvas.getContext("2d")!;
 
-  const login = building.login.length > 16
-    ? building.login.slice(0, 16).toUpperCase() + "..."
-    : building.login.toUpperCase();
-  const text = `@${login}`;
+  const displayName = (building.name ?? building.login).trim() || building.login;
+  const label = displayName.length > 16
+    ? displayName.slice(0, 16).toUpperCase() + "..."
+    : displayName.toUpperCase();
+  const text = building.name ? label : `@${label}`;
 
   ctx.font = 'bold 40px "Silkscreen", monospace';
   ctx.textAlign = "center";
