@@ -871,7 +871,10 @@ function HomeContent() {
   const sessionUserId = session?.user?.id;
   useEffect(() => {
     if (!sessionUserId || !currentDeveloper?.github_login) return;
-    const q = queryWithDeveloper(new URLSearchParams(), currentDeveloper.github_login);
+    const q = queryWithDeveloper(
+      new URLSearchParams(),
+      currentDeveloper.github_login,
+    );
     fetch(`/api/raid/loadout?${q}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
@@ -883,9 +886,17 @@ function HomeContent() {
   // Load theme from DB when logged in (overrides localStorage)
   const themeLoadedFromDb = useRef(false);
   useEffect(() => {
-    if (!sessionUserId || !currentDeveloper?.github_login || themeLoadedFromDb.current) return;
+    if (
+      !sessionUserId ||
+      !currentDeveloper?.github_login ||
+      themeLoadedFromDb.current
+    )
+      return;
     themeLoadedFromDb.current = true;
-    const q = queryWithDeveloper(new URLSearchParams(), currentDeveloper.github_login);
+    const q = queryWithDeveloper(
+      new URLSearchParams(),
+      currentDeveloper.github_login,
+    );
     fetch(`/api/preferences/theme?${q}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
@@ -963,7 +974,9 @@ function HomeContent() {
         fetch("/api/preferences/theme", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(withDeveloper({ city_theme: next }, currentDeveloper.github_login)),
+          body: JSON.stringify(
+            withDeveloper({ city_theme: next }, currentDeveloper.github_login),
+          ),
         }).catch(() => {});
       }
       return next;
@@ -1031,11 +1044,7 @@ function HomeContent() {
 
   // Visit tracking: fire visit POST after 3s of profile card open
   useEffect(() => {
-    if (
-      selectedBuilding &&
-      session &&
-      selectedBuilding.login !== authLogin
-    ) {
+    if (selectedBuilding && session && selectedBuilding.login !== authLogin) {
       visitTimerRef.current = setTimeout(async () => {
         try {
           const building = buildings.find(
@@ -1046,7 +1055,12 @@ function HomeContent() {
             await fetch("/api/interactions/visit", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(withDeveloper({ building_login: selectedBuilding.login }, currentDeveloper.github_login)),
+              body: JSON.stringify(
+                withDeveloper(
+                  { building_login: selectedBuilding.login },
+                  currentDeveloper.github_login,
+                ),
+              ),
             });
           }
           trackMissionRef.current("visit_building");
@@ -1059,7 +1073,13 @@ function HomeContent() {
     return () => {
       if (visitTimerRef.current) clearTimeout(visitTimerRef.current);
     };
-  }, [selectedBuilding, session, authLogin, buildings, currentDeveloper?.github_login]);
+  }, [
+    selectedBuilding,
+    session,
+    authLogin,
+    buildings,
+    currentDeveloper?.github_login,
+  ]);
 
   // Kudos handler
   const handleGiveKudos = useCallback(async () => {
@@ -1073,7 +1093,10 @@ function HomeContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(
           currentDeveloper?.github_login
-            ? withDeveloper({ receiver_login: selectedBuilding.login }, currentDeveloper.github_login)
+            ? withDeveloper(
+                { receiver_login: selectedBuilding.login },
+                currentDeveloper.github_login,
+              )
             : { receiver_login: selectedBuilding.login },
         ),
       });
@@ -1104,7 +1127,14 @@ function HomeContent() {
     } finally {
       setKudosSending(false);
     }
-  }, [selectedBuilding, kudosSending, kudosSent, session, authLogin, currentDeveloper?.github_login]);
+  }, [
+    selectedBuilding,
+    kudosSending,
+    kudosSent,
+    session,
+    authLogin,
+    currentDeveloper?.github_login,
+  ]);
 
   // Gift: open modal with available items
   const handleOpenGift = useCallback(async () => {
@@ -1140,10 +1170,18 @@ function HomeContent() {
           body: JSON.stringify(
             currentDeveloper?.github_login
               ? withDeveloper(
-                  { item_id: itemId, provider: "stripe", gifted_to_login: selectedBuilding.login },
+                  {
+                    item_id: itemId,
+                    provider: "stripe",
+                    gifted_to_login: selectedBuilding.login,
+                  },
                   currentDeveloper.github_login,
                 )
-              : { item_id: itemId, provider: "stripe", gifted_to_login: selectedBuilding.login },
+              : {
+                  item_id: itemId,
+                  provider: "stripe",
+                  gifted_to_login: selectedBuilding.login,
+                },
           ),
         });
         const data = await res.json();
@@ -1310,7 +1348,9 @@ function HomeContent() {
             const sr = await fetch("/api/rabbit", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(withDeveloper({ sighting: s }, currentDeveloper.github_login)),
+              body: JSON.stringify(
+                withDeveloper({ sighting: s }, currentDeveloper.github_login),
+              ),
             });
             if (!sr.ok) break;
           }
@@ -1347,7 +1387,9 @@ function HomeContent() {
         const res = await fetch("/api/rabbit", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(withDeveloper({ sighting }, currentDeveloper.github_login)),
+          body: JSON.stringify(
+            withDeveloper({ sighting }, currentDeveloper.github_login),
+          ),
         });
         const data = await res.json();
         if (res.ok) {
@@ -1384,7 +1426,13 @@ function HomeContent() {
     // Sightings 1-4: advance locally
     setRabbitHintFlash("The rabbit moves deeper...");
     setTimeout(() => setRabbitSighting(newProgress + 1), 2000);
-  }, [rabbitSighting, session, currentDeveloper?.github_login, buildings, handleSignInWithRef]);
+  }, [
+    rabbitSighting,
+    session,
+    currentDeveloper?.github_login,
+    buildings,
+    handleSignInWithRef,
+  ]);
 
   const reloadCity = useCallback(async (bustCache = false) => {
     if (bustCache) clearCityCache();
@@ -1874,9 +1922,7 @@ function HomeContent() {
 
       // Check if dev already exists in the city before the fetch
       const existedBefore = buildings.some(
-        (b) =>
-          b.login === trimmed ||
-          b?.name?.toLowerCase() === trimmedLower,
+        (b) => b.login === trimmed || b?.name?.toLowerCase() === trimmedLower,
       );
 
       // Add/refresh the developer (preserva o case digitado pelo usuário)
@@ -1955,7 +2001,11 @@ function HomeContent() {
       setFocusedBuilding(devData.github_login);
 
       // A8: Ghost preview — if user searched for themselves, show temporary effect
-      if (authLogin && trimmedLower === authLogin.toLowerCase() && !ghostPreviewShownRef.current) {
+      if (
+        authLogin &&
+        trimmedLower === authLogin.toLowerCase() &&
+        !ghostPreviewShownRef.current
+      ) {
         ghostPreviewShownRef.current = true;
         setGhostPreviewLogin(devData.github_login);
         setTimeout(() => setGhostPreviewLogin(null), 4000);
@@ -3018,7 +3068,7 @@ function HomeContent() {
             </span>
           </a>
           <a
-            href="https://app.empreender.com.br"
+            href="https://empreender.com.br"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 border-[3px] border-border bg-bg/70 px-2.5 py-1 text-[10px] backdrop-blur-sm transition-colors hover:border-border-light"
@@ -3028,7 +3078,7 @@ function HomeContent() {
               alt=""
               className="w-4 h-4 invert"
             />
-            <span className="hidden sm:inline text-cream">Empreender plus</span>
+            <span className="hidden sm:inline text-cream">Empreender</span>
           </a>
           {liveStatus !== "error" && (
             <div className="flex items-center gap-1.5 border-[3px] border-border bg-bg/70 px-2.5 py-1 text-[10px] backdrop-blur-sm">
@@ -4501,87 +4551,86 @@ function HomeContent() {
                       })()}
 
                     {/* Kudos: give kudos (other's building, logged in) */}
-                    {session &&
-                      selectedBuilding.login !== authLogin && (
-                        <div className="relative mx-4 mb-3">
-                          {/* Floating emoji animation on success */}
-                          {kudosSent && (
-                            <div className="pointer-events-none absolute inset-0 overflow-visible">
-                              {Array.from({ length: 6 }).map((_, i) => (
-                                <span
-                                  key={i}
-                                  className="kudos-float absolute text-sm"
-                                  style={{
-                                    left: `${15 + i * 14}%`,
-                                    animationDelay: `${i * 0.08}s`,
-                                  }}
-                                >
-                                  {["👏", "⭐", "💛", "✨", "👏", "⭐"][i]}
-                                </span>
-                              ))}
-                            </div>
+                    {session && selectedBuilding.login !== authLogin && (
+                      <div className="relative mx-4 mb-3">
+                        {/* Floating emoji animation on success */}
+                        {kudosSent && (
+                          <div className="pointer-events-none absolute inset-0 overflow-visible">
+                            {Array.from({ length: 6 }).map((_, i) => (
+                              <span
+                                key={i}
+                                className="kudos-float absolute text-sm"
+                                style={{
+                                  left: `${15 + i * 14}%`,
+                                  animationDelay: `${i * 0.08}s`,
+                                }}
+                              >
+                                {["👏", "⭐", "💛", "✨", "👏", "⭐"][i]}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        <button
+                          onClick={handleGiveKudos}
+                          disabled={kudosSending || kudosSent || !!kudosError}
+                          className={[
+                            "btn-press w-full py-2 text-[10px] text-bg transition-all duration-300",
+                            kudosSent ? "scale-[1.02]" : "",
+                          ].join(" ")}
+                          style={{
+                            backgroundColor: kudosError
+                              ? "#ff4444"
+                              : kudosSent
+                                ? "#39d353"
+                                : theme.accent,
+                            boxShadow: kudosError
+                              ? "0 0 12px rgba(255,68,68,0.4)"
+                              : kudosSent
+                                ? "0 0 12px rgba(57,211,83,0.4)"
+                                : `2px 2px 0 0 ${theme.shadow}`,
+                          }}
+                        >
+                          {kudosSending ? (
+                            <span className="animate-pulse">Sending...</span>
+                          ) : kudosError ? (
+                            <span>{kudosError}</span>
+                          ) : kudosSent ? (
+                            <span>+1 Kudos!</span>
+                          ) : (
+                            "Give Kudos"
                           )}
-                          <button
-                            onClick={handleGiveKudos}
-                            disabled={kudosSending || kudosSent || !!kudosError}
-                            className={[
-                              "btn-press w-full py-2 text-[10px] text-bg transition-all duration-300",
-                              kudosSent ? "scale-[1.02]" : "",
-                            ].join(" ")}
-                            style={{
-                              backgroundColor: kudosError
-                                ? "#ff4444"
-                                : kudosSent
-                                  ? "#39d353"
-                                  : theme.accent,
-                              boxShadow: kudosError
-                                ? "0 0 12px rgba(255,68,68,0.4)"
-                                : kudosSent
-                                  ? "0 0 12px rgba(57,211,83,0.4)"
-                                  : `2px 2px 0 0 ${theme.shadow}`,
-                            }}
-                          >
-                            {kudosSending ? (
-                              <span className="animate-pulse">Sending...</span>
-                            ) : kudosError ? (
-                              <span>{kudosError}</span>
-                            ) : kudosSent ? (
-                              <span>+1 Kudos!</span>
-                            ) : (
-                              "Give Kudos"
-                            )}
-                          </button>
-                          <button
-                            onClick={handleOpenGift}
-                            className="btn-press mt-1.5 w-full border-[2px] border-border py-1.5 text-[9px] text-cream transition-colors hover:border-border-light"
-                          >
-                            Send Gift
-                          </button>
-                          {/* Raid button */}
-                          {raidState.phase === "idle" && raidState.error && (
-                            <p className="mt-1.5 text-center text-[10px] text-red-400">
-                              {raidState.error}
-                            </p>
-                          )}
-                          <button
-                            onClick={() => {
-                              if (authLogin && selectedBuilding) {
-                                raidActions.startPreview(
-                                  selectedBuilding.login,
-                                  buildings,
-                                  authLogin,
-                                );
-                              }
-                            }}
-                            disabled={raidState.loading}
-                            className="btn-press mt-1.5 w-full border-[3px] border-red-500/60 px-4 py-2 text-xs text-red-400 transition-colors hover:bg-red-500/10"
-                          >
-                            {raidState.loading
-                              ? "Loading..."
-                              : "\u2694\ufe0f BATTLE \u2014 Win +50 XP"}
-                          </button>
-                        </div>
-                      )}
+                        </button>
+                        <button
+                          onClick={handleOpenGift}
+                          className="btn-press mt-1.5 w-full border-[2px] border-border py-1.5 text-[9px] text-cream transition-colors hover:border-border-light"
+                        >
+                          Send Gift
+                        </button>
+                        {/* Raid button */}
+                        {raidState.phase === "idle" && raidState.error && (
+                          <p className="mt-1.5 text-center text-[10px] text-red-400">
+                            {raidState.error}
+                          </p>
+                        )}
+                        <button
+                          onClick={() => {
+                            if (authLogin && selectedBuilding) {
+                              raidActions.startPreview(
+                                selectedBuilding.login,
+                                buildings,
+                                authLogin,
+                              );
+                            }
+                          }}
+                          disabled={raidState.loading}
+                          className="btn-press mt-1.5 w-full border-[3px] border-red-500/60 px-4 py-2 text-xs text-red-400 transition-colors hover:bg-red-500/10"
+                        >
+                          {raidState.loading
+                            ? "Loading..."
+                            : "\u2694\ufe0f BATTLE \u2014 Win +50 XP"}
+                        </button>
+                      </div>
+                    )}
 
                     {/* A3: Disabled action buttons for non-logged users */}
                     {!session && (
