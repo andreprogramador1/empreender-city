@@ -36,12 +36,12 @@ Git City transforms every GitHub profile into a unique pixel art building. The m
 
 ## How Buildings Work
 
-| Metric         | Affects           | Example                                |
-|----------------|-------------------|----------------------------------------|
-| Contributions  | Building height   | 1,000 commits → taller building        |
-| Public repos   | Building width    | More repos → wider base                |
-| Stars          | Window brightness | More stars → more lit windows           |
-| Activity       | Window pattern    | Recent activity → distinct glow pattern |
+| Metric        | Affects           | Example                                 |
+| ------------- | ----------------- | --------------------------------------- |
+| Contributions | Building height   | 1,000 commits → taller building         |
+| Public repos  | Building width    | More repos → wider base                 |
+| Stars         | Window brightness | More stars → more lit windows           |
+| Activity      | Window pattern    | Recent activity → distinct glow pattern |
 
 Buildings are rendered with instanced meshes and a LOD (Level of Detail) system for performance. Close buildings show full detail with animated windows; distant buildings use simplified geometry.
 
