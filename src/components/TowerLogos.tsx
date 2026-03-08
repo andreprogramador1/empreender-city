@@ -16,7 +16,7 @@ const DISTRICT_LOGOS: Record<string, string> = {
     "https://empreender.nyc3.digitaloceanspaces.com/landingpage/6823a9b518c5b.png",
   googleanalytics4:
     "https://empreender.nyc3.digitaloceanspaces.com/landingpage/688a7cf10c973.png",
-  meta: "https://empreender.nyc3.digitaloceanspaces.com/landingpage/68d59e00a9272.png",
+  meta: "https://empreender.nyc3.digitaloceanspaces.com/landingpage/69adae75394b8.png",
   yampi:
     "https://empreender.nyc3.digitaloceanspaces.com/landingpage/689cbec11b503.png",
   lojaintegrada:
@@ -31,7 +31,7 @@ const DISTRICT_LOGOS: Record<string, string> = {
   kiwify:
     "https://empreender.nyc3.digitaloceanspaces.com/landingpage/6995f61b69bd7.png",
   montink:
-    "https://empreender.nyc3.digitaloceanspaces.com/landingpage/682b70efbb509.png",
+    "https://empreender.nyc3.digitaloceanspaces.com/landingpage/69adae75884bf.png",
 };
 
 const _loader = new THREE.TextureLoader();

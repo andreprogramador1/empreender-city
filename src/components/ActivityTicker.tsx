@@ -132,7 +132,7 @@ export default function ActivityTicker({
                 onEventClick?.(item.event);
               }}
             >
-              {item.text}
+              {item.event?.actor?.name}
             </span>
           ))}
         </div>
