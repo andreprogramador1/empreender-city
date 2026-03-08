@@ -44,14 +44,14 @@ export async function GET(request: NextRequest) {
   // Ensure public bucket exists (idempotent)
   await sb.storage.createBucket(STORAGE_BUCKET, { public: true }).catch(() => {});
 
-  // Fetch everything in parallel
+  // Fetch everything in parallel (developers filtered in DB: unclaimed or allow_data_for_buildings)
   const [devs, purchases, giftPurchases, customizations, achievements, raidTags, statsResult] =
     await Promise.all([
       fetchAll<Record<string, any>>(
         sb,
         "developers",
         "id, github_login, name, avatar_url, contributions, total_stars, public_repos, primary_language, rank, claimed, kudos_count, visit_count, contributions_total, contribution_years, total_prs, total_reviews, repos_contributed_to, followers, following, organizations_count, account_created_at, current_streak, active_days_last_year, language_diversity, app_streak, rabbit_completed, district, district_chosen, xp_total, xp_level",
-        undefined,
+        (q) => q.or("claimed_by.is.null,allow_data_for_buildings.eq.true"),
         "rank",
       ),
       fetchAll<{ developer_id: number; item_id: string }>(
@@ -86,12 +86,21 @@ export async function GET(request: NextRequest) {
       sb.from("city_stats").select("*").eq("id", 1).single(),
     ]);
 
+  const devIdsSet = new Set(devs.map((d) => d.id));
+
+  // Restrict related data to filtered devs only
+  const purchasesFiltered = purchases.filter((r) => devIdsSet.has(r.developer_id));
+  const giftPurchasesFiltered = giftPurchases.filter((r) => devIdsSet.has(r.gifted_to));
+  const customizationsFiltered = customizations.filter((r) => devIdsSet.has(r.developer_id));
+  const achievementsFiltered = achievements.filter((r) => devIdsSet.has(r.developer_id));
+  const raidTagsFiltered = raidTags.filter((r) => devIdsSet.has(r.building_id));
+
   // Build owned items map
   const ownedItemsMap: Record<number, string[]> = {};
-  for (const row of purchases) {
+  for (const row of purchasesFiltered) {
     (ownedItemsMap[row.developer_id] ??= []).push(row.item_id);
   }
-  for (const row of giftPurchases) {
+  for (const row of giftPurchasesFiltered) {
     (ownedItemsMap[row.gifted_to] ??= []).push(row.item_id);
   }
 
@@ -99,7 +108,7 @@ export async function GET(request: NextRequest) {
   const customColorMap: Record<number, string> = {};
   const billboardImagesMap: Record<number, string[]> = {};
   const loadoutMap: Record<number, { crown: string | null; roof: string | null; aura: string | null }> = {};
-  for (const row of customizations) {
+  for (const row of customizationsFiltered) {
     const config = row.config;
     if (row.item_id === "custom_color" && typeof config?.color === "string") {
       customColorMap[row.developer_id] = config.color as string;
@@ -122,13 +131,13 @@ export async function GET(request: NextRequest) {
 
   // Build achievements map
   const achievementsMap: Record<number, string[]> = {};
-  for (const row of achievements) {
+  for (const row of achievementsFiltered) {
     (achievementsMap[row.developer_id] ??= []).push(row.achievement_id);
   }
 
   // Build raid tags map
   const raidTagMap: Record<number, { attacker_login: string; tag_style: string; expires_at: string }> = {};
-  for (const row of raidTags) {
+  for (const row of raidTagsFiltered) {
     raidTagMap[row.building_id] = {
       attacker_login: row.attacker_login,
       tag_style: row.tag_style,
@@ -173,6 +182,15 @@ export async function GET(request: NextRequest) {
 
   if (uploadError) {
     return NextResponse.json({ error: uploadError.message }, { status: 500 });
+  }
+
+  try {
+    await sb
+      .from("city_stats")
+      .update({ snapshot_refresh_requested_at: null })
+      .eq("id", 1);
+  } catch {
+    // column may not exist
   }
 
   return NextResponse.json({

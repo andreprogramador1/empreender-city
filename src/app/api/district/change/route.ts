@@ -2,11 +2,7 @@ import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { rateLimit } from "@/lib/rate-limit";
-
-const VALID_DISTRICTS = [
-  "nuvemshop", "google_analytics", "meta", "yampi", "loja_integrada",
-  "tiktok_shop", "tray", "shopify", "bling", "kiwify", "montink",
-];
+import { VALID_INTEGRATIONS } from "@/lib/integrations";
 
 export async function POST(request: Request) {
   const supabase = await createServerSupabase();
@@ -31,7 +27,7 @@ export async function POST(request: Request) {
   }
   const district_id = body.district_id as string;
 
-  if (!district_id || !VALID_DISTRICTS.includes(district_id)) {
+  if (!district_id || !(VALID_INTEGRATIONS as readonly string[]).includes(district_id)) {
     return NextResponse.json({ error: "Invalid district" }, { status: 400 });
   }
 

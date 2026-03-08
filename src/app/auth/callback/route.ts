@@ -7,7 +7,11 @@ import { sendWelcomeNotification } from "@/lib/notification-senders/welcome";
 import { sendReferralJoinedNotification } from "@/lib/notification-senders/referral";
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
+  const { origin } = new URL(request.url);
+  // Auth callback (GitHub OAuth) is disabled; only Dash token flow (/auth/link) is used
+  return NextResponse.redirect(`${origin}/?error=callback_disabled`);
+
+  const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
 
   if (!code) {

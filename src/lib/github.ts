@@ -161,7 +161,7 @@ const BLOCK_FOOTPRINT_Z = BLOCK_SIZE * LOT_D + (BLOCK_SIZE - 1) * ALLEY_W; // 4*
 
 const RIVER_MARGIN = 8; // Margin on each side of the river
 
-const MAX_BUILDING_HEIGHT = 600;
+const MAX_BUILDING_HEIGHT = 500;
 const MIN_BUILDING_HEIGHT = 35;
 const HEIGHT_RANGE = MAX_BUILDING_HEIGHT - MIN_BUILDING_HEIGHT; // 565
 
@@ -373,18 +373,18 @@ function generateCenterBuildings(): ManualBuildingConfig[] {
   const CLUSTER_RADIUS = 650;
 
   const districts: { id: string; height: number; width: number }[] = [
-    { id: "empreender", height: 900, width: 250 },
-    { id: "nuvemshop", height: 700, width: 150 },
-    { id: "google_analytics", height: 700, width: 150 },
-    { id: "meta", height: 700, width: 150 },
-    { id: "yampi", height: 700, width: 150 },
-    { id: "loja_integrada", height: 700, width: 150 },
-    { id: "tiktok_shop", height: 700, width: 150 },
-    { id: "tray", height: 700, width: 150 },
-    { id: "shopify", height: 700, width: 150 },
-    { id: "bling", height: 700, width: 150 },
-    { id: "kiwify", height: 700, width: 150 },
-    { id: "montink", height: 700, width: 150 },
+    { id: "empreender", height: 700, width: 250 },
+    { id: "nuvemshop", height: 600, width: 150 },
+    { id: "googleanalytics4", height: 600, width: 150 },
+    { id: "meta", height: 600, width: 150 },
+    { id: "yampi", height: 600, width: 150 },
+    { id: "lojaintegrada", height: 600, width: 150 },
+    { id: "tiktokshop", height: 600, width: 150 },
+    { id: "tray", height: 600, width: 150 },
+    { id: "shopify", height: 600, width: 150 },
+    { id: "bling", height: 600, width: 150 },
+    { id: "kiwify", height: 600, width: 150 },
+    { id: "montink", height: 600, width: 150 },
   ];
 
   let outerIdx = 0;
@@ -445,11 +445,11 @@ function precomputeComposites(
 export const DISTRICT_NAMES: Record<string, string> = {
   empreender: "Empreender",
   nuvemshop: "Nuvemshop",
-  google_analytics: "Google Analytics",
+  googleanalytics4: "Google Analytics",
   meta: "Meta",
   yampi: "Yampi",
-  loja_integrada: "Loja Integrada",
-  tiktok_shop: "TikTok Shop",
+  lojaintegrada: "Loja Integrada",
+  tiktokshop: "TikTok Shop",
   tray: "Tray",
   shopify: "Shopify",
   bling: "Bling",
@@ -460,11 +460,11 @@ export const DISTRICT_NAMES: Record<string, string> = {
 export const DISTRICT_COLORS: Record<string, string> = {
   empreender: "#fbbf24",
   nuvemshop: "#3b82f6",
-  google_analytics: "#ef4444",
+  googleanalytics4: "#ef4444",
   meta: "#a855f7",
   yampi: "#22c55e",
-  loja_integrada: "#06b6d4",
-  tiktok_shop: "#f97316",
+  lojaintegrada: "#06b6d4",
+  tiktokshop: "#f97316",
   tray: "#dc2626",
   shopify: "#ec4899",
   bling: "#8b5cf6",
@@ -480,14 +480,14 @@ export const DISTRICT_DESCRIPTIONS: Record<string, string> = {
     "Somos parceiros de mais de 30 plataformas. Nossos apps estão disponíveis na Shopify, Nuvemshop, Yampi, Tray, Loja Integrada e muito mais!",
   nuvemshop:
     "Plataforma líder de e-commerce na América Latina. Crie e gerencie sua loja virtual com facilidade.",
-  google_analytics:
+  googleanalytics4:
     "Monitore o desempenho do seu site com análises detalhadas de tráfego, conversões e comportamento dos usuários.",
   meta: "Gerencie e otimize campanhas publicitárias no Facebook e Instagram para alcançar seu público-alvo.",
   yampi:
     "Checkout transparente e gestão completa de pedidos para maximizar suas conversões.",
-  loja_integrada:
+  lojaintegrada:
     "Plataforma brasileira de e-commerce gratuita para criar, personalizar e gerenciar sua loja online.",
-  tiktok_shop:
+  tiktokshop:
     "Venda seus produtos diretamente no TikTok e alcance milhões de usuários pelo social commerce.",
   tray: "Solução completa de e-commerce com gestão integrada de produtos, pedidos, frete e pagamentos.",
   shopify:
@@ -503,11 +503,11 @@ export const DISTRICT_DESCRIPTIONS: Record<string, string> = {
 export const DISTRICT_URLS: Record<string, string> = {
   empreender: "https://empreender.com.br",
   nuvemshop: "https://www.nuvemshop.com.br",
-  google_analytics: "https://analytics.google.com",
+  googleanalytics4: "https://analytics.google.com",
   meta: "https://www.facebook.com/business/ads",
   yampi: "https://www.yampi.com.br",
-  loja_integrada: "https://lojaintegrada.com.br",
-  tiktok_shop: "https://shop.tiktok.com",
+  lojaintegrada: "https://lojaintegrada.com.br",
+  tiktokshop: "https://shop.tiktok.com",
   tray: "https://www.tray.com.br",
   shopify: "https://www.shopify.com.br",
   bling: "https://www.bling.com.br",
@@ -523,30 +523,30 @@ export const DISTRICT_URLS: Record<string, string> = {
 //   SCSS: "nuvemshop",
 //   Vue: "nuvemshop",
 //   Svelte: "nuvemshop",
-//   Java: "google_analytics",
-//   Go: "google_analytics",
-//   Rust: "google_analytics",
-//   "C#": "google_analytics",
-//   PHP: "google_analytics",
-//   Ruby: "google_analytics",
-//   Elixir: "google_analytics",
-//   C: "google_analytics",
-//   "C++": "google_analytics",
-//   Assembly: "google_analytics",
-//   Verilog: "google_analytics",
-//   VHDL: "google_analytics",
-//   Python: "loja_integrada",
-//   "Jupyter Notebook": "loja_integrada",
-//   R: "loja_integrada",
-//   Julia: "loja_integrada",
+//   Java: "googleanalytics4",
+//   Go: "googleanalytics4",
+//   Rust: "googleanalytics4",
+//   "C#": "googleanalytics4",
+//   PHP: "googleanalytics4",
+//   Ruby: "googleanalytics4",
+//   Elixir: "googleanalytics4",
+//   C: "googleanalytics4",
+//   "C++": "googleanalytics4",
+//   Assembly: "googleanalytics4",
+//   Verilog: "googleanalytics4",
+//   VHDL: "googleanalytics4",
+//   Python: "lojaintegrada",
+//   "Jupyter Notebook": "lojaintegrada",
+//   R: "lojaintegrada",
+//   Julia: "lojaintegrada",
 //   Swift: "yampi",
 //   Kotlin: "yampi",
 //   Dart: "yampi",
 //   "Objective-C": "yampi",
-//   HCL: "tiktok_shop",
-//   Shell: "tiktok_shop",
-//   Dockerfile: "tiktok_shop",
-//   Nix: "tiktok_shop",
+//   HCL: "tiktokshop",
+//   Shell: "tiktokshop",
+//   Dockerfile: "tiktokshop",
+//   Nix: "tiktokshop",
 //   GDScript: "shopify",
 //   Lua: "shopify",
 // };
@@ -591,11 +591,11 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
   );
 
   const DISTRICT_ORDER = [
-    "google_analytics",
+    "googleanalytics4",
     "nuvemshop",
     "meta",
-    "loja_integrada",
-    "tiktok_shop",
+    "lojaintegrada",
+    "tiktokshop",
     "yampi",
     "shopify",
     "bling",
@@ -625,47 +625,24 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
     return result;
   }
 
-  // ── Extract top 50 global devs as "empreender" (center, around the spire) ──
-  const EMPREENDER_COUNT = 50;
   const LOTS_PER_BLOCK = BLOCK_SIZE * BLOCK_SIZE; // 16
-  const allDevsSorted = [...devs].sort(
-    (a, b) =>
-      (composites.get(b.github_login) ?? 0) -
-      (composites.get(a.github_login) ?? 0),
-  );
-  const empreenderDevs = allDevsSorted.slice(0, EMPREENDER_COUNT);
-  const empreenderSet = new Set(empreenderDevs.map((d) => d.github_login));
 
-  for (let i = 0; i < empreenderDevs.length; i += LOTS_PER_BLOCK) {
-    const end = Math.min(i + LOTS_PER_BLOCK, empreenderDevs.length);
-    const slice = empreenderDevs.slice(i, end);
-    const shuffled = seededShuffle(slice, hashStr("empreender") + i);
-    for (let j = 0; j < shuffled.length; j++)
-      empreenderDevs[i + j] = shuffled[j];
-  }
-
-  const empreenderOverride = new Set(empreenderDevs.map((d) => d.github_login));
-
-  // ── Per-district dev arrays (sorted by composite, block-shuffled, minus empreender) ──
+  // ── Per-district dev arrays (todos os devs ficam no seu distrito; shuffle para variedade visual) ──
   const districtDevArrays: { did: string; devs: DeveloperRecord[] }[] = [];
   for (const did of DISTRICT_ORDER) {
     const group = districtGroups[did];
     if (!group || group.length === 0) continue;
-    const filtered = group.filter((d) => !empreenderSet.has(d.github_login));
-    if (filtered.length === 0) continue;
-    // Full shuffle: organic mix of tall and short buildings
     districtDevArrays.push({
       did,
-      devs: seededShuffle(filtered, hashStr(did)),
+      devs: seededShuffle(group, hashStr(did)),
     });
   }
   for (const [did, group] of Object.entries(districtGroups)) {
     if (!DISTRICT_ORDER.includes(did)) {
-      const filtered = group.filter((d) => !empreenderSet.has(d.github_login));
-      if (filtered.length === 0) continue;
+      if (!group || group.length === 0) continue;
       districtDevArrays.push({
         did,
-        devs: seededShuffle(filtered, hashStr(did)),
+        devs: seededShuffle(group, hashStr(did)),
       });
     }
   }
@@ -856,9 +833,7 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
       const floors = Math.max(3, Math.floor(height / floorH));
       const windowsPerFloor = Math.max(3, Math.floor(w / 5));
       const sideWindowsPerFloor = Math.max(3, Math.floor(d / 5));
-      const did = empreenderOverride.has(dev.github_login)
-        ? "empreender"
-        : dev.district;
+      const did = dev.district;
 
       buildings.push({
         login: dev.github_login,
@@ -1074,7 +1049,7 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
     }
   }
 
-  // ── A) Distrito central empreender: apenas o prédio manual no centro (0,0); sem spiral de devs. ──
+  // ── A) Distrito central empreender: apenas o prédio manual no centro (0,0). ──
   const manualEmpreender = getManualBuildingForDistrict("empreender");
   if (manualEmpreender) placeManualBuildingAtGrid(0, 0, manualEmpreender);
 

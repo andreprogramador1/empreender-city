@@ -7,6 +7,9 @@ import { rateLimit } from "@/lib/rate-limit";
 // ---------------------------------------------------------------------------
 const ROUTE_LIMITS: [string, number, number][] = [
   // Exact-prefix match – order from most-specific to least-specific
+  ["/auth/link", 30, 60_000],
+  ["/auth/confirm", 60, 60_000],
+  ["/auth", 60, 60_000],
   ["/api/customizations/upload", 5, 60_000],
   ["/api/customizations", 10, 60_000],
   ["/api/sky-ads/track", 30, 60_000],
@@ -26,7 +29,7 @@ const ROUTE_LIMITS: [string, number, number][] = [
   ["/api/city", 30, 60_000],
   ["/api/dev/", 60, 60_000],
   ["/api/items", 30, 60_000],
-  ["/api/auth", 10, 60_000],
+  ["/api/auth", 30, 60_000],
 ];
 
 const DEFAULT_API: [number, number] = [60, 60_000];

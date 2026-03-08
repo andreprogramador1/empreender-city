@@ -4,15 +4,15 @@
  */
 
 /** Ative para usar dados mock; desative para baixar snapshot real do Supabase (ou fallback chunked). */
-export const USE_MOCK_CITY_SNAPSHOT = false;
+export const USE_MOCK_CITY_SNAPSHOT = process.env.NEXT_PUBLIC_MOCK_CITY_SNAPSHOT === "true" ? true : false;
 
 const MOCK_DISTRICTS = [
   "nuvemshop",
-  "google_analytics",
+  "googleanalytics4",
   "meta",
   "yampi",
-  "loja_integrada",
-  "tiktok_shop",
+  "lojaintegrada",
+  "tiktokshop",
   "tray",
   "shopify",
   "bling",

@@ -11,13 +11,14 @@ export async function GET(request: Request) {
 
   const sb = getSupabaseAdmin();
 
-  // Round 1: devs + stats in parallel
+  // Round 1: devs + stats in parallel (filter in DB: unclaimed or allow_data_for_buildings)
   const [devsResult, statsResult] = await Promise.all([
     sb
       .from("developers")
       .select(
         "id, github_login, name, avatar_url, contributions, total_stars, public_repos, primary_language, rank, claimed, kudos_count, visit_count, contributions_total, contribution_years, total_prs, total_reviews, repos_contributed_to, followers, following, organizations_count, account_created_at, current_streak, active_days_last_year, language_diversity, app_streak, rabbit_completed, district, district_chosen, xp_total, xp_level"
       )
+      .or("claimed_by.is.null,allow_data_for_buildings.eq.true")
       .order("rank", { ascending: true })
       .range(from, to - 1),
     sb.from("city_stats").select("*").eq("id", 1).single(),

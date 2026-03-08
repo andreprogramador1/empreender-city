@@ -16,11 +16,11 @@ CREATE TABLE districts (
 
 INSERT INTO districts (id, name, color) VALUES
   ('nuvemshop',         'Nuvemshop',         '#3b82f6'),
-  ('google_analytics',  'Google Analytics',  '#ef4444'),
+  ('googleanalytics4',  'Google Analytics',  '#ef4444'),
   ('meta',              'Meta',              '#a855f7'),
   ('yampi',             'Yampi',             '#22c55e'),
-  ('loja_integrada',    'Loja Integrada',    '#06b6d4'),
-  ('tiktok_shop',       'TikTok Shop',       '#f97316'),
+  ('lojaintegrada',    'Loja Integrada',    '#06b6d4'),
+  ('tiktokshop',       'TikTok Shop',       '#f97316'),
   ('tray',              'Tray',              '#dc2626'),
   ('shopify',           'Shopify',           '#ec4899'),
   ('bling',             'Bling',             '#8b5cf6'),
@@ -49,10 +49,10 @@ CREATE TABLE district_changes (
 -- 1d. Auto-inference for all existing devs
 UPDATE developers SET district = CASE
   WHEN primary_language IN ('TypeScript','JavaScript','CSS','HTML','SCSS','Vue','Svelte') THEN 'nuvemshop'
-  WHEN primary_language IN ('Java','Go','Rust','C#','PHP','Ruby','Elixir','C','C++','Assembly','Verilog','VHDL') THEN 'google_analytics'
-  WHEN primary_language IN ('Python','Jupyter Notebook','R','Julia') THEN 'loja_integrada'
+  WHEN primary_language IN ('Java','Go','Rust','C#','PHP','Ruby','Elixir','C','C++','Assembly','Verilog','VHDL') THEN 'googleanalytics4'
+  WHEN primary_language IN ('Python','Jupyter Notebook','R','Julia') THEN 'lojaintegrada'
   WHEN primary_language IN ('Swift','Kotlin','Dart','Objective-C') THEN 'yampi'
-  WHEN primary_language IN ('HCL','Shell','Dockerfile','Nix') THEN 'tiktok_shop'
+  WHEN primary_language IN ('HCL','Shell','Dockerfile','Nix') THEN 'tiktokshop'
   WHEN primary_language IN ('GDScript','Lua') THEN 'shopify'
   ELSE 'meta'
 END

@@ -1855,7 +1855,7 @@ function HomeContent() {
 
       // Check if dev already exists in the city before the fetch
       const existedBefore = buildings.some(
-        (b) => b.login.toLowerCase() === trimmed,
+        (b) => b.login.toLowerCase() === trimmed || b?.name?.toLowerCase() === trimmed.toLowerCase(),
       );
 
       // Add/refresh the developer
@@ -2964,6 +2964,14 @@ function HomeContent() {
         <div
           className={`pointer-events-auto fixed top-3 left-3 z-30 items-center gap-1.5 sm:gap-2 sm:left-auto sm:right-4 sm:top-4 ${exploreMode ? "hidden lg:flex" : "flex"}`}
         >
+          {session && (
+            <Link
+              href="/settings"
+              className="flex items-center gap-1.5 border-[3px] border-border bg-bg/70 px-2.5 py-1 text-[10px] backdrop-blur-sm transition-colors hover:border-border-light"
+            >
+              <span className="text-cream">Configurações</span>
+            </Link>
+          )}
           <a
             href="https://x.com/samuelrizzondev"
             target="_blank"

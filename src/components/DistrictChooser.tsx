@@ -15,8 +15,8 @@ interface DistrictChooserProps {
 }
 
 const CHOOSABLE_DISTRICTS = [
-  "nuvemshop", "google_analytics", "meta", "yampi", "loja_integrada",
-  "tiktok_shop", "tray", "shopify", "bling", "kiwify", "montink",
+  "nuvemshop", "googleanalytics4", "meta", "yampi", "lojaintegrada",
+  "tiktokshop", "tray", "shopify", "bling", "kiwify", "montink",
 ];
 
 export default function DistrictChooser({
