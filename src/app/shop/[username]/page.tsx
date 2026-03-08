@@ -19,7 +19,7 @@ async function getDeveloper(username: string) {
   const { data } = await sb
     .from("developers")
     .select("*")
-    .eq("github_login", username.toLowerCase())
+    .eq("github_login", username)
     .single();
   return data;
 }
@@ -61,12 +61,11 @@ export default async function ShopPage({ params, searchParams }: Props) {
   // Check if the logged-in user owns this building
   const supabase = await createServerSupabase();
   const { data: { user } } = await supabase.auth.getUser();
-  const authLogin = (
+  const authLogin =
     user?.user_metadata?.user_name ??
     user?.user_metadata?.preferred_username ??
-    ""
-  ).toLowerCase();
-  const isOwner = !!user && authLogin === dev.github_login.toLowerCase();
+    "";
+  const isOwner = !!user && !!authLogin && authLogin === dev.github_login;
 
   // Not the owner or not claimed — show message
   if (!dev.claimed || !isOwner) {

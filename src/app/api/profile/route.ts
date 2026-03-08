@@ -5,7 +5,9 @@ import { buildDashLogin, getUserStores, getStoreInfos } from "@/lib/dash-api";
 
 /**
  * GET /api/profile
- * Returns the authenticated user's profile (allow_data_for_buildings, stores_synced_at, dash_user_id).
+ * Returns the authenticated user's profile and the list of developers (lojas) they own.
+ * Frontend should use `developers` to show a store selector and send the chosen
+ * developer's github_login in API calls that act on behalf of a store.
  */
 export async function GET() {
   const supabase = await createServerSupabase();
@@ -22,15 +24,29 @@ export async function GET() {
     .eq("id", user.id)
     .maybeSingle();
 
-  if (!profile) {
-    return NextResponse.json({
-      allow_data_for_buildings: false,
-      stores_synced_at: null,
-      dash_user_id: null,
-    });
-  }
+  const { data: developers } = await sb
+    .from("developers")
+    .select("id, github_login, name, avatar_url, store_domain, claimed")
+    .eq("claimed_by", user.id)
+    .eq("allow_data_for_buildings", true)
+    .order("claimed_at", { ascending: true });
 
-  return NextResponse.json(profile);
+  const base = {
+    allow_data_for_buildings: profile?.allow_data_for_buildings ?? false,
+    stores_synced_at: profile?.stores_synced_at ?? null,
+    dash_user_id: profile?.dash_user_id ?? null,
+  };
+
+  return NextResponse.json({
+    ...base,
+    developers: (developers ?? []).map((d) => ({
+      id: d.id,
+      github_login: d.github_login,
+      name: d.name,
+      avatar_url: d.avatar_url,
+      store_domain: d.store_domain ?? null,
+    })),
+  });
 }
 
 /**

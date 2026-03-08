@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { getDeveloperOwnedByUser } from "@/lib/api-developer";
 import { rateLimit } from "@/lib/rate-limit";
 import { getDailyMissions, getTodayStr } from "@/lib/dailies";
 import { checkAchievements } from "@/lib/achievements";
 
-export async function POST() {
+export async function POST(request: Request) {
   const supabase = await createServerSupabase();
   const {
     data: { user },
@@ -20,22 +21,21 @@ export async function POST() {
     return NextResponse.json({ error: "Too fast" }, { status: 429 });
   }
 
-  const githubLogin = (
-    user.user_metadata?.user_name ??
-    user.user_metadata?.preferred_username ??
-    ""
-  ).toLowerCase();
+  let body: { github_login?: string };
+  try {
+    body = await request.json();
+  } catch {
+    body = {};
+  }
+  const githubLogin = body.github_login;
+  if (!githubLogin || typeof githubLogin !== "string") {
+    return NextResponse.json({ error: "github_login is required in body" }, { status: 400 });
+  }
 
   const admin = getSupabaseAdmin();
-
-  const { data: dev } = await admin
-    .from("developers")
-    .select("id, claimed, contributions, public_repos, total_stars, kudos_count, dailies_completed, dailies_streak, last_dailies_date")
-    .eq("github_login", githubLogin)
-    .single();
-
-  if (!dev || !dev.claimed) {
-    return NextResponse.json({ error: "Must claim building first" }, { status: 403 });
+  const dev = await getDeveloperOwnedByUser(admin, user.id, githubLogin, "id, claimed, contributions, public_repos, total_stars, kudos_count, dailies_completed, dailies_streak, last_dailies_date");
+  if (!dev) {
+    return NextResponse.json({ error: "Developer not found or not yours" }, { status: 403 });
   }
 
   const today = getTodayStr();

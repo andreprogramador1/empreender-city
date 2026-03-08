@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useCallback, useState } from "react";
 import type { StreakData } from "@/lib/useStreakCheckin";
+import { useCurrentDeveloper } from "@/components/CurrentDeveloperProvider";
+import { withDeveloper } from "@/lib/current-developer";
 
 function getTierColor(streak: number) {
   if (streak >= 30) return "#aa44ff";
@@ -16,18 +18,23 @@ interface Props {
 }
 
 export default function ReturnModal({ streakData, onClose }: Props) {
+  const { currentDeveloper } = useCurrentDeveloper() ?? {};
   const { streak, was_frozen, new_achievements, unseen_count } = streakData;
   const color = getTierColor(streak);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(null);
   const [visible, setVisible] = useState(false);
 
   const handleClose = useCallback(() => {
-    if (unseen_count > 0) {
-      fetch("/api/achievements/mark-seen", { method: "POST" }).catch(() => {});
+    if (unseen_count > 0 && currentDeveloper?.github_login) {
+      fetch("/api/achievements/mark-seen", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(withDeveloper({}, currentDeveloper.github_login)),
+      }).catch(() => {});
     }
     setVisible(false);
     setTimeout(onClose, 300);
-  }, [unseen_count, onClose]);
+  }, [unseen_count, onClose, currentDeveloper?.github_login]);
 
   // Animate in
   useEffect(() => {

@@ -23,6 +23,7 @@ import {
   trackFreeItemClaimed,
   trackItemEquipped,
 } from "@/lib/himetrica";
+import { withDeveloper } from "@/lib/current-developer";
 
 /** Must match FREE_CLAIM_ITEM in lib/items.ts */
 const FREE_CLAIM_ITEM = "flag";
@@ -201,7 +202,7 @@ function PixModal({
     pollRef.current = setInterval(async () => {
       try {
         const res = await fetch(
-          `/api/checkout/status?purchase_id=${data.purchaseId}`
+          `/api/checkout/status?purchase_id=${data.purchaseId}&github_login=${encodeURIComponent(githubLogin)}`
         );
         if (!res.ok) return;
         const json = await res.json();
@@ -217,7 +218,7 @@ function PixModal({
     return () => {
       if (pollRef.current) clearInterval(pollRef.current);
     };
-  }, [status, data.purchaseId]);
+  }, [status, data.purchaseId, githubLogin]);
 
   // Stop intervals when done
   useEffect(() => {
@@ -450,6 +451,7 @@ function BillboardUploadPanel({
   autoUploading,
   onImagesChange,
   onPreviewChange,
+  githubLogin,
 }: {
   images: string[];
   slotCount: number;
@@ -457,6 +459,7 @@ function BillboardUploadPanel({
   autoUploading?: boolean;
   onImagesChange: (images: string[]) => void;
   onPreviewChange: (images: string[]) => void;
+  githubLogin: string;
 }) {
   const [uploadingSlot, setUploadingSlot] = useState<number | null>(null);
   const [savedSlot, setSavedSlot] = useState<number | null>(null);
@@ -487,6 +490,7 @@ function BillboardUploadPanel({
       const formData = new FormData();
       formData.append("file", file);
       formData.append("slot_index", slotIndex.toString());
+      formData.append("github_login", githubLogin);
 
       const res = await fetch("/api/customizations/upload", {
         method: "POST",
@@ -506,7 +510,7 @@ function BillboardUploadPanel({
     } finally {
       setUploadingSlot(null);
     }
-  }, [onImagesChange]);
+  }, [onImagesChange, githubLogin]);
 
   // Show at least 1 slot for non-owners (preview), or slotCount for owners
   const displaySlots = isOwned ? Math.max(slotCount, 1) : 1;
@@ -695,13 +699,12 @@ export default function ShopClient({
   // Track shop page view on mount
   useEffect(() => {
     trackShopPageView();
-    // Fire-and-forget daily mission tracking
     fetch("/api/dailies/progress", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mission_id: "visit_shop" }),
+      body: JSON.stringify(withDeveloper({ mission_id: "visit_shop" }, githubLogin)),
     }).catch(() => {});
-  }, []);
+  }, [githubLogin]);
 
   // Post-purchase: show toast + auto-equip if zone is empty + switch tab
   const ALL_RAID_ITEMS = [...RAID_VEHICLE_ITEMS, ...RAID_TAG_ITEMS, ...RAID_BOOST_ITEMS];
@@ -791,6 +794,7 @@ export default function ShopClient({
     const formData = new FormData();
     formData.append("file", file);
     formData.append("slot_index", "0");
+    formData.append("github_login", githubLogin);
 
     fetch("/api/customizations/upload", { method: "POST", body: formData })
       .then(async (res) => {
@@ -834,7 +838,7 @@ export default function ShopClient({
       const res = await fetch("/api/loadout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(withDeveloper(payload ?? {}, githubLogin)),
       });
       if (res.ok) {
         setSaved(true);
@@ -854,7 +858,7 @@ export default function ShopClient({
     } finally {
       setSaving(false);
     }
-  }, []);
+  }, [githubLogin, developerId]);
 
   const claimFreeItem = useCallback(async () => {
     if (buyingItem) return;
@@ -862,7 +866,11 @@ export default function ShopClient({
     setError(null);
 
     try {
-      const res = await fetch("/api/claim-free-item", { method: "POST" });
+      const res = await fetch("/api/claim-free-item", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(withDeveloper({}, githubLogin)),
+      });
       const data = await res.json();
 
       if (!res.ok) {
@@ -894,7 +902,11 @@ export default function ShopClient({
     setError(null);
 
     try {
-      const res = await fetch("/api/verify-github-star", { method: "POST" });
+      const res = await fetch("/api/verify-github-star", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(withDeveloper({}, githubLogin)),
+      });
       const data = await res.json();
 
       if (!res.ok) {
@@ -921,7 +933,7 @@ export default function ShopClient({
     } finally {
       setVerifyingStar(false);
     }
-  }, [loadout.crown, verifyingStar]);
+  }, [loadout.crown, verifyingStar, githubLogin]);
 
   // Auto-verify when user returns from GitHub tab
   useEffect(() => {
@@ -942,12 +954,12 @@ export default function ShopClient({
     const res = await fetch("/api/raid/loadout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ vehicle: vehicleId, tag: raidLoadout.tag }),
+      body: JSON.stringify(withDeveloper({ vehicle: vehicleId, tag: raidLoadout.tag }, githubLogin)),
     });
     if (res.ok) {
       setRaidLoadout((prev) => ({ ...prev, vehicle: vehicleId }));
     }
-  }, [raidLoadout.tag]);
+  }, [raidLoadout.tag, githubLogin]);
 
   const [buyingProvider, setBuyingProvider] = useState<"stripe" | "nowpayments" | "abacatepay" | null>(null);
 
@@ -965,7 +977,7 @@ export default function ShopClient({
         const res = await fetch("/api/checkout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ item_id: itemId, provider }),
+          body: JSON.stringify(withDeveloper({ item_id: itemId, provider }, githubLogin)),
         });
 
         const data = await res.json();
@@ -1025,6 +1037,7 @@ export default function ShopClient({
               const formData = new FormData();
               formData.append("file", file);
               formData.append("slot_index", "0");
+              formData.append("github_login", githubLogin);
               fetch("/api/customizations/upload", { method: "POST", body: formData })
                 .then(async (res) => {
                   if (res.ok) {
@@ -1569,7 +1582,7 @@ export default function ShopClient({
                     const res = await fetch("/api/customizations", {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ item_id: "custom_color", color: c }),
+                      body: JSON.stringify(withDeveloper({ item_id: "custom_color", color: c }, githubLogin)),
                     });
                     if (res.ok) {
                       setCustomColor(c);
@@ -1584,7 +1597,7 @@ export default function ShopClient({
                     const res = await fetch("/api/customizations", {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ item_id: "custom_color", color: null }),
+                      body: JSON.stringify(withDeveloper({ item_id: "custom_color", color: null }, githubLogin)),
                     });
                     if (res.ok) {
                       setCustomColor(null);
@@ -1604,6 +1617,7 @@ export default function ShopClient({
                 slotCount={billboardSlots}
                 isOwned={billboardSlots > 0}
                 autoUploading={autoUploading}
+                githubLogin={githubLogin}
                 onImagesChange={(imgs) => { setBillboardImages(imgs); setPreviewBillboardImages(null); }}
                 onPreviewChange={(imgs) => setPreviewBillboardImages(imgs)}
               />

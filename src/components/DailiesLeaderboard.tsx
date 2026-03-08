@@ -39,7 +39,7 @@ export default function DailiesLeaderboard() {
   // Find user in leaderboard
   const userIndex = authLogin
     ? leaderboard.findIndex(
-        (e) => e.github_login?.toLowerCase() === authLogin,
+        (e) => e.github_login === authLogin,
       )
     : -1;
   const userEntry = userIndex >= 0 ? leaderboard[userIndex] : null;
@@ -109,7 +109,7 @@ export default function DailiesLeaderboard() {
             const pos = i + 1;
             const isYou =
               authLogin &&
-              entry.github_login?.toLowerCase() === authLogin;
+              entry.github_login === authLogin;
             return (
               <Link
                 key={entry.github_login}

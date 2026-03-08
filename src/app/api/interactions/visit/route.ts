@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { getDeveloperOwnedByUser } from "@/lib/api-developer";
 import { rateLimit } from "@/lib/rate-limit";
 import { touchLastActive } from "@/lib/notification-helpers";
 import { trackDailyMission } from "@/lib/dailies";
@@ -15,41 +16,32 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const { building_login } = await request.json();
+  const body = await request.json() as { github_login?: string; building_login?: string };
+  const { github_login: githubLogin, building_login } = body;
   if (!building_login || typeof building_login !== "string") {
     return NextResponse.json({ error: "Missing building_login" }, { status: 400 });
   }
+  if (!githubLogin || typeof githubLogin !== "string") {
+    return NextResponse.json({ error: "github_login is required in body (visitor)" }, { status: 400 });
+  }
 
-  // Per-user rate limit
   const { ok } = rateLimit(`visit:${user.id}`, 2, 1000);
   if (!ok) {
     return NextResponse.json({ error: "Too fast" }, { status: 429 });
   }
 
   const admin = getSupabaseAdmin();
-
-  const githubLogin = (
-    user.user_metadata.user_name ??
-    user.user_metadata.preferred_username ??
-    ""
-  ).toLowerCase();
-
-  // Fetch visitor
-  const { data: visitor } = await admin
-    .from("developers")
-    .select("id")
-    .eq("github_login", githubLogin)
-    .single();
+  const visitor = await getDeveloperOwnedByUser<{ id: number }>(admin, user.id, githubLogin, "id");
 
   if (!visitor) {
-    return NextResponse.json({ error: "Not a registered developer" }, { status: 403 });
+    return NextResponse.json({ error: "Developer not found or not yours" }, { status: 403 });
   }
 
   // Fetch building owner
   const { data: building } = await admin
     .from("developers")
     .select("id")
-    .eq("github_login", building_login.toLowerCase())
+    .eq("github_login", building_login)
     .single();
 
   if (!building) {
@@ -114,7 +106,7 @@ export async function POST(request: Request) {
         await admin.from("activity_feed").insert({
           event_type: "visit_milestone",
           target_id: building.id,
-          metadata: { login: building_login.toLowerCase(), visit_count: todayVisits },
+          metadata: { login: building_login, visit_count: todayVisits },
         });
       }
     }

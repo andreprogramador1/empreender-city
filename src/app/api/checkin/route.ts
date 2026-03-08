@@ -9,6 +9,7 @@ import { sendStreakMilestoneNotification } from "@/lib/notification-senders/stre
 import { sendStreakBrokenNotification } from "@/lib/notification-senders/streak-broken";
 import { trackDailyMission } from "@/lib/dailies";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { getDeveloperOwnedByUser } from "@/lib/api-developer";
 
 // A12: Streak reward milestones — {milestone: days, pool: item_ids to pick from}
 const STREAK_MILESTONES = [
@@ -128,7 +129,7 @@ async function fetchWeeklyContributions(login: string): Promise<number | null> {
   }
 }
 
-export async function POST() {
+export async function POST(request: Request) {
   const supabase = await createServerSupabase();
   const {
     data: { user },
@@ -144,27 +145,22 @@ export async function POST() {
     return NextResponse.json({ error: "Too fast" }, { status: 429 });
   }
 
-  const githubLogin = (
-    user.user_metadata?.user_name ??
-    user.user_metadata?.preferred_username ??
-    ""
-  ).toLowerCase();
-
-  if (!githubLogin) {
-    return NextResponse.json({ error: "No GitHub login" }, { status: 400 });
+  let body: { github_login?: string };
+  try {
+    body = await request.json();
+  } catch {
+    body = {};
+  }
+  const githubLogin = body.github_login;
+  if (!githubLogin || typeof githubLogin !== "string") {
+    return NextResponse.json({ error: "github_login is required in body" }, { status: 400 });
   }
 
   const sb = getSupabaseAdmin();
-
-  // Fetch developer (must be claimed)
-  const { data: dev } = await sb
-    .from("developers")
-    .select("id, claimed, contributions, public_repos, total_stars, kudos_count, app_streak, streak_freeze_30d_claimed, last_checkin_date")
-    .eq("github_login", githubLogin)
-    .single();
-
-  if (!dev || !dev.claimed) {
-    return NextResponse.json({ error: "Must claim building first" }, { status: 403 });
+  type DevRow = { id: number; claimed: boolean; contributions: number; public_repos: number; total_stars: number; kudos_count: number | null; app_streak: number | null; streak_freeze_30d_claimed: boolean | null; last_checkin_date: string | null };
+  const dev = await getDeveloperOwnedByUser<DevRow>(sb, user.id, githubLogin, "id, claimed, contributions, public_repos, total_stars, kudos_count, app_streak, streak_freeze_30d_claimed, last_checkin_date");
+  if (!dev) {
+    return NextResponse.json({ error: "Developer not found or not yours" }, { status: 403 });
   }
 
   // Perform check-in via RPC

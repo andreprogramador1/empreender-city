@@ -26,30 +26,27 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
   const district_id = body.district_id as string;
+  const githubLogin = body.github_login as string | undefined;
 
   if (!district_id || !(VALID_INTEGRATIONS as readonly string[]).includes(district_id)) {
     return NextResponse.json({ error: "Invalid district" }, { status: 400 });
   }
-
-  // Fetch developer
-  const login = user.user_metadata?.user_name?.toLowerCase();
-  if (!login) {
-    return NextResponse.json({ error: "No GitHub login found" }, { status: 400 });
+  if (!githubLogin || typeof githubLogin !== "string") {
+    return NextResponse.json({ error: "github_login is required in body" }, { status: 400 });
   }
 
   const admin = getSupabaseAdmin();
   const { data: dev, error: devError } = await admin
     .from("developers")
-    .select("id, claimed, district, district_chosen, district_changes_count, district_changed_at")
-    .eq("github_login", login)
+    .select("id, claimed, claimed_by, district, district_chosen, district_changes_count, district_changed_at")
+    .eq("github_login", githubLogin)
     .single();
 
   if (devError || !dev) {
     return NextResponse.json({ error: "Developer not found" }, { status: 404 });
   }
-
-  if (!dev.claimed) {
-    return NextResponse.json({ error: "You must claim your building first" }, { status: 403 });
+  if (!dev.claimed || (dev as { claimed_by: string }).claimed_by !== user.id) {
+    return NextResponse.json({ error: "Developer not yours" }, { status: 403 });
   }
 
   const oldDistrict = dev.district;

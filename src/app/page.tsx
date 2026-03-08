@@ -86,6 +86,8 @@ import {
 } from "@/lib/himetrica";
 import { div } from "three/tsl";
 import { convertSegmentPathToStaticExportFilename } from "next/dist/shared/lib/segment-cache/segment-value-encoding";
+import { useCurrentDeveloper } from "@/components/CurrentDeveloperProvider";
+import { withDeveloper, queryWithDeveloper } from "@/lib/current-developer";
 
 const CityCanvas = dynamic(() => import("@/components/CityCanvas"), {
   ssr: false,
@@ -823,11 +825,14 @@ function HomeContent() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const authLogin = (
-    session?.user?.user_metadata?.user_name ??
-    session?.user?.user_metadata?.preferred_username ??
-    ""
-  ).toLowerCase();
+  const { currentDeveloper } = useCurrentDeveloper() ?? {};
+  const authLogin =
+    currentDeveloper?.github_login ??
+    (
+      session?.user?.user_metadata?.user_name ??
+      session?.user?.user_metadata?.preferred_username ??
+      ""
+    ).toLowerCase();
 
   // Fly timer — ticks every second while flying and not paused
   useEffect(() => {
@@ -855,21 +860,23 @@ function HomeContent() {
   // Fetch fly vehicle from raid loadout (on login)
   const sessionUserId = session?.user?.id;
   useEffect(() => {
-    if (!sessionUserId) return;
-    fetch("/api/raid/loadout")
+    if (!sessionUserId || !currentDeveloper?.github_login) return;
+    const q = queryWithDeveloper(new URLSearchParams(), currentDeveloper.github_login);
+    fetch(`/api/raid/loadout?${q}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (data?.vehicle) setFlyVehicle(data.vehicle);
       })
       .catch(() => {});
-  }, [sessionUserId]);
+  }, [sessionUserId, currentDeveloper?.github_login]);
 
   // Load theme from DB when logged in (overrides localStorage)
   const themeLoadedFromDb = useRef(false);
   useEffect(() => {
-    if (!sessionUserId || themeLoadedFromDb.current) return;
+    if (!sessionUserId || !currentDeveloper?.github_login || themeLoadedFromDb.current) return;
     themeLoadedFromDb.current = true;
-    fetch("/api/preferences/theme")
+    const q = queryWithDeveloper(new URLSearchParams(), currentDeveloper.github_login);
+    fetch(`/api/preferences/theme?${q}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (
@@ -883,7 +890,7 @@ function HomeContent() {
         }
       })
       .catch(() => {});
-  }, [sessionUserId]);
+  }, [sessionUserId, currentDeveloper?.github_login]);
 
   const addRandomBuilding = useCallback(() => {
     const districtKeys = Object.keys(DISTRICT_NAMES);
@@ -942,16 +949,16 @@ function HomeContent() {
     setThemeIndex((i) => {
       const next = (i + 1) % THEMES.length;
       localStorage.setItem("gitcity_theme", String(next));
-      if (sessionUserId) {
+      if (sessionUserId && currentDeveloper?.github_login) {
         fetch("/api/preferences/theme", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ city_theme: next }),
+          body: JSON.stringify(withDeveloper({ city_theme: next }, currentDeveloper.github_login)),
         }).catch(() => {});
       }
       return next;
     });
-  }, [sessionUserId]);
+  }, [sessionUserId, currentDeveloper?.github_login]);
 
   // Save ?ref= to localStorage (7-day expiry)
   useEffect(() => {
@@ -1017,7 +1024,7 @@ function HomeContent() {
     if (
       selectedBuilding &&
       session &&
-      selectedBuilding.login.toLowerCase() !== authLogin
+      selectedBuilding.login !== authLogin
     ) {
       visitTimerRef.current = setTimeout(async () => {
         try {
@@ -1025,11 +1032,13 @@ function HomeContent() {
             (b) => b.login === selectedBuilding.login,
           );
           if (!building) return;
-          await fetch("/api/interactions/visit", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ building_login: selectedBuilding.login }),
-          });
+          if (currentDeveloper?.github_login) {
+            await fetch("/api/interactions/visit", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(withDeveloper({ building_login: selectedBuilding.login }, currentDeveloper.github_login)),
+            });
+          }
           trackMissionRef.current("visit_building");
           trackMissionRef.current("visit_3_buildings");
         } catch {
@@ -1040,19 +1049,23 @@ function HomeContent() {
     return () => {
       if (visitTimerRef.current) clearTimeout(visitTimerRef.current);
     };
-  }, [selectedBuilding, session, authLogin, buildings]);
+  }, [selectedBuilding, session, authLogin, buildings, currentDeveloper?.github_login]);
 
   // Kudos handler
   const handleGiveKudos = useCallback(async () => {
     if (!selectedBuilding || kudosSending || kudosSent || !session) return;
-    if (selectedBuilding.login.toLowerCase() === authLogin) return;
+    if (selectedBuilding.login === authLogin) return;
     setKudosSending(true);
     setKudosError(null);
     try {
       const res = await fetch("/api/interactions/kudos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ receiver_login: selectedBuilding.login }),
+        body: JSON.stringify(
+          currentDeveloper?.github_login
+            ? withDeveloper({ receiver_login: selectedBuilding.login }, currentDeveloper.github_login)
+            : { receiver_login: selectedBuilding.login },
+        ),
       });
       if (res.ok) {
         trackKudosSent(selectedBuilding.login);
@@ -1081,7 +1094,7 @@ function HomeContent() {
     } finally {
       setKudosSending(false);
     }
-  }, [selectedBuilding, kudosSending, kudosSent, session, authLogin]);
+  }, [selectedBuilding, kudosSending, kudosSent, session, authLogin, currentDeveloper?.github_login]);
 
   // Gift: open modal with available items
   const handleOpenGift = useCallback(async () => {
@@ -1114,11 +1127,14 @@ function HomeContent() {
         const res = await fetch("/api/checkout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            item_id: itemId,
-            provider: "stripe",
-            gifted_to_login: selectedBuilding.login,
-          }),
+          body: JSON.stringify(
+            currentDeveloper?.github_login
+              ? withDeveloper(
+                  { item_id: itemId, provider: "stripe", gifted_to_login: selectedBuilding.login },
+                  currentDeveloper.github_login,
+                )
+              : { item_id: itemId, provider: "stripe", gifted_to_login: selectedBuilding.login },
+          ),
         });
         const data = await res.json();
         if (res.ok && data.url) {
@@ -1130,7 +1146,7 @@ function HomeContent() {
         setGiftBuying(null);
       }
     },
-    [selectedBuilding, giftBuying],
+    [selectedBuilding, giftBuying, currentDeveloper?.github_login],
   );
 
   const lastDistRef = useRef(999);
@@ -1265,10 +1281,11 @@ function HomeContent() {
 
   // Fetch rabbit progress on login — sync local progress to server
   useEffect(() => {
-    if (!session) return;
+    if (!session || !currentDeveloper?.github_login) return;
     (async () => {
       try {
-        const res = await fetch("/api/rabbit?check=true");
+        const q = `check=true&github_login=${encodeURIComponent(currentDeveloper.github_login)}`;
+        const res = await fetch(`/api/rabbit?${q}`);
         if (!res.ok) return;
         const data = await res.json();
         const serverProgress = data?.progress ?? 0;
@@ -1278,15 +1295,14 @@ function HomeContent() {
             10,
           ) || 0;
 
-        // Sync local progress to server if ahead (silently fails if no claimed building)
         if (localProgress > serverProgress) {
           for (let s = serverProgress + 1; s <= localProgress; s++) {
             const sr = await fetch("/api/rabbit", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ sighting: s }),
+              body: JSON.stringify(withDeveloper({ sighting: s }, currentDeveloper.github_login)),
             });
-            if (!sr.ok) break; // stop sync if server rejects (e.g. no claimed building)
+            if (!sr.ok) break;
           }
         }
 
@@ -1301,7 +1317,7 @@ function HomeContent() {
         }
       } catch {}
     })();
-  }, [session]);
+  }, [session, currentDeveloper?.github_login]);
 
   // Auto-dismiss rabbit hint flash
   useEffect(() => {
@@ -1316,17 +1332,12 @@ function HomeContent() {
     const sighting = rabbitSighting;
     setRabbitSighting(null);
 
-    // Try to save to API (works when logged in + has claimed building)
-    const login = (session?.user?.user_metadata?.user_name ?? "").toLowerCase();
-    const claimed =
-      login &&
-      buildings.some((b) => b.login.toLowerCase() === login && b.claimed);
-    if (session && claimed) {
+    if (session && currentDeveloper?.github_login) {
       try {
         const res = await fetch("/api/rabbit", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sighting }),
+          body: JSON.stringify(withDeveloper({ sighting }, currentDeveloper.github_login)),
         });
         const data = await res.json();
         if (res.ok) {
@@ -1363,7 +1374,7 @@ function HomeContent() {
     // Sightings 1-4: advance locally
     setRabbitHintFlash("The rabbit moves deeper...");
     setTimeout(() => setRabbitSighting(newProgress + 1), 2000);
-  }, [rabbitSighting, session, buildings, handleSignInWithRef]);
+  }, [rabbitSighting, session, currentDeveloper?.github_login, buildings, handleSignInWithRef]);
 
   const reloadCity = useCallback(async (bustCache = false) => {
     if (bustCache) clearCityCache();
@@ -1816,13 +1827,14 @@ function HomeContent() {
   }, [giftedParam, userParam, buildings, reloadCity]);
 
   const searchUser = useCallback(async () => {
-    const trimmed = username.trim().toLowerCase();
+    const trimmed = username.trim();
     if (!trimmed) return;
+    const trimmedLower = trimmed.toLowerCase();
 
     trackSearchUsed(trimmed);
 
     // Check if this username already failed with a permanent error
-    const cachedError = failedUsernamesRef.current.get(trimmed);
+    const cachedError = failedUsernamesRef.current.get(trimmedLower);
     if (cachedError) {
       setFeedback({
         type: "error",
@@ -1843,7 +1855,7 @@ function HomeContent() {
 
     try {
       // Self-compare guard
-      if (wasComparing && trimmed === wasComparing.login.toLowerCase()) {
+      if (wasComparing && trimmedLower === wasComparing.login.toLowerCase()) {
         setCompareSelfHint(true);
         setTimeout(() => setCompareSelfHint(false), 2000);
         setFeedback(null);
@@ -1853,11 +1865,11 @@ function HomeContent() {
       // Check if dev already exists in the city before the fetch
       const existedBefore = buildings.some(
         (b) =>
-          b.login.toLowerCase() === trimmed ||
-          b?.name?.toLowerCase() === trimmed.toLowerCase(),
+          b.login === trimmed ||
+          b?.name?.toLowerCase() === trimmedLower,
       );
 
-      // Add/refresh the developer
+      // Add/refresh the developer (preserva o case digitado pelo usuário)
       const devRes = await fetch(`/api/dev/${encodeURIComponent(trimmed)}`);
       const devData = await devRes.json();
 
@@ -1879,7 +1891,7 @@ function HomeContent() {
           else if (devData.error?.includes("no public activity"))
             code = "no-activity";
         }
-        // Cache permanent errors so we don't re-fetch
+        // Cache permanent errors so we don't re-fetch (chave normalizada)
         if (PERMANENT_ERROR_CODES.has(code)) {
           failedUsernamesRef.current.set(trimmed, code);
         }
@@ -1933,7 +1945,7 @@ function HomeContent() {
       setFocusedBuilding(devData.github_login);
 
       // A8: Ghost preview — if user searched for themselves, show temporary effect
-      if (authLogin && trimmed === authLogin && !ghostPreviewShownRef.current) {
+      if (authLogin && trimmedLower === authLogin.toLowerCase() && !ghostPreviewShownRef.current) {
         ghostPreviewShownRef.current = true;
         setGhostPreviewLogin(devData.github_login);
         setTimeout(() => setGhostPreviewLogin(null), 4000);
@@ -1942,7 +1954,7 @@ function HomeContent() {
       // Find the building in the current or updated city
       const searchPool = updatedBuildings ?? buildings;
       const foundBuilding = searchPool.find(
-        (b: CityBuilding) => b.login.toLowerCase() === trimmed,
+        (b: CityBuilding) => b.login.toLowerCase() === trimmedLower,
       );
 
       // Compare pick mode: use snapshot so ESC mid-search doesn't cause stale state
@@ -1994,9 +2006,14 @@ function HomeContent() {
   };
 
   const handleClaim = async () => {
+    if (!myBuilding?.login) return;
     setClaiming(true);
     try {
-      const res = await fetch("/api/claim", { method: "POST" });
+      const res = await fetch("/api/claim", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ github_login: myBuilding.login }),
+      });
       if (res.ok) {
         trackBuildingClaimed(authLogin);
         await reloadCity();
@@ -2007,10 +2024,14 @@ function HomeContent() {
   };
 
   const handleClaimFreeGift = async () => {
-    if (claimingGift) return;
+    if (claimingGift || !currentDeveloper?.github_login) return;
     setClaimingGift(true);
     try {
-      const res = await fetch("/api/claim-free-item", { method: "POST" });
+      const res = await fetch("/api/claim-free-item", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(withDeveloper({}, currentDeveloper.github_login)),
+      });
       if (res.ok) {
         trackFreeItemClaimed();
         await reloadCity();
@@ -2023,7 +2044,7 @@ function HomeContent() {
 
   // Determine if the logged-in user can claim their building
   const myBuilding = authLogin
-    ? buildings.find((b) => b.login.toLowerCase() === authLogin)
+    ? buildings.find((b) => b.login === authLogin)
     : null;
   const canClaim = !!session && !!myBuilding && !myBuilding.claimed;
 
@@ -2314,17 +2335,22 @@ function HomeContent() {
               12000,
             );
             // Fire POST in background, update rank when it returns
-            if (session) {
+            if (session && currentDeveloper?.github_login) {
               const maxComboVal = Math.min(Math.max(flyScore.maxCombo, 1), 3);
               fetch("/api/fly-scores", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  score: finalScore,
-                  collected: flyScore.collected,
-                  max_combo: maxComboVal,
-                  flight_ms: flightMs,
-                }),
+                body: JSON.stringify(
+                  withDeveloper(
+                    {
+                      score: finalScore,
+                      collected: flyScore.collected,
+                      max_combo: maxComboVal,
+                      flight_ms: flightMs,
+                    },
+                    currentDeveloper.github_login,
+                  ),
+                ),
               })
                 .then((res) => (res.ok ? res.json() : null))
                 .then((data) => {
@@ -4403,7 +4429,7 @@ function HomeContent() {
                       )}
 
                     {/* A7: Show equipped items on other devs' buildings (mimetic desire) */}
-                    {selectedBuilding.login.toLowerCase() !== authLogin &&
+                    {selectedBuilding.login !== authLogin &&
                       (() => {
                         const equipped: string[] = [];
                         if (selectedBuilding.loadout?.crown)
@@ -4466,7 +4492,7 @@ function HomeContent() {
 
                     {/* Kudos: give kudos (other's building, logged in) */}
                     {session &&
-                      selectedBuilding.login.toLowerCase() !== authLogin && (
+                      selectedBuilding.login !== authLogin && (
                         <div className="relative mx-4 mb-3">
                           {/* Floating emoji animation on success */}
                           {kudosSent && (
@@ -4581,7 +4607,7 @@ function HomeContent() {
                     )}
 
                     {/* Own building: copy invite link */}
-                    {selectedBuilding.login.toLowerCase() === authLogin && (
+                    {selectedBuilding.login === authLogin && (
                       <div className="mx-4 mb-3">
                         <button
                           onClick={() => {
@@ -4616,7 +4642,7 @@ function HomeContent() {
 
                     {/* Actions */}
                     <div className="flex gap-2 p-4 pt-0 pb-5 sm:pb-4">
-                      {selectedBuilding.login.toLowerCase() === authLogin ? (
+                      {selectedBuilding.login === authLogin ? (
                         <>
                           <Link
                             href={`/shop/${selectedBuilding.login}?tab=loadout`}

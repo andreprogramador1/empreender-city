@@ -34,12 +34,12 @@ export default async function Image({
     supabase
       .from("developers")
       .select("github_login, name, avatar_url, contributions, contributions_total, public_repos, total_stars, rank, kudos_count")
-      .eq("github_login", userA.toLowerCase())
+      .eq("github_login", userA)
       .single(),
     supabase
       .from("developers")
       .select("github_login, name, avatar_url, contributions, contributions_total, public_repos, total_stars, rank, kudos_count")
-      .eq("github_login", userB.toLowerCase())
+      .eq("github_login", userB)
       .single(),
   ]);
 

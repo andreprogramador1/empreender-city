@@ -26,7 +26,7 @@ export default async function Image({
   const { data: dev } = await supabase
     .from("developers")
     .select("github_login, name, avatar_url, contributions, contributions_total, public_repos, total_stars, rank, kudos_count")
-    .eq("github_login", username.toLowerCase())
+    .eq("github_login", username)
     .single();
 
   const accent = "#c8e64a";

@@ -1,36 +1,24 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { getDeveloperOwnedByUser } from "@/lib/api-developer";
 import { RAID_VEHICLE_ITEMS, RAID_TAG_ITEMS } from "@/lib/zones";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const devId = searchParams.get("developer_id");
+  const githubLogin = searchParams.get("github_login");
 
   const admin = getSupabaseAdmin();
-
-  // Support both developer_id param and auth-based lookup
   let developerId: number | null = null;
 
   if (devId) {
     developerId = parseInt(devId, 10);
-  } else {
-    // Auth-based: resolve developer_id from session
+  } else if (githubLogin) {
     const supabase = await createServerSupabase();
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
-    const githubLogin = (
-      user.user_metadata.user_name ??
-      user.user_metadata.preferred_username ??
-      ""
-    ).toLowerCase();
-    const { data: dev } = await admin
-      .from("developers")
-      .select("id")
-      .eq("github_login", githubLogin)
-      .single();
+    if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    const dev = await getDeveloperOwnedByUser<{ id: number }>(admin, user.id, githubLogin, "id");
     if (dev) developerId = dev.id;
   }
 
@@ -63,25 +51,24 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const admin = getSupabaseAdmin();
-  const githubLogin = (
-    user.user_metadata.user_name ??
-    user.user_metadata.preferred_username ??
-    ""
-  ).toLowerCase();
-
-  const { data: dev } = await admin
-    .from("developers")
-    .select("id, claimed, claimed_by")
-    .eq("github_login", githubLogin)
-    .single();
-
-  if (!dev || !dev.claimed || dev.claimed_by !== user.id) {
-    return NextResponse.json({ error: "Must own a claimed building" }, { status: 403 });
+  let body: { github_login?: string; vehicle?: string; tag?: string };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid body" }, { status: 400 });
+  }
+  const githubLogin = body.github_login;
+  if (!githubLogin || typeof githubLogin !== "string") {
+    return NextResponse.json({ error: "github_login is required in body" }, { status: 400 });
   }
 
-  const body = await request.json();
-  const { vehicle, tag } = body as { vehicle?: string; tag?: string };
+  const admin = getSupabaseAdmin();
+  const dev = await getDeveloperOwnedByUser<{ id: number }>(admin, user.id, githubLogin, "id");
+  if (!dev) {
+    return NextResponse.json({ error: "Developer not found or not yours" }, { status: 403 });
+  }
+
+  const { vehicle, tag } = body;
 
   // Fetch owned items for validation
   const { data: purchases } = await admin

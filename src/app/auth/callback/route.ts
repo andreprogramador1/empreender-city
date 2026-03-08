@@ -25,11 +25,10 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/?error=auth_failed`);
   }
 
-  const githubLogin = (
+  const githubLogin =
     data.user.user_metadata.user_name ??
     data.user.user_metadata.preferred_username ??
-    ""
-  ).toLowerCase();
+    "";
 
   const admin = getSupabaseAdmin();
 
@@ -81,7 +80,7 @@ export async function GET(request: Request) {
           const { data: referrer } = await admin
             .from("developers")
             .select("id, github_login")
-            .eq("github_login", ref.toLowerCase())
+            .eq("github_login", ref)
             .single();
 
           if (referrer) {

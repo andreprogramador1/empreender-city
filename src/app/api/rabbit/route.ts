@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { getDeveloperOwnedByUser } from "@/lib/api-developer";
 import { rateLimit } from "@/lib/rate-limit";
 
 // POST - Record rabbit sighting encounter
@@ -19,28 +20,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Too fast" }, { status: 429 });
   }
 
-  const { sighting } = await request.json();
+  const body = await request.json() as { sighting?: number; github_login?: string };
+  const { sighting, github_login: githubLogin } = body;
   if (typeof sighting !== "number" || sighting < 1 || sighting > 5) {
     return NextResponse.json({ error: "Invalid sighting" }, { status: 400 });
   }
+  if (!githubLogin || typeof githubLogin !== "string") {
+    return NextResponse.json({ error: "github_login is required in body" }, { status: 400 });
+  }
 
   const admin = getSupabaseAdmin();
-
-  const githubLogin = (
-    user.user_metadata.user_name ??
-    user.user_metadata.preferred_username ??
-    ""
-  ).toLowerCase();
-
-  // Fetch developer (must have claimed building)
-  const { data: dev } = await admin
-    .from("developers")
-    .select("id, claimed, rabbit_progress, rabbit_completed")
-    .eq("github_login", githubLogin)
-    .single();
-
-  if (!dev || !dev.claimed) {
-    return NextResponse.json({ error: "Must claim building first" }, { status: 403 });
+  const dev = await getDeveloperOwnedByUser(admin, user.id, githubLogin, "id, claimed, rabbit_progress, rabbit_completed");
+  if (!dev) {
+    return NextResponse.json({ error: "Developer not found or not yours" }, { status: 403 });
   }
 
   if (dev.rabbit_completed) {
@@ -133,22 +125,17 @@ export async function GET(request: Request) {
       return NextResponse.json({ progress: 0, completed: false });
     }
 
-    const githubLogin = (
-      user.user_metadata.user_name ??
-      user.user_metadata.preferred_username ??
-      ""
-    ).toLowerCase();
+    const githubLogin = searchParams.get("github_login");
+    if (!githubLogin) {
+      return NextResponse.json({ progress: 0, completed: false });
+    }
 
-    const { data: dev } = await admin
-      .from("developers")
-      .select("rabbit_progress, rabbit_completed, rabbit_completed_at")
-      .eq("github_login", githubLogin)
-      .single();
+    const dev = await getDeveloperOwnedByUser(admin, user.id, githubLogin, "rabbit_progress, rabbit_completed, rabbit_completed_at");
 
     return NextResponse.json({
-      progress: dev?.rabbit_progress ?? 0,
-      completed: dev?.rabbit_completed ?? false,
-      completed_at: dev?.rabbit_completed_at ?? null,
+      progress: (dev as { rabbit_progress?: number } | null)?.rabbit_progress ?? 0,
+      completed: (dev as { rabbit_completed?: boolean } | null)?.rabbit_completed ?? false,
+      completed_at: (dev as { rabbit_completed_at?: string } | null)?.rabbit_completed_at ?? null,
     });
   }
 

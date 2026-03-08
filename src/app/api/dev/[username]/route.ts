@@ -27,7 +27,7 @@ export async function GET(
   }
 
   if (!dev) {
-    const { data: devFromDb } = await sb.from("developers").select("*").eq("github_login", username.toLowerCase()).eq("allow_data_for_buildings", true).single();
+    const { data: devFromDb } = await sb.from("developers").select("*").eq("github_login", username).eq("allow_data_for_buildings", true).single();
     dev = devFromDb;
   }
   

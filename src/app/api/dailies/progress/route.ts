@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { rateLimit } from "@/lib/rate-limit";
+import { getDeveloperOwnedByUser } from "@/lib/api-developer";
 import { getDailyMissions, getTodayStr, MISSIONS_BY_ID } from "@/lib/dailies";
 
 export async function POST(request: Request) {
@@ -19,29 +20,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Too fast" }, { status: 429 });
   }
 
-  const body = await request.json();
-  const { mission_id } = body as { mission_id: string };
+  const body = await request.json() as { mission_id?: string; github_login?: string };
+  const { mission_id, github_login: githubLogin } = body;
 
   if (!mission_id || !MISSIONS_BY_ID.has(mission_id)) {
     return NextResponse.json({ error: "Invalid mission_id" }, { status: 400 });
   }
-
-  const githubLogin = (
-    user.user_metadata?.user_name ??
-    user.user_metadata?.preferred_username ??
-    ""
-  ).toLowerCase();
+  if (!githubLogin || typeof githubLogin !== "string") {
+    return NextResponse.json({ error: "github_login is required in body" }, { status: 400 });
+  }
 
   const admin = getSupabaseAdmin();
-
-  const { data: dev } = await admin
-    .from("developers")
-    .select("id, claimed")
-    .eq("github_login", githubLogin)
-    .single();
-
+  const dev = await getDeveloperOwnedByUser<{ id: number; claimed: boolean }>(admin, user.id, githubLogin, "id, claimed");
   if (!dev || !dev.claimed) {
-    return NextResponse.json({ error: "Must claim building first" }, { status: 403 });
+    return NextResponse.json({ error: "Developer not found or not yours" }, { status: 403 });
   }
 
   const today = getTodayStr();

@@ -32,7 +32,7 @@ const getDeveloper = cache(async (username: string) => {
   const { data } = await supabase
     .from("developers")
     .select("*")
-    .eq("github_login", username.toLowerCase())
+    .eq("github_login", username)
     .single();
   return data;
 });
@@ -114,13 +114,11 @@ export default async function DevPage({ params }: Props) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const authLogin = (
+  const authLogin =
     user?.user_metadata?.user_name ??
     user?.user_metadata?.preferred_username ??
-    ""
-  ).toLowerCase();
-  const isOwner =
-    !!user && authLogin === dev.github_login.toLowerCase() && dev.claimed;
+    "";
+  const isOwner = !!user && !!authLogin && authLogin === dev.github_login && dev.claimed;
 
   const baseUrl =
     process.env.NEXT_PUBLIC_BASE_URL ??

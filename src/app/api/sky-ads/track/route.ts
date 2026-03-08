@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
 
   const ipHash = await hashIP(ip);
   const userAgent = request.headers.get("user-agent")?.slice(0, 256) ?? null;
-  const login = typeof github_login === "string" ? github_login.slice(0, 39).toLowerCase() : null;
+  const login = typeof github_login === "string" ? github_login.slice(0, 39) : null;
   const country = request.headers.get("x-vercel-ip-country") ?? null;
 
   const sb = getSupabaseAdmin();

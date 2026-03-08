@@ -149,7 +149,7 @@ export default async function LeaderboardPage({
       ? devs.some((d) => (d.referral_count ?? 0) > 0)
       : true;
 
-  const topLogins = devs.map((d) => d.github_login.toLowerCase());
+  const topLogins = devs.map((d) => d.github_login);
 
   function getMetricValue(dev: Developer): string {
     switch (activeTab) {
@@ -217,7 +217,7 @@ export default async function LeaderboardPage({
   }
 
   const devMetrics = devs.map((d) => ({
-    login: d.github_login.toLowerCase(),
+    login: d.github_login,
     value: getMetricValueRaw(d),
   }));
 
@@ -228,7 +228,7 @@ export default async function LeaderboardPage({
       .filter(
         (d) => d.created_at && new Date(d.created_at).getTime() > sevenDaysAgo,
       )
-      .map((d) => d.github_login.toLowerCase()),
+      .map((d) => d.github_login),
   );
 
   return (
@@ -369,7 +369,7 @@ export default async function LeaderboardPage({
                         >
                           {pos}
                         </span>
-                        {newLogins.has(dev.github_login.toLowerCase()) && (
+                        {newLogins.has(dev.github_login) && (
                           <span
                             className="block text-[7px] font-bold"
                             style={{ color: "#ffd700" }}

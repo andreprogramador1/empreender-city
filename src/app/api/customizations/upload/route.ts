@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { getDeveloperOwnedByUser } from "@/lib/api-developer";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
 const ALLOWED_TYPES = new Set([
@@ -11,7 +12,6 @@ const ALLOWED_TYPES = new Set([
 ]);
 
 export async function POST(request: Request) {
-  // Auth required
   const supabase = await createServerSupabase();
   const {
     data: { user },
@@ -21,33 +21,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const githubLogin = (
-    user.user_metadata?.user_name ??
-    user.user_metadata?.preferred_username ??
-    ""
-  ).toLowerCase();
-
-  if (!githubLogin) {
-    return NextResponse.json(
-      { error: "No GitHub login found" },
-      { status: 400 }
-    );
+  const formData = await request.formData();
+  const githubLogin = formData.get("github_login");
+  if (!githubLogin || typeof githubLogin !== "string") {
+    return NextResponse.json({ error: "github_login is required (form field)" }, { status: 400 });
   }
 
   const sb = getSupabaseAdmin();
-
-  // Validate developer
-  const { data: dev } = await sb
-    .from("developers")
-    .select("id, claimed, claimed_by")
-    .eq("github_login", githubLogin)
-    .single();
-
-  if (!dev || !dev.claimed || dev.claimed_by !== user.id) {
-    return NextResponse.json(
-      { error: "Building not found or not yours" },
-      { status: 403 }
-    );
+  const dev = await getDeveloperOwnedByUser<{ id: number }>(sb, user.id, githubLogin, "id");
+  if (!dev) {
+    return NextResponse.json({ error: "Developer not found or not yours" }, { status: 403 });
   }
 
   // Count completed billboard purchases

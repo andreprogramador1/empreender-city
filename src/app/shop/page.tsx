@@ -20,11 +20,10 @@ export default async function ShopLanding() {
   } = await supabase.auth.getUser();
 
   if (user) {
-    const githubLogin = (
+    const githubLogin =
       user.user_metadata?.user_name ??
       user.user_metadata?.preferred_username ??
-      ""
-    ).toLowerCase();
+      "";
 
     if (githubLogin) {
       const sb = getSupabaseAdmin();

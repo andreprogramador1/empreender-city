@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import type { DailiesData } from "@/lib/useDailies";
+import { useCurrentDeveloper } from "@/components/CurrentDeveloperProvider";
+import { withDeveloper } from "@/lib/current-developer";
 
 interface Props {
   data: DailiesData | null;
@@ -22,6 +24,7 @@ function getTimeUntilReset(): string {
 }
 
 export default function DailiesWidget({ data, accent, shadow, isMobile, onClaim, onRefresh }: Props) {
+  const { currentDeveloper } = useCurrentDeveloper() ?? {};
   const [open, setOpen] = useState(!isMobile);
   const [claiming, setClaiming] = useState(false);
   const [claimResult, setClaimResult] = useState<{ freeze_granted: boolean } | null>(null);
@@ -39,10 +42,14 @@ export default function DailiesWidget({ data, accent, shadow, isMobile, onClaim,
   const [starVerified, setStarVerified] = useState(false);
 
   const verifyStarOnReturn = useCallback(async () => {
-    if (starVerifying || starVerified || data?.has_github_star) return;
+    if (starVerifying || starVerified || data?.has_github_star || !currentDeveloper?.github_login) return;
     setStarVerifying(true);
     try {
-      const res = await fetch("/api/verify-github-star", { method: "POST" });
+      const res = await fetch("/api/verify-github-star", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(withDeveloper({}, currentDeveloper.github_login)),
+      });
       if (!res.ok) { setStarVerifying(false); return; }
       const json = await res.json();
       if (json.verified) {
@@ -51,7 +58,7 @@ export default function DailiesWidget({ data, accent, shadow, isMobile, onClaim,
       }
     } catch { /* ignore */ }
     setStarVerifying(false);
-  }, [starVerifying, starVerified, data?.has_github_star]);
+  }, [starVerifying, starVerified, data?.has_github_star, currentDeveloper?.github_login]);
 
   // Close on click/tap outside
   useEffect(() => {

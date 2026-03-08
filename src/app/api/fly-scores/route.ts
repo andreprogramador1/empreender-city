@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { getDeveloperOwnedByUser } from "@/lib/api-developer";
 import { rateLimit } from "@/lib/rate-limit";
 import { trackDailyMission } from "@/lib/dailies";
 
@@ -41,7 +42,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { score, collected, max_combo, flight_ms } = body;
+  const { score, collected, max_combo, flight_ms, github_login: githubLogin } = body;
 
   // Anti-cheat validations
   if (typeof score !== "number" || score < 0 || score > 430) {
@@ -72,23 +73,14 @@ export async function POST(request: Request) {
   if (collected === 0 && score > 0) {
     return NextResponse.json({ error: "Invalid score" }, { status: 400 });
   }
-
-  const githubLogin = (
-    user.user_metadata.user_name ??
-    user.user_metadata.preferred_username ??
-    ""
-  ).toLowerCase();
+  if (!githubLogin || typeof githubLogin !== "string") {
+    return NextResponse.json({ error: "github_login is required in body" }, { status: 400 });
+  }
 
   const admin = getSupabaseAdmin();
-
-  const { data: dev } = await admin
-    .from("developers")
-    .select("id")
-    .eq("github_login", githubLogin)
-    .single();
-
+  const dev = await getDeveloperOwnedByUser<{ id: number }>(admin, user.id, githubLogin, "id");
   if (!dev) {
-    return NextResponse.json({ error: "Developer not found" }, { status: 404 });
+    return NextResponse.json({ error: "Developer not found or not yours" }, { status: 403 });
   }
 
   const seed = getTodaySeed();

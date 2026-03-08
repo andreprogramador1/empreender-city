@@ -1,14 +1,35 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { getDeveloperOwnedByUser } from "@/lib/api-developer";
 import { ZONE_ITEMS } from "@/lib/zones";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const devId = searchParams.get("developer_id");
+  const githubLogin = searchParams.get("github_login");
+
+  // Either developer_id (public) or github_login + auth (own loadout)
+  if (devId) {
+    // Public: by developer_id
+  } else if (githubLogin) {
+    const supabase = await createServerSupabase();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    const admin = getSupabaseAdmin();
+    const dev = await getDeveloperOwnedByUser<{ id: number }>(admin, user.id, githubLogin, "id");
+    if (!dev) return NextResponse.json({ error: "Developer not found or not yours" }, { status: 403 });
+    const { data } = await admin
+      .from("developer_customizations")
+      .select("config")
+      .eq("developer_id", dev.id)
+      .eq("item_id", "loadout")
+      .maybeSingle();
+    return NextResponse.json({ loadout: data?.config ?? null });
+  }
 
   if (!devId) {
-    return NextResponse.json({ error: "Missing developer_id" }, { status: 400 });
+    return NextResponse.json({ error: "Missing developer_id or github_login" }, { status: 400 });
   }
 
   const admin = getSupabaseAdmin();
@@ -34,25 +55,24 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const admin = getSupabaseAdmin();
-  const githubLogin = (
-    user.user_metadata.user_name ??
-    user.user_metadata.preferred_username ??
-    ""
-  ).toLowerCase();
-
-  const { data: dev } = await admin
-    .from("developers")
-    .select("id, claimed, claimed_by")
-    .eq("github_login", githubLogin)
-    .single();
-
-  if (!dev || !dev.claimed || dev.claimed_by !== user.id) {
-    return NextResponse.json({ error: "Must own a claimed building" }, { status: 403 });
+  let body: { github_login?: string; crown?: string | null; roof?: string | null; aura?: string | null };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid body" }, { status: 400 });
+  }
+  const githubLogin = body.github_login;
+  if (!githubLogin || typeof githubLogin !== "string") {
+    return NextResponse.json({ error: "github_login is required in body" }, { status: 400 });
   }
 
-  const body = await request.json();
-  const { crown, roof, aura } = body as {
+  const admin = getSupabaseAdmin();
+  const dev = await getDeveloperOwnedByUser<{ id: number }>(admin, user.id, githubLogin, "id");
+  if (!dev) {
+    return NextResponse.json({ error: "Developer not found or not yours" }, { status: 403 });
+  }
+
+  const { crown, roof, aura } = body;
     crown?: string | null;
     roof?: string | null;
     aura?: string | null;

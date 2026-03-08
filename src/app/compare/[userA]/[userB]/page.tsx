@@ -18,12 +18,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     supabase
       .from("developers")
       .select("github_login, contributions, contributions_total, total_stars, rank")
-      .eq("github_login", userA.toLowerCase())
+      .eq("github_login", userA)
       .single(),
     supabase
       .from("developers")
       .select("github_login, contributions, contributions_total, total_stars, rank")
-      .eq("github_login", userB.toLowerCase())
+      .eq("github_login", userB)
       .single(),
   ]);
 

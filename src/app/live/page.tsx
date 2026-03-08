@@ -25,8 +25,8 @@ export default function LivePage() {
           if (data.developers) {
             // Creator first, then alphabetical
             const sorted = [...data.developers].sort((a: PresenceDev, b: PresenceDev) => {
-              if (a.githubLogin.toLowerCase() === CREATOR_LOGIN) return -1;
-              if (b.githubLogin.toLowerCase() === CREATOR_LOGIN) return 1;
+              if (a.githubLogin === CREATOR_LOGIN) return -1;
+              if (b.githubLogin === CREATOR_LOGIN) return 1;
               return a.githubLogin.localeCompare(b.githubLogin);
             });
             setDevelopers(sorted);
@@ -80,7 +80,7 @@ export default function LivePage() {
         ) : (
           <div className="space-y-2">
             {developers.map((dev) => {
-              const isCreator = dev.githubLogin.toLowerCase() === CREATOR_LOGIN;
+              const isCreator = dev.githubLogin === CREATOR_LOGIN;
               return (
                 <Link
                   key={dev.githubLogin}

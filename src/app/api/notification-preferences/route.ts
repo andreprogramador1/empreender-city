@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { getDeveloperOwnedByUser } from "@/lib/api-developer";
 
 const UPDATABLE_FIELDS = [
   "email_enabled",
@@ -16,10 +17,10 @@ const UPDATABLE_FIELDS = [
 ] as const;
 
 /**
- * GET /api/notification-preferences
- * Returns the authenticated user's notification preferences.
+ * GET /api/notification-preferences?github_login=...
+ * Returns the authenticated user's notification preferences for that developer.
  */
-export async function GET() {
+export async function GET(request: Request) {
   const supabase = await createServerSupabase();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -27,21 +28,15 @@ export async function GET() {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
+  const githubLogin = new URL(request.url).searchParams.get("github_login");
+  if (!githubLogin) {
+    return NextResponse.json({ error: "github_login is required (query)" }, { status: 400 });
+  }
+
   const sb = getSupabaseAdmin();
-  const githubLogin = (
-    user.user_metadata?.user_name ??
-    user.user_metadata?.preferred_username ??
-    ""
-  ).toLowerCase();
-
-  const { data: dev } = await sb
-    .from("developers")
-    .select("id")
-    .eq("github_login", githubLogin)
-    .single();
-
+  const dev = await getDeveloperOwnedByUser<{ id: number }>(sb, user.id, githubLogin, "id");
   if (!dev) {
-    return NextResponse.json({ error: "Developer not found" }, { status: 404 });
+    return NextResponse.json({ error: "Developer not found or not yours" }, { status: 403 });
   }
 
   const { data: prefs } = await sb
@@ -83,22 +78,16 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const body = await request.json();
+  const body = await request.json() as Record<string, unknown> & { github_login?: string };
+  const githubLogin = body.github_login;
+  if (!githubLogin || typeof githubLogin !== "string") {
+    return NextResponse.json({ error: "github_login is required in body" }, { status: 400 });
+  }
+
   const sb = getSupabaseAdmin();
-  const githubLogin = (
-    user.user_metadata?.user_name ??
-    user.user_metadata?.preferred_username ??
-    ""
-  ).toLowerCase();
-
-  const { data: dev } = await sb
-    .from("developers")
-    .select("id")
-    .eq("github_login", githubLogin)
-    .single();
-
+  const dev = await getDeveloperOwnedByUser<{ id: number }>(sb, user.id, githubLogin, "id");
   if (!dev) {
-    return NextResponse.json({ error: "Developer not found" }, { status: 404 });
+    return NextResponse.json({ error: "Developer not found or not yours" }, { status: 403 });
   }
 
   // Filter to only allowed fields

@@ -3,6 +3,7 @@ import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import GlobalRadio from "@/components/GlobalRadio";
+import { CurrentDeveloperProvider } from "@/components/CurrentDeveloperProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -95,7 +96,9 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-bg font-pixel text-warm" suppressHydrationWarning>
-        {children}
+        <CurrentDeveloperProvider>
+          {children}
+        </CurrentDeveloperProvider>
         <GlobalRadio />
         <Analytics />
         <SpeedInsights />

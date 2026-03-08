@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { getDeveloperOwnedByUser } from "@/lib/api-developer";
 import { getDailyMissions, getTodayStr, trackDailyMission } from "@/lib/dailies";
 
-export async function GET() {
+export async function GET(request: Request) {
   const supabase = await createServerSupabase();
   const {
     data: { user },
@@ -13,22 +14,15 @@ export async function GET() {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const githubLogin = (
-    user.user_metadata?.user_name ??
-    user.user_metadata?.preferred_username ??
-    ""
-  ).toLowerCase();
+  const githubLogin = new URL(request.url).searchParams.get("github_login");
+  if (!githubLogin) {
+    return NextResponse.json({ error: "github_login is required (query)" }, { status: 400 });
+  }
 
   const admin = getSupabaseAdmin();
-
-  const { data: dev } = await admin
-    .from("developers")
-    .select("id, claimed, dailies_completed, dailies_streak, last_dailies_date, last_checkin_date")
-    .eq("github_login", githubLogin)
-    .single();
-
-  if (!dev || !dev.claimed) {
-    return NextResponse.json({ error: "Must claim building first" }, { status: 403 });
+  const dev = await getDeveloperOwnedByUser(admin, user.id, githubLogin, "id, claimed, dailies_completed, dailies_streak, last_dailies_date, last_checkin_date");
+  if (!dev) {
+    return NextResponse.json({ error: "Developer not found or not yours" }, { status: 403 });
   }
 
   const today = getTodayStr();

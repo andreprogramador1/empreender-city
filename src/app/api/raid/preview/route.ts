@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { rateLimit } from "@/lib/rate-limit";
+import { getDeveloperOwnedByUser } from "@/lib/api-developer";
 import {
   calculateAttackScore,
   calculateDefenseScore,
@@ -25,29 +26,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Too fast" }, { status: 429 });
   }
 
-  const { target_login } = await request.json();
+  const body = await request.json();
+  const { github_login: githubLogin, target_login } = body as { github_login?: string; target_login?: string };
   if (!target_login || typeof target_login !== "string") {
     return NextResponse.json({ error: "Missing target_login" }, { status: 400 });
   }
+  if (!githubLogin || typeof githubLogin !== "string") {
+    return NextResponse.json({ error: "github_login is required in body" }, { status: 400 });
+  }
 
   const admin = getSupabaseAdmin();
-
-  const githubLogin = (
-    user.user_metadata.user_name ??
-    user.user_metadata.preferred_username ??
-    ""
-  ).toLowerCase();
-
-  // Fetch attacker
-  const attackerRes = await admin
-    .from("developers")
-    .select("id, claimed, app_streak, github_login, avatar_url, current_week_contributions, current_week_kudos_given")
-    .eq("github_login", githubLogin)
-    .single();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const attacker = attackerRes.data as Record<string, any> | null;
-
-  if (!attacker || !attacker.claimed) {
+  const attacker = await getDeveloperOwnedByUser(admin, user.id, githubLogin, "id, claimed, app_streak, github_login, avatar_url, current_week_contributions, current_week_kudos_given");
+  if (!attacker || !(attacker as { claimed: boolean }).claimed) {
     return NextResponse.json({ error: "Must claim building first" }, { status: 403 });
   }
 
@@ -55,7 +45,7 @@ export async function POST(request: Request) {
   const defenderRes = await admin
     .from("developers")
     .select("id, claimed, app_streak, avatar_url, github_login, contributions, current_week_contributions, current_week_kudos_received")
-    .eq("github_login", target_login.toLowerCase())
+    .eq("github_login", target_login)
     .single();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const defender = defenderRes.data as Record<string, any> | null;

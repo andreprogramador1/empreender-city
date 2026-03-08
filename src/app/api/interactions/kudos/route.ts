@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { getDeveloperOwnedByUser } from "@/lib/api-developer";
 import { rateLimit } from "@/lib/rate-limit";
 import { checkAchievements } from "@/lib/achievements";
 import { touchLastActive } from "@/lib/notification-helpers";
@@ -16,33 +17,24 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const { receiver_login } = await request.json();
+  const body = await request.json() as { github_login?: string; receiver_login?: string };
+  const { github_login: githubLogin, receiver_login } = body;
   if (!receiver_login || typeof receiver_login !== "string") {
     return NextResponse.json({ error: "Missing receiver_login" }, { status: 400 });
   }
+  if (!githubLogin || typeof githubLogin !== "string") {
+    return NextResponse.json({ error: "github_login is required in body (giver)" }, { status: 400 });
+  }
 
-  // Per-user rate limit: 1 req/sec
   const { ok } = rateLimit(`kudos:${user.id}`, 1, 1000);
   if (!ok) {
     return NextResponse.json({ error: "Too fast" }, { status: 429 });
   }
 
   const admin = getSupabaseAdmin();
+  const giver = await getDeveloperOwnedByUser(admin, user.id, githubLogin, "id, claimed, contributions, public_repos, total_stars, kudos_count, kudos_streak, last_kudos_given_date");
 
-  const githubLogin = (
-    user.user_metadata.user_name ??
-    user.user_metadata.preferred_username ??
-    ""
-  ).toLowerCase();
-
-  // Fetch giver (must have claimed building)
-  const { data: giver } = await admin
-    .from("developers")
-    .select("id, claimed, contributions, public_repos, total_stars, kudos_count, kudos_streak, last_kudos_given_date")
-    .eq("github_login", githubLogin)
-    .single();
-
-  if (!giver || !giver.claimed) {
+  if (!giver || !(giver as { claimed: boolean }).claimed) {
     return NextResponse.json({ error: "Must claim building first" }, { status: 403 });
   }
 
@@ -50,7 +42,7 @@ export async function POST(request: Request) {
   const { data: receiver } = await admin
     .from("developers")
     .select("id, claimed, github_login")
-    .eq("github_login", receiver_login.toLowerCase())
+    .eq("github_login", receiver_login)
     .single();
 
   if (!receiver) {

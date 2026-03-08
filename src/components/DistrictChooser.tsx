@@ -6,6 +6,8 @@ import {
   DISTRICT_COLORS,
   DISTRICT_DESCRIPTIONS,
 } from "@/lib/github";
+import { useCurrentDeveloper } from "@/components/CurrentDeveloperProvider";
+import { withDeveloper } from "@/lib/current-developer";
 
 interface DistrictChooserProps {
   currentDistrict: string | null;
@@ -25,6 +27,7 @@ export default function DistrictChooser({
   onClose,
   onChosen,
 }: DistrictChooserProps) {
+  const { currentDeveloper } = useCurrentDeveloper() ?? {};
   const [selected, setSelected] = useState<string | null>(currentDistrict);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,7 +42,7 @@ export default function DistrictChooser({
   }, [onClose]);
 
   const handleConfirm = async () => {
-    if (!selected) return;
+    if (!selected || !currentDeveloper?.github_login) return;
     setSubmitting(true);
     setError(null);
 
@@ -47,7 +50,7 @@ export default function DistrictChooser({
       const res = await fetch("/api/district/change", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ district_id: selected }),
+        body: JSON.stringify(withDeveloper({ district_id: selected }, currentDeveloper.github_login)),
       });
       const data = await res.json();
       if (!res.ok) {

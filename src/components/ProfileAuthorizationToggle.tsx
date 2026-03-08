@@ -1,12 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import type { ProfileResponse } from "@/lib/current-developer";
 
-interface ProfileState {
-  allow_data_for_buildings: boolean;
-  stores_synced_at: string | null;
-  dash_user_id: number | null;
-}
+interface ProfileState extends ProfileResponse {}
 
 export default function ProfileAuthorizationToggle() {
   const [profile, setProfile] = useState<ProfileState | null>(null);

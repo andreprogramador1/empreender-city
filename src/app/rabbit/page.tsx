@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useMemo, Suspense } from "react";
 import Link from "next/link";
 import { createBrowserSupabase } from "@/lib/supabase";
+import { useCurrentDeveloper } from "@/components/CurrentDeveloperProvider";
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -306,6 +307,7 @@ function CompleterRing({ completers, currentLogin, completed }: { completers: Co
 // ─── Main Page ──────────────────────────────────────────────
 
 function RabbitContent() {
+  const { currentDeveloper } = useCurrentDeveloper() ?? {};
   const [completers, setCompleters] = useState<Completer[]>([]);
   const [userData, setUserData] = useState<UserRabbitData | null>(null);
   const [currentLogin, setCurrentLogin] = useState("");
@@ -315,15 +317,16 @@ function RabbitContent() {
     const supabase = createBrowserSupabase();
 
     supabase.auth.getSession().then(({ data: { session } }: { data: { session: any } }) => {
-      const login = (
+      const devLogin = currentDeveloper?.github_login;
+      const login = devLogin ?? (
         session?.user?.user_metadata?.user_name ??
         session?.user?.user_metadata?.preferred_username ??
         ""
       ).toLowerCase();
-      setCurrentLogin(login);
+      setCurrentLogin(login ?? "");
 
-      if (session) {
-        fetch("/api/rabbit?check=true")
+      if (session && devLogin) {
+        fetch(`/api/rabbit?check=true&github_login=${encodeURIComponent(devLogin)}`)
           .then((r) => r.ok ? r.json() : null)
           .then((data) => { if (data) setUserData(data); })
           .catch(() => {});
@@ -337,10 +340,10 @@ function RabbitContent() {
       .then((data) => { if (data?.completers) setCompleters(data.completers); })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+  }, [currentDeveloper?.github_login]);
 
   const completed = userData?.completed ?? false;
-  const myPosition = completers.findIndex((c) => c.login.toLowerCase() === currentLogin.toLowerCase()) + 1;
+  const myPosition = completers.findIndex((c) => c.login === currentLogin) + 1;
   const completedDate = userData?.completed_at
     ? new Date(userData.completed_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
     : null;

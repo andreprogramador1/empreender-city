@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import type { Session } from "@supabase/supabase-js";
+import { useCurrentDeveloper } from "@/components/CurrentDeveloperProvider";
+import { withDeveloper, queryWithDeveloper } from "@/lib/current-developer";
 
 export interface DailyMission {
   id: string;
@@ -23,28 +25,30 @@ export interface DailiesData {
 }
 
 export function useDailies(session: Session | null, hasClaimed: boolean) {
+  const { currentDeveloper } = useCurrentDeveloper() ?? {};
   const [data, setData] = useState<DailiesData | null>(null);
   const [loading, setLoading] = useState(false);
   const fetchedRef = useRef(false);
 
   const fetchDailies = useCallback(async () => {
+    if (!currentDeveloper?.github_login) return;
     try {
-      const r = await fetch("/api/dailies");
+      const q = queryWithDeveloper(new URLSearchParams(), currentDeveloper.github_login);
+      const r = await fetch(`/api/dailies?${q}`);
       if (!r.ok) return;
       const json = (await r.json()) as DailiesData;
       setData(json);
     } catch {}
-  }, []);
+  }, [currentDeveloper?.github_login]);
 
-  // Initial fetch on mount
   useEffect(() => {
-    if (!session || !hasClaimed) return;
+    if (!session || !hasClaimed || !currentDeveloper?.github_login) return;
     if (fetchedRef.current) return;
 
     fetchedRef.current = true;
     setLoading(true);
     fetchDailies().finally(() => setLoading(false));
-  }, [session, hasClaimed, fetchDailies]);
+  }, [session, hasClaimed, currentDeveloper?.github_login, fetchDailies]);
 
   const refresh = useCallback(async () => {
     await fetchDailies();
@@ -97,18 +101,25 @@ export function useDailies(session: Session | null, hasClaimed: boolean) {
       });
 
       // Fire-and-forget to server
-      fetch("/api/dailies/progress", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mission_id: missionId }),
-      }).catch(() => {});
+      if (currentDeveloper?.github_login) {
+        fetch("/api/dailies/progress", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(withDeveloper({ mission_id: missionId }, currentDeveloper.github_login)),
+        }).catch(() => {});
+      }
     },
-    [data, addToast],
+    [data, addToast, currentDeveloper?.github_login],
   );
 
   const claim = useCallback(async () => {
+    if (!currentDeveloper?.github_login) return null;
     try {
-      const r = await fetch("/api/dailies/claim", { method: "POST" });
+      const r = await fetch("/api/dailies/claim", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(withDeveloper({}, currentDeveloper.github_login)),
+      });
       if (!r.ok) return null;
       const result = await r.json();
 
@@ -127,7 +138,7 @@ export function useDailies(session: Session | null, hasClaimed: boolean) {
     } catch {
       return null;
     }
-  }, []);
+  }, [currentDeveloper?.github_login]);
 
   return { data, loading, refresh, trackClientMission, claim, toasts };
 }

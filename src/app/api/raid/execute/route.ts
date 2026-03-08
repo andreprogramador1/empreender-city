@@ -6,6 +6,7 @@ import { checkAchievements } from "@/lib/achievements";
 import { touchLastActive } from "@/lib/notification-helpers";
 import { sendRaidAlertNotification } from "@/lib/notification-senders/raid";
 import { trackDailyMission } from "@/lib/dailies";
+import { getDeveloperOwnedByUser } from "@/lib/api-developer";
 import {
   calculateAttackScore,
   calculateDefenseScore,
@@ -17,6 +18,8 @@ import {
   XP_LOSE_DEFENDER,
 } from "@/lib/raid";
 
+const raidColumns = "id, claimed, github_login, avatar_url, contributions, public_repos, total_stars, kudos_count, app_streak, raid_xp, current_week_contributions, current_week_kudos_given, current_week_kudos_received";
+
 export async function POST(request: Request) {
   const supabase = await createServerSupabase();
   const {
@@ -27,14 +30,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  // Strict per-user rate limit: 1 execute per 30s
   const { ok } = rateLimit(`raid-execute:${user.id}`, 1, 30_000);
   if (!ok) {
     return NextResponse.json({ error: "Too fast, wait before raiding again" }, { status: 429 });
   }
 
   const body = await request.json();
-  const { target_login, boost_purchase_id, vehicle_id } = body as {
+  const { github_login: githubLogin, target_login, boost_purchase_id, vehicle_id } = body as {
+    github_login?: string;
     target_login: string;
     boost_purchase_id?: number;
     vehicle_id?: string;
@@ -43,38 +46,24 @@ export async function POST(request: Request) {
   if (!target_login || typeof target_login !== "string") {
     return NextResponse.json({ error: "Missing target_login" }, { status: 400 });
   }
+  if (!githubLogin || typeof githubLogin !== "string") {
+    return NextResponse.json({ error: "github_login is required in body" }, { status: 400 });
+  }
 
   const admin = getSupabaseAdmin();
-
-  const githubLogin = (
-    user.user_metadata.user_name ??
-    user.user_metadata.preferred_username ??
-    ""
-  ).toLowerCase();
-
-  // Fetch attacker + defender in parallel
-  const raidColumns = "id, claimed, github_login, avatar_url, contributions, public_repos, total_stars, kudos_count, app_streak, raid_xp, current_week_contributions, current_week_kudos_given, current_week_kudos_received";
-  const [attackerRes, defenderRes] = await Promise.all([
-    admin
-      .from("developers")
-      .select(raidColumns)
-      .eq("github_login", githubLogin)
-      .single(),
-    admin
-      .from("developers")
-      .select(raidColumns)
-      .eq("github_login", target_login.toLowerCase())
-      .single(),
-  ]);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const attacker = attackerRes.data as Record<string, any> | null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const defender = defenderRes.data as Record<string, any> | null;
-
-  if (!attacker || !attacker.claimed) {
+  const attacker = await getDeveloperOwnedByUser(admin, user.id, githubLogin, raidColumns);
+  if (!attacker || !(attacker as { claimed: boolean }).claimed) {
     return NextResponse.json({ error: "Must claim building first" }, { status: 403 });
   }
+
+  const { data: defenderRow } = await admin
+    .from("developers")
+    .select(raidColumns)
+    .eq("github_login", target_login)
+    .single();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const defender = defenderRow as Record<string, any> | null;
+
   if (!defender) {
     return NextResponse.json({ error: "Target not found" }, { status: 404 });
   }

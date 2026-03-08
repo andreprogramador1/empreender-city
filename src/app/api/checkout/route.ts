@@ -31,46 +31,30 @@ export async function POST(request: Request) {
   }
   lastCheckout.set(user.id, now);
 
-  const githubLogin = (
-    user.user_metadata?.user_name ??
-    user.user_metadata?.preferred_username ??
-    ""
-  ).toLowerCase();
+  let body: { github_login?: string; item_id: string; provider: "stripe" | "abacatepay" | "nowpayments"; gifted_to_login?: string };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid body" }, { status: 400 });
+  }
 
-  if (!githubLogin) {
-    return NextResponse.json({ error: "No GitHub login found" }, { status: 400 });
+  const githubLogin = body.github_login;
+  if (!githubLogin || typeof githubLogin !== "string") {
+    return NextResponse.json({ error: "github_login is required in body" }, { status: 400 });
   }
 
   const sb = getSupabaseAdmin();
-
-  // Validate user has claimed building
   const { data: dev } = await sb
     .from("developers")
     .select("id, claimed, claimed_by")
     .eq("github_login", githubLogin)
     .single();
 
-  if (!dev || !dev.claimed) {
+  if (!dev || !dev.claimed || dev.claimed_by !== user.id) {
     return NextResponse.json(
-      { error: "You must claim your building first" },
+      { error: "Developer not found or not yours. Claim your building first." },
       { status: 403 }
     );
-  }
-
-  // Validate claimed_by matches user
-  if (dev.claimed_by !== user.id) {
-    return NextResponse.json(
-      { error: "This building is not yours" },
-      { status: 403 }
-    );
-  }
-
-  // Parse body
-  let body: { item_id: string; provider: "stripe" | "abacatepay" | "nowpayments"; gifted_to_login?: string };
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
   const { item_id, provider, gifted_to_login } = body;
@@ -90,14 +74,14 @@ export async function POST(request: Request) {
   // Gift validation
   let giftedToDevId: number | null = null;
   if (gifted_to_login) {
-    if (gifted_to_login.toLowerCase() === githubLogin) {
+    if (gifted_to_login === githubLogin) {
       return NextResponse.json({ error: "Cannot gift to yourself" }, { status: 400 });
     }
 
     const { data: receiver } = await sb
       .from("developers")
       .select("id")
-      .eq("github_login", gifted_to_login.toLowerCase())
+      .eq("github_login", gifted_to_login)
       .single();
 
     if (!receiver) {

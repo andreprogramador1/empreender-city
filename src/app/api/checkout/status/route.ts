@@ -20,23 +20,20 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const githubLogin = (
-    user.user_metadata?.user_name ??
-    user.user_metadata?.preferred_username ??
-    ""
-  ).toLowerCase();
+  const githubLogin = searchParams.get("github_login");
+  if (!githubLogin) {
+    return NextResponse.json({ error: "github_login is required (query)" }, { status: 400 });
+  }
 
   const sb = getSupabaseAdmin();
-
-  // Get dev ID for this user
   const { data: dev } = await sb
     .from("developers")
-    .select("id")
+    .select("id, claimed_by")
     .eq("github_login", githubLogin)
     .single();
 
-  if (!dev) {
-    return NextResponse.json({ error: "Developer not found" }, { status: 404 });
+  if (!dev || dev.claimed_by !== user.id) {
+    return NextResponse.json({ error: "Developer not found or not yours" }, { status: 403 });
   }
 
   // Fetch purchase — must belong to this developer

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { getDeveloperOwnedByUser } from "@/lib/api-developer";
 import { rateLimit } from "@/lib/rate-limit";
 
 const REPO_OWNER = "srizzon";
@@ -39,7 +40,7 @@ async function isStargazer(login: string): Promise<boolean> {
   return false;
 }
 
-export async function POST() {
+export async function POST(request: Request) {
   const supabase = await createServerSupabase();
   const {
     data: { user },
@@ -54,26 +55,21 @@ export async function POST() {
     return NextResponse.json({ error: "Too fast" }, { status: 429 });
   }
 
-  const githubLogin = (
-    user.user_metadata?.user_name ??
-    user.user_metadata?.preferred_username ??
-    ""
-  ).toLowerCase();
-
-  if (!githubLogin) {
-    return NextResponse.json({ error: "No GitHub login" }, { status: 400 });
+  let body: { github_login?: string };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid body" }, { status: 400 });
+  }
+  const githubLogin = body.github_login;
+  if (!githubLogin || typeof githubLogin !== "string") {
+    return NextResponse.json({ error: "github_login is required in body" }, { status: 400 });
   }
 
   const sb = getSupabaseAdmin();
-
-  const { data: dev } = await sb
-    .from("developers")
-    .select("id, claimed")
-    .eq("github_login", githubLogin)
-    .single();
-
+  const dev = await getDeveloperOwnedByUser<{ id: number; claimed: boolean }>(sb, user.id, githubLogin, "id, claimed");
   if (!dev || !dev.claimed) {
-    return NextResponse.json({ error: "Must claim building first" }, { status: 403 });
+    return NextResponse.json({ error: "Developer not found or not yours" }, { status: 403 });
   }
 
   // Idempotent: already owns the item
@@ -89,7 +85,7 @@ export async function POST() {
     return NextResponse.json({ ok: true, verified: true, already_owned: true });
   }
 
-  // Check GitHub star
+  // Check GitHub star (only meaningful for GitHub logins; Dash logins will get verified: false)
   const starred = await isStargazer(githubLogin);
   if (!starred) {
     return NextResponse.json({ ok: true, verified: false });

@@ -4,7 +4,7 @@ import { getSupabaseAdmin } from "@/lib/supabase";
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const tab = searchParams.get("tab") ?? "contributors";
-  const login = searchParams.get("login")?.toLowerCase();
+  const login = searchParams.get("login") ?? "";
 
   if (!login) {
     return NextResponse.json({ error: "Missing login" }, { status: 400 });

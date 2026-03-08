@@ -296,7 +296,7 @@ async function fetchAndUpsert(login: string): Promise<boolean> {
     // Upsert
     const { error } = await sb.from("developers").upsert(
       {
-        github_login: ghUser.login.toLowerCase(),
+        github_login: ghUser.login,
         github_id: ghUser.id,
         name: ghUser.name,
         avatar_url: ghUser.avatar_url,

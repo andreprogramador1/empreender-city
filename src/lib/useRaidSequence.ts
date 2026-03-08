@@ -4,6 +4,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import type { CityBuilding } from "@/lib/github";
 import type { RaidPreviewResponse, RaidExecuteResponse } from "@/lib/raid";
 import { preloadRaidAudio, playRaidSound, stopRaidSound, fadeOutRaidSound, stopAllRaidSounds } from "@/lib/raidAudio";
+import { withDeveloper } from "@/lib/current-developer";
 
 // ─── Types ────────────────────────────────────────────────────
 
@@ -59,6 +60,7 @@ export function useRaidSequence(): [RaidState, RaidActions] {
   const [state, setState] = useState<RaidState>(INITIAL_STATE);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const targetLoginRef = useRef<string>("");
+  const attackerLoginRef = useRef<string>("");
 
   // Cleanup timers on unmount
   useEffect(() => {
@@ -138,9 +140,9 @@ export function useRaidSequence(): [RaidState, RaidActions] {
   const startPreview = useCallback(
     async (targetLogin: string, buildings: CityBuilding[], myLogin: string) => {
       targetLoginRef.current = targetLogin;
+      attackerLoginRef.current = myLogin;
       setState((prev) => ({ ...prev, loading: true, error: null }));
 
-      // Find buildings for position data
       const attackerBuilding = buildings.find((b) => b.login === myLogin) ?? null;
       const defenderBuilding = buildings.find((b) => b.login === targetLogin) ?? null;
 
@@ -148,7 +150,7 @@ export function useRaidSequence(): [RaidState, RaidActions] {
         const res = await fetch("/api/raid/preview", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ target_login: targetLogin }),
+          body: JSON.stringify(withDeveloper({ target_login: targetLogin }, myLogin)),
         });
 
         if (!res.ok) {
@@ -191,11 +193,16 @@ export function useRaidSequence(): [RaidState, RaidActions] {
         const res = await fetch("/api/raid/execute", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            target_login: targetLoginRef.current,
-            boost_purchase_id: boostPurchaseId,
-            vehicle_id: vehicleId,
-          }),
+          body: JSON.stringify(
+            withDeveloper(
+              {
+                target_login: targetLoginRef.current,
+                boost_purchase_id: boostPurchaseId,
+                vehicle_id: vehicleId,
+              },
+              attackerLoginRef.current
+            )
+          ),
         });
 
         if (!res.ok) {

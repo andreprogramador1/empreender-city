@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import type { Session } from "@supabase/supabase-js";
+import { useCurrentDeveloper } from "@/components/CurrentDeveloperProvider";
+import { withDeveloper } from "@/lib/current-developer";
 
 export interface RaidSinceLast {
   attacker_login: string;
@@ -56,16 +58,22 @@ export function useStreakCheckin(
   const [loading, setLoading] = useState(false);
   const fetchedRef = useRef(false);
 
+  const { currentDeveloper } = useCurrentDeveloper() ?? {};
+
   useEffect(() => {
-    if (!session || !hasClaimed) return;
-    // Already fetched this session (ref guards against StrictMode double-fire)
+    if (!session || !hasClaimed || !currentDeveloper?.github_login) return;
     if (fetchedRef.current) return;
     if (typeof window !== "undefined" && sessionStorage.getItem(CACHE_KEY)) return;
 
     fetchedRef.current = true;
     setLoading(true);
+    const body = withDeveloper({}, currentDeveloper.github_login);
 
-    fetch("/api/checkin", { method: "POST" })
+    fetch("/api/checkin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    })
       .then((r) => (r.ok ? r.json() : null))
       .then((data: StreakData | null) => {
         if (data) {
@@ -74,15 +82,19 @@ export function useStreakCheckin(
             sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
           }
           if (data.unseen_count > 0) {
-            fetch("/api/achievements/mark-seen", { method: "POST" }).catch(() => {});
+            fetch("/api/achievements/mark-seen", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(body),
+            }).catch(() => {});
           }
         }
       })
       .catch(() => {
-        fetchedRef.current = false; // allow retry on error
+        fetchedRef.current = false;
       })
       .finally(() => setLoading(false));
-  }, [session, hasClaimed]);
+  }, [session, hasClaimed, currentDeveloper?.github_login]);
 
   return { streakData, loading };
 }

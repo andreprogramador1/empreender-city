@@ -20,12 +20,11 @@ export default function ClaimButton({ githubLogin, claimed }: Props) {
     const supabase = createBrowserSupabase();
     supabase.auth.getUser().then(({ data: { user } }: { data: { user: User | null } }) => {
       if (!user) return;
-      const login = (
+      const login =
         user.user_metadata.user_name ??
         user.user_metadata.preferred_username ??
-        ""
-      ).toLowerCase();
-      setIsOwner(login === githubLogin.toLowerCase());
+        "";
+      setIsOwner(login === githubLogin);
     });
   }, [githubLogin]);
 
@@ -45,7 +44,11 @@ export default function ClaimButton({ githubLogin, claimed }: Props) {
   async function handleClaim() {
     setLoading(true);
     try {
-      const res = await fetch("/api/claim", { method: "POST" });
+      const res = await fetch("/api/claim", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ github_login: githubLogin }),
+      });
       if (res.ok) setIsClaimed(true);
     } finally {
       setLoading(false);
