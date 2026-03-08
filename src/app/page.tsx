@@ -4236,10 +4236,10 @@ function HomeContent() {
                               </span>
                             </div>
                           )}
-                          {storeUrl && (
+                          {selectedBuilding.store_domain && (
                             <div className="px-4 pb-5 sm:pb-4">
                               <a
-                                href={storeUrl}
+                                href={`${selectedBuilding.store_domain}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="btn-press block w-full py-2.5 text-center text-[10px] text-bg"

@@ -41,6 +41,8 @@ export interface DeveloperRecord {
   xp_total?: number;
   xp_level?: number;
   xp_github?: number;
+  // Dash store domain (from developers.store_domain)
+  store_domain?: string | null;
 }
 
 export interface TopRepo {
@@ -86,6 +88,8 @@ export interface CityBuilding {
   xp_level: number;
   district?: string;
   district_chosen?: boolean;
+  /** Dash store domain (from developers.store_domain), used for "Ir para loja" link */
+  store_domain?: string | null;
   position: [number, number, number];
   width: number;
   depth: number;
@@ -782,6 +786,7 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
       xp_total: 0,
       xp_level: 1,
       district: mb.district ?? "empreender",
+      store_domain: null,
       position: [cx, 0, cz],
       width: mb.width,
       depth: mb.depth,
@@ -899,6 +904,10 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
         district_chosen:
           ((dev as unknown as Record<string, unknown>)
             .district_chosen as boolean) ?? false,
+        store_domain: ((): string | null => {
+          const v = (dev as unknown as Record<string, unknown>).store_domain;
+          return typeof v === "string" && v.trim() ? v.trim() : null;
+        })(),
         position: [posX, 0, posZ],
         width: w,
         depth: d,
