@@ -2,20 +2,10 @@ import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { getDashUser } from "@/lib/dash-api";
 
-// Força execução em runtime para que VERCEL_URL e NEXT_PUBLIC_BASE_URL
-// estejam disponíveis (evita otimização estática no build).
-export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const { searchParams } = url;
-
-  // Usa o origin da própria requisição quando possível (sempre correto na Vercel).
-  const origin =
-    process.env.NEXT_PUBLIC_BASE_URL ??
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ??
-    url.origin ??
-    "http://localhost:3000";
+  const { searchParams, origin } = url;
 
   const token = searchParams.get("auth_token_dash_to_sp");
   const nextPath = searchParams.get("next") ?? "";
