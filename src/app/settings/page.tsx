@@ -12,14 +12,27 @@ const ACCENT = "#c8e64a";
 
 export default async function SettingsPage() {
   const supabase = await createServerSupabase();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     redirect("/?error=not_authenticated");
   }
 
+  const bgImageUrl =
+    "https://empreender.nyc3.digitaloceanspaces.com/landingpage/69adf0ac75fad.png";
+
   return (
-    <main className="min-h-screen bg-bg font-pixel uppercase text-warm">
+    <main
+      className="min-h-screen font-pixel uppercase text-warm"
+      style={{
+        backgroundImage: `url(${bgImageUrl})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
       <div className="mx-auto max-w-lg px-3 py-6 sm:px-4 sm:py-10">
         <Link
           href="/"
@@ -30,7 +43,7 @@ export default async function SettingsPage() {
 
         <div className="border-[3px] border-border bg-bg-raised p-6 sm:p-10">
           <h1 className="text-center text-xl text-cream sm:text-2xl">
-            Configurações
+            Construa seu prédio na cidade
           </h1>
 
           <section className="mt-6">

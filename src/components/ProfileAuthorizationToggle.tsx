@@ -39,9 +39,7 @@ export default function ProfileAuthorizationToggle() {
   }
 
   if (loading) {
-    return (
-      <p className="text-[10px] text-muted normal-case">Carregando...</p>
-    );
+    return <p className="text-[10px] text-muted normal-case">Carregando...</p>;
   }
 
   if (!profile) {
@@ -55,7 +53,7 @@ export default function ProfileAuthorizationToggle() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs text-cream">
-            Uso dos meus prédios na cidade
+            Converta suas lojas em prédios na cidade
           </p>
           <p className="mt-1 text-[10px] text-muted normal-case">
             {profile.allow_data_for_buildings
