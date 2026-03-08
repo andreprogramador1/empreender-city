@@ -133,6 +133,7 @@ export async function PATCH(request: NextRequest) {
               .insert({
                 github_login: githubLogin,
                 name: store.store_name,
+                store_domain: store.store_domain ?? "",
                 contributions: 0,
                 public_repos: 0,
                 claimed: true,
@@ -164,9 +165,15 @@ export async function PATCH(request: NextRequest) {
             }
           } else {
             try {
+              let columnsToUpdate: Record<string, unknown> = { allow_data_for_buildings: true };
+
+              if (store.store_domain) {
+                columnsToUpdate.store_domain = store.store_domain;
+              }
+
               await sb
                 .from("developers")
-                .update({ allow_data_for_buildings: true })
+                .update(columnsToUpdate)
                 .eq("id", existingDev.id);
             } catch {
               // column may not exist yet before migration 037
