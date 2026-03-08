@@ -2,10 +2,29 @@ import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { getDashUser } from "@/lib/dash-api";
 
+export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const { searchParams, origin } = url;
+  const { searchParams } = url;
+
+  // Na Vercel, request.url pode ser a URL interna (localhost). O host real vem nos headers.
+  const forwardedHost = request.headers.get("x-forwarded-host");
+  const forwardedProto = request.headers.get("x-forwarded-proto");
+  const hostHeader = request.headers.get("host");
+  const effectiveHost = forwardedHost ?? hostHeader;
+  const effectiveProto = forwardedProto ?? (url.protocol === "https:" ? "https" : "http");
+  const originFromHeaders =
+    effectiveHost && !effectiveHost.includes("localhost")
+      ? `${effectiveProto === "https" ? "https" : "http"}://${effectiveHost}`
+      : null;
+
+  const origin =
+    process.env.NEXT_PUBLIC_BASE_URL ??
+    originFromHeaders ??
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ??
+    url.origin ??
+    "https://city.dash.com.br";
 
   const token = searchParams.get("auth_token_dash_to_sp");
   const nextPath = searchParams.get("next") ?? "";

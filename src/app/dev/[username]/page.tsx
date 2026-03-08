@@ -124,7 +124,7 @@ export default async function DevPage({ params }: Props) {
     process.env.NEXT_PUBLIC_BASE_URL ??
     (process.env.VERCEL_URL
       ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000");
+      : "https://city.dash.com.br");
 
   const profileJsonLd = {
     "@context": "https://schema.org",

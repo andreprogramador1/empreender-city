@@ -12,7 +12,7 @@ const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 function getBaseUrl(): string {
   if (process.env.NEXT_PUBLIC_BASE_URL) return process.env.NEXT_PUBLIC_BASE_URL;
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  return "http://localhost:3000";
+  return "https://city.dash.com.br";
 }
 
 function generateToken(): string {

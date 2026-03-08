@@ -7,10 +7,8 @@ const VALID_EVENTS = new Set(["impression", "click", "cta_click"]);
 const BOT_UA_PATTERNS = /bot|crawler|spider|headless|phantomjs|selenium|puppeteer|wget|curl|python-requests|scrapy|slurp|mediapartners/i;
 
 const ALLOWED_ORIGINS = new Set([
-  "https://thegitcity.com",
-  "https://www.thegitcity.com",
   "http://localhost:3001",
-  "http://localhost:3000",
+  "https://city.dash.com.br",
 ]);
 
 async function hashIP(ip: string): Promise<string> {

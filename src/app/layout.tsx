@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_BASE_URL ??
       (process.env.VERCEL_URL
         ? `https://${process.env.VERCEL_URL}`
-        : "http://localhost:3000")
+        : "https://city.dash.com.br")
   ),
   title: "Git City - Your GitHub as a 3D City",
   description:
@@ -49,7 +49,7 @@ const BASE_URL =
   process.env.NEXT_PUBLIC_BASE_URL ??
   (process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
-    : "http://localhost:3000");
+    : "https://city.dash.com.br");
 
 const jsonLd = {
   "@context": "https://schema.org",

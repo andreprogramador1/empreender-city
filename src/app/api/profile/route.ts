@@ -205,7 +205,7 @@ export async function PATCH(request: NextRequest) {
 
       const base = process.env.VERCEL_URL
       ? `https://${process.env.VERCEL_URL}`
-      : process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+      : process.env.NEXT_PUBLIC_APP_URL || "https://city.dash.com.br";
     
       const cronSecret = process.env.CRON_SECRET;
     
