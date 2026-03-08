@@ -42,7 +42,7 @@ export async function GET(request: Request) {
 
   const { data: existingProfile } = await sb
     .from("profiles")
-    .select("id")
+    .select("id, allow_data_for_buildings")
     .eq("dash_user_id", dashUser.id)
     .maybeSingle();
 
@@ -86,10 +86,15 @@ export async function GET(request: Request) {
     });
   }
 
+  let nextRedirect = "/settings";
+  if (existingProfile?.allow_data_for_buildings) {
+    nextRedirect = "/";
+  }
+
   const confirmUrl =
     origin +
     "/auth/confirm" +
-    (nextPath && nextPath != "/" ? `?next=${encodeURIComponent(nextPath.startsWith("/") ? nextPath : `/${nextPath}`)}` : "?next=/settings");
+    (nextPath && nextPath != "/" ? `?next=${encodeURIComponent(nextPath.startsWith("/") ? nextPath : `/${nextPath}`)}` : "?next=" + nextRedirect);
 
   const { data: linkData, error: linkError } = await sb.auth.admin.generateLink({
     type: "magiclink",
