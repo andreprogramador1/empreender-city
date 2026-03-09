@@ -40,8 +40,8 @@ function useAdInteraction(ad: SkyAd, onAdClick?: (ad: SkyAd) => void) {
 
 // ─── AdBillboard — Large mounted panel with frame ──────────────
 //
-// Wide rectangular panel bolted to the building face.
-// Dark metal frame, 2 support struts from below, spot glow.
+// Now wraps as a large billboard band around all 4 faces.
+// Uses a central invisible proxy for viewability like AdLedWrap.
 
 function AdBillboard({
   ad,
@@ -74,7 +74,10 @@ function AdBillboard({
   );
 
   useEffect(() => {
-    return () => { tex.dispose(); ledMat.dispose(); };
+    return () => {
+      tex.dispose();
+      ledMat.dispose();
+    };
   }, [tex, ledMat]);
 
   useFrame(({ clock }) => {
@@ -82,38 +85,79 @@ function AdBillboard({
   });
 
   const { handleClick } = useAdInteraction(ad, onAdClick);
-  const prevMesh = useRef<THREE.Mesh | null>(null);
-  useEffect(() => { return () => { if (prevMesh.current) unregisterAdMesh(prevMesh.current); }; }, []);
+  const faceMeshes = useRef<(THREE.Mesh | null)[]>([null, null, null, null]);
+  useEffect(() => {
+    return () => {
+      for (const m of faceMeshes.current) {
+        if (m) unregisterAdMesh(m);
+      }
+    };
+  }, []);
 
   const { width, depth, height } = building;
-  const panelW = Math.max(width * 0.9, 12);
-  const panelH = Math.max(panelW * 0.3, 5);
+  // Keep billboard shorter than before but still taller than LED wraps
+  const panelH = Math.max(height * 0.12, 6);
   const frameT = 0.4;
-  const y = height * 0.95;
-  const zOff = depth / 2 + 0.2;
+  const y = height * 0.9;
+  const gap = 0.25;
+
+  const faces = useMemo(
+    () => [
+      { pos: [0, y, depth / 2 + gap] as const, rotY: 0 as const, w: width },
+      { pos: [0, y, -depth / 2 - gap] as const, rotY: Math.PI as const, w: width },
+      { pos: [width / 2 + gap, y, 0] as const, rotY: Math.PI / 2 as const, w: depth },
+      { pos: [-width / 2 - gap, y, 0] as const, rotY: -Math.PI / 2 as const, w: depth },
+    ],
+    [width, depth, y, gap]
+  );
+
+  // Invisible viewability proxy at building center — covers all 4 directions
+  const proxyRef = useRef<THREE.Mesh | null>(null);
+  useEffect(() => {
+    return () => {
+      if (proxyRef.current) unregisterAdMesh(proxyRef.current);
+    };
+  }, []);
 
   return (
     <group position={[building.position[0], 0, building.position[2]]}>
-      {/* Dark frame behind the screen */}
-      <mesh position={[0, y, zOff - 0.3]} onClick={handleClick} geometry={_box} scale={[panelW + frameT * 2, panelH + frameT * 2, 0.3]}>
-        <meshStandardMaterial color="#222" metalness={0.6} roughness={0.4} />
-      </mesh>
-      {/* LED screen */}
       <mesh
-        ref={(el) => adMeshRef(el, prevMesh, meshRef)}
-        material={ledMat}
-        position={[0, y, zOff + 0.1]}
-        onClick={handleClick}
-        geometry={_plane}
-        scale={[panelW, panelH, 1]}
-      />
-      {/* Support struts from below */}
-      <mesh position={[-panelW * 0.3, y - panelH / 2 - 1.5, zOff - 0.3]} rotation={[0.3, 0, 0]} geometry={_box} scale={[0.3, 3, 0.3]}>
-        <meshStandardMaterial color="#333" metalness={0.5} roughness={0.4} />
+        ref={(el) => {
+          const prev = proxyRef.current;
+          if (prev && prev !== el) unregisterAdMesh(prev);
+          proxyRef.current = el;
+          if (el) registerAdMesh(el);
+          meshRef?.(el);
+        }}
+        position={[0, y, 0]}
+        visible={false}
+        geometry={_box}
+        scale={[width, panelH, depth]}
+      >
+        <meshBasicMaterial />
       </mesh>
-      <mesh position={[panelW * 0.3, y - panelH / 2 - 1.5, zOff - 0.3]} rotation={[0.3, 0, 0]} geometry={_box} scale={[0.3, 3, 0.3]}>
-        <meshStandardMaterial color="#333" metalness={0.5} roughness={0.4} />
-      </mesh>
+      {faces.map((f, i) => (
+        <group key={i} position={[f.pos[0], f.pos[1], f.pos[2]]} rotation={[0, f.rotY, 0]}>
+          {/* Dark frame behind the screen */}
+          <mesh geometry={_box} position={[0, 0, -0.25]} scale={[f.w + frameT * 2, panelH + frameT * 2, 0.5]}>
+            <meshStandardMaterial color="#222" metalness={0.6} roughness={0.4} />
+          </mesh>
+          {/* LED screen */}
+          <mesh
+            ref={(el) => {
+              const prev = faceMeshes.current[i];
+              if (prev && prev !== el) unregisterAdMesh(prev);
+              faceMeshes.current[i] = el;
+              if (el) registerAdMesh(el);
+            }}
+            material={ledMat}
+            position={[0, 0, 0.05]}
+            onClick={handleClick}
+            geometry={_plane}
+            scale={[f.w, panelH, 1]}
+          />
+        </group>
+      ))}
     </group>
   );
 }
