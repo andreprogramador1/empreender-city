@@ -589,12 +589,12 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
   );
 
   // ── 1. Group by district, sort within each, concat in priority order ──
-  const composites = precomputeComposites(
-    devs,
-    maxContrib,
-    maxStars,
-    maxContribV2,
-  );
+  // const composites = precomputeComposites(
+  //   devs,
+  //   maxContrib,
+  //   maxStars,
+  //   maxContribV2,
+  // );
 
   const DISTRICT_ORDER = [
     "googleanalytics4",
