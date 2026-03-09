@@ -397,7 +397,7 @@ function SearchFeedback({
 }
 
 const LEADERBOARD_CATEGORIES = [
-  { label: "Lojas", key: "contributions" as const, tab: "contributors" },
+  { label: "Lojas", keys: ["contributions", "public_repos"] as const, tab: "contributors" },
   // { label: "Stars", key: "total_stars" as const, tab: "stars" },
   // { label: "Repos", key: "public_repos" as const, tab: "architects" },
 ] as const;
@@ -422,7 +422,11 @@ function MiniLeaderboard({
   const cat = LEADERBOARD_CATEGORIES[catIndex];
   const sorted = buildings
     .filter((b) => !b.login.startsWith("tower-"))
-    .sort((a, b) => (b[cat.key] as number) - (a[cat.key] as number))
+    .sort((a, b) => {
+      const sum = (building: CityBuilding) =>
+        cat.keys.reduce((total, key) => total + (building[key] as number), 0);
+      return sum(b) - sum(a);
+    })
     .slice(0, 5);
 
   return (
