@@ -644,6 +644,7 @@ function HomeContent() {
   const buildingClickCountRef = useRef(0);
   const signInPromptShownRef = useRef(false);
   const [signInPromptVisible, setSignInPromptVisible] = useState(false);
+  const [dashInstructionsVisible, setDashInstructionsVisible] = useState(true);
   const [adToast, setAdToast] = useState<string | null>(null);
 
   // Welcome CTA (shown after intro for non-logged-in users)
@@ -3990,7 +3991,7 @@ function HomeContent() {
       )}
 
       {/* ─── if not registered in dash ─── */}
-      {!session && (
+      {!session && dashInstructionsVisible && (
         <div className="fixed top-20 left-1/2 z-50 -translate-x-1/2 w-[calc(100%-1.5rem)] max-w-xs animate-[slide-up_0.2s_ease-out]">
           <div className="border-[3px] border-border bg-bg-raised/95 px-4 py-3 backdrop-blur-sm">
             <p className="text-[10px] text-cream normal-case mb-2.5 leading-relaxed">
@@ -4023,7 +4024,7 @@ function HomeContent() {
               Logar no Dash
             </button>
             <button
-              onClick={() => setSignInPromptVisible(false)}
+              onClick={() => setDashInstructionsVisible(false)}
               className="mt-1.5 w-full py-1 text-[8px] text-dim transition-colors hover:text-muted"
             >
               Talvez depois
