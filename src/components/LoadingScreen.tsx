@@ -25,11 +25,11 @@ interface LoadingScreenProps {
 // ─── Constants ─────────────────────────────────────────────────
 
 const STAGE_MESSAGES: Record<string, string> = {
-  init: "Checking your browser...",
-  fetching: "Fetching developers...",
-  generating: "Laying down streets...",
-  rendering: "Building the skyline...",
-  ready: "Welcome to the city",
+  init: "Verificando seu navegador...",
+  fetching: "Buscando lojas...",
+  generating: "Construindo as ruas...",
+  rendering: "Construindo o edifício...",
+  ready: "Bem-vindo à cidade",
 };
 
 const TIPS = [""];

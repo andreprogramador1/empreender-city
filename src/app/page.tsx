@@ -3673,8 +3673,8 @@ function HomeContent() {
                           style={{ borderColor: theme.accent + "60" }}
                         >
                           <p className="text-[10px] leading-relaxed text-cream normal-case">
-                            Fly over your city. Collect coins. Compete on the
-                            daily leaderboard.
+                            Você pode voar pela cidade e ver as lojas e
+                            plataformas.
                           </p>
                           <button
                             onClick={() => {
@@ -3690,7 +3690,7 @@ function HomeContent() {
                             className="mt-2 px-3 py-1 text-[9px] text-bg"
                             style={{ backgroundColor: theme.accent }}
                           >
-                            Got it
+                            Entendi
                           </button>
                           {/* Downward arrow */}
                           <div

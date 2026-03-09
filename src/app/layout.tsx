@@ -11,13 +11,13 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_BASE_URL ??
       (process.env.VERCEL_URL
         ? `https://${process.env.VERCEL_URL}`
-        : "https://city.dash.com.br")
+        : "https://city.dash.com.br"),
   ),
-  title: "Git City - Your GitHub as a 3D City",
+  title: "Empreender City - Sua loja como edifício na cidade",
   description:
-    "Explore GitHub users as buildings in a 3D pixel art city. Fly through the city and discover developers.",
+    "Explore lojas como edifícios na cidade. Voce pode voar pela cidade e descobrir lojas.",
   keywords: [
-    "github",
+    "empreender city",
     "3d city",
     "developer profile",
     "contributions",
@@ -26,10 +26,10 @@ export const metadata: Metadata = {
     "git visualization",
   ],
   openGraph: {
-    title: "Git City - Your GitHub as a 3D City",
+    title: "Empreender City - Sua loja como edifício na cidade",
     description:
-      "Explore GitHub users as buildings in a 3D pixel art city. Fly through the city and discover developers.",
-    siteName: "Git City",
+      "Explore lojas como edifícios na cidade. Voce pode voar pela cidade e descobrir lojas.",
+    siteName: "Empreender City",
     type: "website",
     locale: "en_US",
   },
@@ -96,9 +96,7 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-bg font-pixel text-warm" suppressHydrationWarning>
-        <CurrentDeveloperProvider>
-          {children}
-        </CurrentDeveloperProvider>
+        <CurrentDeveloperProvider>{children}</CurrentDeveloperProvider>
         <GlobalRadio />
         <Analytics />
         <SpeedInsights />
