@@ -3592,7 +3592,7 @@ function HomeContent() {
                   {claimingGift ? "Opening..." : "\uD83C\uDF81 Open Free Gift!"}
                 </button>
               )} */}
-              {!session && (
+              {session && (
                 <button
                   onClick={() =>
                     window.open(
@@ -3990,7 +3990,7 @@ function HomeContent() {
       )}
 
       {/* ─── if not registered in dash ─── */}
-      {session && (
+      {!session && (
         <div className="fixed top-20 left-1/2 z-50 -translate-x-1/2 w-[calc(100%-1.5rem)] max-w-xs animate-[slide-up_0.2s_ease-out]">
           <div className="border-[3px] border-border bg-bg-raised/95 px-4 py-3 backdrop-blur-sm">
             <p className="text-[10px] text-cream normal-case mb-2.5 leading-relaxed">
