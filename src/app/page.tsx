@@ -3578,7 +3578,7 @@ function HomeContent() {
           {buildings.length > 0 && (
             <div className="pointer-events-auto flex flex-col items-center gap-2 sm:gap-3">
               {/* Free Gift CTA — above primary actions */}
-              {hasFreeGift && (
+              {/* {hasFreeGift && (
                 <button
                   onClick={handleClaimFreeGift}
                   disabled={claimingGift}
@@ -3590,6 +3590,23 @@ function HomeContent() {
                   }}
                 >
                   {claimingGift ? "Opening..." : "\uD83C\uDF81 Open Free Gift!"}
+                </button>
+              )} */}
+              {session && (
+                <button
+                  onClick={() =>
+                    window.open(
+                      "https://www.instagram.com/p/DVqe56MjeEF/",
+                      "_blank",
+                    )
+                  }
+                  className="btn-press px-7 py-3 text-xs sm:py-3.5 sm:text-sm text-bg"
+                  style={{
+                    backgroundColor: theme.accent,
+                    boxShadow: `4px 4px 0 0 ${theme.shadow}`,
+                  }}
+                >
+                  Como criar um edifício
                 </button>
               )}
 
@@ -3972,18 +3989,30 @@ function HomeContent() {
         </div>
       )}
 
-      {/* ─── A1: Sign-in prompt after building exploration ─── */}
-      {signInPromptVisible && !session && (
+      {/* ─── if not registered in dash ─── */}
+      {session && (
         <div className="fixed top-20 left-1/2 z-50 -translate-x-1/2 w-[calc(100%-1.5rem)] max-w-xs animate-[slide-up_0.2s_ease-out]">
-          {/* <div className="border-[3px] border-border bg-bg-raised/95 px-4 py-3 backdrop-blur-sm">
+          <div className="border-[3px] border-border bg-bg-raised/95 px-4 py-3 backdrop-blur-sm">
             <p className="text-[10px] text-cream normal-case mb-2.5 leading-relaxed">
-              Sign in to give Kudos, battle buildings, and claim yours
+              <br />
+              <strong>Como criar o seu edifício:</strong>
+              <br />
+              <a
+                href="https://www.instagram.com/p/DVqe56MjeEF/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 underline"
+              >
+                Veja o vídeo completo no instagram
+              </a>{" "}
+              <br /> 1 - Logue no app dash para criar o seu edifício <br /> 2 -
+              No menu do dash vá em "Empreender city" <br /> 3 - clique em
+              autorizar uso <br /> 4 - Pronto!, se você tiver loja em alguma
+              plataforma, você poderá ver o seu edifício na cidade.
             </p>
             <button
               onClick={() => {
-                trackSignInPromptClicked();
-                setSignInPromptVisible(false);
-                handleSignIn();
+                window.open("https://app.dash.com.br");
               }}
               className="btn-press w-full py-2 text-[10px] text-bg"
               style={{
@@ -3991,15 +4020,15 @@ function HomeContent() {
                 boxShadow: `2px 2px 0 0 ${theme.shadow}`,
               }}
             >
-              Sign in with GitHub
+              Logar no Dash
             </button>
             <button
               onClick={() => setSignInPromptVisible(false)}
               className="mt-1.5 w-full py-1 text-[8px] text-dim transition-colors hover:text-muted"
             >
-              Maybe later
+              Talvez depois
             </button>
-          </div> */}
+          </div>
         </div>
       )}
 
