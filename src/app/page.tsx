@@ -5212,10 +5212,10 @@ function HomeContent() {
 
             <p className="text-xs text-cream normal-case">
               <span style={{ color: theme.accent }}>@{shareData.login}</span>{" "}
-              joined the city!
+              Você entrou na cidade!
             </p>
 
-            <p className="mt-2 text-[10px] text-muted normal-case">
+            {/* <p className="mt-2 text-[10px] text-muted normal-case">
               Rank{" "}
               <span style={{ color: theme.accent }}>
                 #{shareData.rank ?? "?"}
@@ -5225,7 +5225,7 @@ function HomeContent() {
                 {shareData.contributions.toLocaleString()}
               </span>{" "}
               contributions
-            </p>
+            </p> */}
 
             {/* Buttons */}
             <div className="mt-4 flex flex-col items-center gap-2 sm:mt-5 sm:flex-row sm:justify-center sm:gap-3">
@@ -5250,7 +5250,7 @@ function HomeContent() {
                 Explore Building
               </button>
 
-              <a
+              {/* <a
                 href={`https://x.com/intent/tweet?text=${encodeURIComponent(
                   `My GitHub just turned into a building. ${shareData.contributions.toLocaleString()} contributions, Rank #${shareData.rank ?? "?"}. What does yours look like?`,
                 )}&url=${encodeURIComponent(
@@ -5276,7 +5276,7 @@ function HomeContent() {
                 className="btn-press border-[3px] border-border px-4 py-2 text-[10px] text-cream transition-colors hover:border-border-light"
               >
                 {copied ? "Copied!" : "Copy Link"}
-              </button>
+              </button> */}
             </div>
 
             {/* View profile link */}
