@@ -57,7 +57,7 @@ Buildings are rendered with instanced meshes and a LOD (Level of Detail) system 
 ## Getting Started
 
 ```bash
-# Clone the repo
+# Clone the repoo
 git clone https://github.com/srizzon/git-city.git
 cd git-city
 
