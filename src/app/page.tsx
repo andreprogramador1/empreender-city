@@ -3592,7 +3592,7 @@ function HomeContent() {
                   {claimingGift ? "Opening..." : "\uD83C\uDF81 Open Free Gift!"}
                 </button>
               )} */}
-              {session && (
+              {!session && (
                 <button
                   onClick={() =>
                     window.open(
