@@ -8,12 +8,12 @@ CREATE INDEX IF NOT EXISTS idx_developers_rank_order
 
 CREATE OR REPLACE FUNCTION recalculate_ranks()
 RETURNS void LANGUAGE plpgsql SECURITY DEFINER
-SET statement_timeout = '120s'
+SET statement_timeout = 120000
 AS $$
 BEGIN
   WITH ranked AS (
     SELECT id, row_number() OVER (
-      ORDER BY CASE WHEN contributions_total > 0 THEN contributions_total ELSE contributions END DESC,
+      ORDER BY CASE WHEN contributions_total > 0 THEN contributions_total ELSE contributions + public_repos END DESC,
       github_login ASC
     ) AS new_rank
     FROM developers
@@ -26,7 +26,7 @@ BEGIN
 
   UPDATE city_stats
   SET total_developers    = (SELECT count(*) FROM developers),
-      total_contributions = (SELECT coalesce(sum(contributions), 0) FROM developers),
+      total_contributions = (SELECT coalesce(sum(contributions + public_repos), 0) FROM developers),
       updated_at          = now()
   WHERE id = 1;
 END;
@@ -39,7 +39,7 @@ BEGIN
   UPDATE developers SET rank = (SELECT count(*) FROM developers) WHERE id = dev_id AND rank IS NULL;
   UPDATE city_stats
   SET total_developers    = (SELECT count(*) FROM developers),
-      total_contributions = (SELECT coalesce(sum(contributions), 0) FROM developers),
+      total_contributions = (SELECT coalesce(sum(contributions + public_repos), 0) FROM developers),
       updated_at          = now()
   WHERE id = 1;
 END;
