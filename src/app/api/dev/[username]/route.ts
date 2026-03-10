@@ -56,6 +56,7 @@ export async function GET(
         platform: parsed.platform,
         store_id: parsed.store_id,
         user_id: parsed.user_id,
+        integration_origin: dev.integration_origin ?? "",
       });
 
       if (info) {

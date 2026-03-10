@@ -52,54 +52,65 @@ export async function GET(request: NextRequest) {
         const githubLogin = buildDashLogin(store.platform, store.store_id, store.user_id);
         const { data: existingDev } = await sb
           .from("developers")
-          .select("id")
+          .select("id, store_domain")
           .eq("github_login", githubLogin)
           .eq("claimed_by", profile.id)
           .maybeSingle();
 
         if (!existingDev) {
-          const { data: inserted } = await sb
-            .from("developers")
-            .insert({
-              github_login: githubLogin,
-              name: store.store_name,
-              store_domain: store.store_domain ?? "",
-              contributions: 0,
-              public_repos: 0,
-              claimed: true,
-              claimed_by: profile.id,
-              allow_data_for_buildings: true,
-              fetched_at: now,
-              district: store.platform,
-            })
-            .select("id")
-            .single();
+          try {
+            const { data: inserted } = await sb
+              .from("developers")
+              .insert({
+                github_login: githubLogin,
+                name: store.store_name,
+                store_domain: store.store_domain ?? "",
+                contributions: 0,
+                public_repos: 0,
+                claimed: true,
+                claimed_by: profile.id,
+                allow_data_for_buildings: true,
+                fetched_at: now,
+                district: store.platform,
+                integration_origin: store.integration_origin ?? "",
+              })
+              .select("id")
+              .single();
 
-          if (inserted) {
-            updatedLogins.push(githubLogin);
-            const info = await getStoreInfos({
-              platform: store.platform,
-              store_id: store.store_id,
-              user_id: store.user_id,
-            });
-            if (info) {
-              await sb
-                .from("developers")
-                .update({
-                  contributions: Math.round(info.contributions),
-                  public_repos: Math.round(info.public_repos),
-                  fetched_at: now,
-                })
-                .eq("id", inserted.id);
+            if (inserted) {
+              updatedLogins.push(githubLogin);
+              const info = await getStoreInfos({
+                platform: store.platform,
+                store_id: store.store_id,
+                user_id: store.user_id,
+                integration_origin: store.integration_origin ?? "",
+              });
+              if (info) {
+                await sb
+                  .from("developers")
+                  .update({
+                    contributions: Math.round(info.contributions),
+                    public_repos: Math.round(info.public_repos),
+                    fetched_at: now,
+                  })
+                  .eq("id", inserted.id);
+              }
             }
+          } catch {
+            // column may not exist yet before migration 037
           }
         } else {
           updatedLogins.push(githubLogin);
           try {
             const columnsToUpdate: Record<string, unknown> = { allow_data_for_buildings: true };
-            if (store.store_domain) {
+            if (store.store_domain && !existingDev.store_domain) {
               columnsToUpdate.store_domain = store.store_domain;
             }
+
+            if (store.integration_origin) {
+              columnsToUpdate.integration_origin = store.integration_origin;
+            }
+
             await sb
               .from("developers")
               .update(columnsToUpdate)
@@ -112,6 +123,7 @@ export async function GET(request: NextRequest) {
             platform: store.platform,
             store_id: store.store_id,
             user_id: store.user_id,
+            integration_origin: store.integration_origin ?? "",
           });
 
           if (info) {

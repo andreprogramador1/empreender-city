@@ -40,11 +40,15 @@ export function normalizedStoreDomain(storeDomain: string): string {
   try {
     const url = new URL(urlStr);
     const hostname = url.hostname.toLowerCase();
-    // Apenas hostname (sem path, query, port na saída)
     if (!hostname) return "";
     // Domínio válido: labels separados por ponto, cada label alfanumérico/hífen, tamanho mínimo
     const validDomain = /^([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)+[a-z0-9]([a-z0-9-]*[a-z0-9])?$/i;
     if (!validDomain.test(hostname) || hostname.length < 4) return "";
+    // montink.com: preservar path (ex.: https://montink.com/camisetasdeexatas)
+    if (hostname === "montink.com") {
+      const path = url.pathname.replace(/\/+$/, "") || "";
+      return path ? `https://${hostname}${path}` : `https://${hostname}`;
+    }
     return "https://" + hostname;
   } catch {
     return "";

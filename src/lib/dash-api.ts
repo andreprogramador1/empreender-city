@@ -69,7 +69,8 @@ export interface DashStore {
   store_id: string;
   user_id: number;
   store_name: string;
-  store_domain: string
+  store_domain: string;
+  integration_origin: string;
 }
 
 export interface DashStoreInfo {
@@ -104,6 +105,7 @@ export async function getUserStores(params: {
         user_id: params.dashUserId,
         store_name: "Só Moda Top",
         store_domain: "somodatop.com.br",
+        integration_origin: "DASH",
       },
     ];
   } else {
@@ -140,12 +142,13 @@ export async function getUserStores(params: {
                   typeof (item as { user_id?: unknown }).user_id === "number" &&
                   typeof (item as { store_name?: unknown }).store_name === "string"
               )
-              .map((item: { platform: string; store_id: string; user_id: number; store_name: string; store_domain?: string }) => ({
+              .map((item: { platform: string; store_id: string; user_id: number; store_name: string; store_domain?: string; integration_origin?: string }) => ({
                 platform: item.platform,
                 store_id: item.store_id,
                 user_id: item.user_id,
                 store_name: item.store_name,
                 store_domain: normalizedStoreDomain(item.store_domain ?? ""),
+                integration_origin: item?.integration_origin ?? "DASH",
               }));
           }
         }
@@ -171,13 +174,14 @@ export async function getUserStores(params: {
 
 /**
  * POST /empreendercity/store-info
- * Body: { platform, store_id, user_id }
+ * Body: { platform, store_id, user_id, integration_origin }
  * Returns store metrics (contributions, public_repos).
  */
 export async function getStoreInfos(params: {
   platform: string;
   store_id: string;
   user_id: number;
+  integration_origin: string;
 }): Promise<DashStoreInfo | null> {
 
   if (MOCKUP_DASH_API) {
@@ -207,6 +211,7 @@ export async function getStoreInfos(params: {
         platform: unnormalizedPlatformName,
         store_id: params.store_id,
         user_id: params.user_id,
+        integration_origin: params.integration_origin,
       }),
       cache: "no-store",
     });

@@ -122,7 +122,7 @@ export async function PATCH(request: NextRequest) {
           const githubLogin = buildDashLogin(store.platform, store.store_id, store.user_id);
           const { data: existingDev } = await sb
             .from("developers")
-            .select("id")
+            .select("id, store_domain")
             .eq("github_login", githubLogin)
             .eq("claimed_by", user.id)
             .maybeSingle();
@@ -141,6 +141,7 @@ export async function PATCH(request: NextRequest) {
                 allow_data_for_buildings: true,
                 fetched_at: now,
                 district: store.platform,
+                integration_origin: store.integration_origin ?? "",
               })
               .select("id")
               .single();
@@ -150,6 +151,7 @@ export async function PATCH(request: NextRequest) {
                 platform: store.platform,
                 store_id: store.store_id,
                 user_id: store.user_id,
+                integration_origin: store.integration_origin ?? "",
               });
         
               if (info) {
@@ -167,8 +169,12 @@ export async function PATCH(request: NextRequest) {
             try {
               let columnsToUpdate: Record<string, unknown> = { allow_data_for_buildings: true };
 
-              if (store.store_domain) {
+              if (store.store_domain && !existingDev.store_domain) {
                 columnsToUpdate.store_domain = store.store_domain;
+              }
+
+              if (store.integration_origin) {
+                columnsToUpdate.integration_origin = store.integration_origin;
               }
 
               await sb
