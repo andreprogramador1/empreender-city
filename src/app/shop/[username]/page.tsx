@@ -61,11 +61,7 @@ export default async function ShopPage({ params, searchParams }: Props) {
   // Check if the logged-in user owns this building
   const supabase = await createServerSupabase();
   const { data: { user } } = await supabase.auth.getUser();
-  const authLogin =
-    user?.user_metadata?.user_name ??
-    user?.user_metadata?.preferred_username ??
-    "";
-  const isOwner = !!user && !!authLogin && authLogin === dev.github_login;
+  const isOwner = !!user && user?.id === dev.claimed_by;
 
   // Not the owner or not claimed — show message
   if (!dev.claimed || !isOwner) {

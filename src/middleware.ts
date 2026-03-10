@@ -73,6 +73,11 @@ function getClientIp(request: NextRequest): string {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // ── 0. Shop routes temporarily unavailable → redirect to root ─────────
+  if (pathname === "/shop" || pathname.startsWith("/shop/")) {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
   // ── 1. Rate Limit ────────────────────────────────────────────────────
   const ip = getClientIp(request);
   const { limit, window, group } = getLimitForPath(pathname);

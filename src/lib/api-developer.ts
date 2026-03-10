@@ -16,6 +16,13 @@ export async function getDeveloperOwnedByUser<T extends Record<string, unknown>>
   select = "id, claimed, claimed_by"
 ): Promise<T | null> {
   if (!githubLogin || typeof githubLogin !== "string") return null;
+
+  let incluiu_claimed_by = false;
+  if (!select.includes("claimed_by")) {
+    select += ", claimed_by";
+    incluiu_claimed_by = true;
+  }
+
   const { data, error } = await sb
     .from("developers")
     .select(select)
@@ -24,5 +31,10 @@ export async function getDeveloperOwnedByUser<T extends Record<string, unknown>>
   if (error || !data) return null;
   const row = data as unknown as Record<string, unknown>;
   if (row.claimed_by !== userId) return null;
-  return data as unknown as T;
+
+  if (incluiu_claimed_by) {
+    delete row.claimed_by;
+  }
+
+  return row as unknown as T;
 }
