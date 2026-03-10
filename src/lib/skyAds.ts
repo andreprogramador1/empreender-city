@@ -31,7 +31,7 @@ export const MAX_BLIMPS = 4;
 export const MAX_BILLBOARDS = 15;
 export const MAX_ROOFTOP_SIGNS = 10;
 export const MAX_LED_WRAPS = 10;
-export const MAX_TEXT_LENGTH = 80;
+export const MAX_TEXT_LENGTH = 150;
 
 const ALLOWED_LINK_PATTERN = /^(https:\/\/|mailto:)/;
 const HEX_COLOR_PATTERN = /^#[0-9a-fA-F]{6}$/;
