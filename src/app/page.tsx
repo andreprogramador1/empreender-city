@@ -421,7 +421,7 @@ function MiniLeaderboard({
 
   const cat = LEADERBOARD_CATEGORIES[catIndex];
   const sorted = buildings
-    .filter((b) => !b.login.startsWith("tower-"))
+    .filter((b) => !b.login.startsWith("tower-") && b.rank !== null)
     .sort((a, b) => {
       return (a[cat.key] as number) - (b[cat.key] as number);
     })
