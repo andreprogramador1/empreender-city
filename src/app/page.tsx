@@ -31,7 +31,7 @@ import Link from "next/link";
 import ActivityTicker, { type FeedEvent } from "@/components/ActivityTicker";
 import ActivityPanel from "@/components/ActivityPanel";
 import { ITEM_NAMES, ITEM_EMOJIS } from "@/lib/zones";
-import { useStreakCheckin } from "@/lib/useStreakCheckin";
+//import { useStreakCheckin } from "@/lib/useStreakCheckin";
 import { useLiveUsers } from "@/lib/useLiveUsers";
 import { useCodingPresence } from "@/lib/useCodingPresence";
 import { useRaidSequence } from "@/lib/useRaidSequence";
@@ -2135,7 +2135,7 @@ function HomeContent() {
   // }, [shouldShowDistrictChooser]);
 
   // Streak auto check-in (1x per browser session)
-  const { streakData } = useStreakCheckin(session, !!myBuilding?.claimed);
+  //const { streakData } = useStreakCheckin(session, !!myBuilding?.claimed);
 
   // Daily missions
   const {
@@ -2150,14 +2150,14 @@ function HomeContent() {
   trackMissionRef.current = trackClientMission;
 
   // Detect level-up from check-in XP result
-  useEffect(() => {
-    if (!streakData?.xp || !myBuilding) return;
-    const newLevel = streakData.xp.new_level;
-    const currentLevel = myBuilding.xp_level ?? 1;
-    if (newLevel > currentLevel) {
-      setLevelUpLevel(newLevel);
-    }
-  }, [streakData?.xp, myBuilding]);
+  // useEffect(() => {
+  //   if (!streakData?.xp || !myBuilding) return;
+  //   const newLevel = streakData.xp.new_level;
+  //   const currentLevel = myBuilding.xp_level ?? 1;
+  //   if (newLevel > currentLevel) {
+  //     setLevelUpLevel(newLevel);
+  //   }
+  // }, [streakData?.xp, myBuilding]);
 
   // Live users presence
   const { count: liveUsers, status: liveStatus } = useLiveUsers();
@@ -3879,14 +3879,14 @@ function HomeContent() {
         !rabbitCinematic &&
         buildings.length > 0 && (
           <nav className="pointer-events-auto fixed inset-x-0 bottom-0 z-[35] flex items-center justify-around border-t-[2px] border-border bg-bg/95 px-1 py-2 backdrop-blur-md sm:hidden">
-            <Link
+            {/* <Link
               href={shopHref}
               className="btn-press border-[2px] border-border px-3 py-1.5 text-[10px] transition-colors active:bg-white/5"
               style={{ color: theme.accent }}
             >
               Shop
-            </Link>
-            <Link
+            </Link> */}
+            {/* <Link
               href="/advertise"
               className="btn-press relative border-[2px] px-3 py-1.5 text-[10px] transition-colors active:bg-white/5"
               style={{
@@ -3902,7 +3902,7 @@ function HomeContent() {
               >
                 NEW
               </span>
-            </Link>
+            </Link> */}
             <Link
               href="/leaderboard"
               className="btn-press border-[2px] border-border px-3 py-1.5 text-[10px] transition-colors active:bg-white/5"
@@ -3920,7 +3920,7 @@ function HomeContent() {
               </button>
             ) : (
               <>
-                {canClaim && (
+                {/* {canClaim && (
                   <button
                     onClick={handleClaim}
                     disabled={claiming}
@@ -3932,7 +3932,7 @@ function HomeContent() {
                   >
                     {claiming ? "..." : "Claim"}
                   </button>
-                )}
+                )} */}
                 <Link
                   href={`/dev/${authLogin}`}
                   className="btn-press flex items-center gap-1 border-[2px] border-border px-3 py-1.5 text-[10px] text-cream normal-case transition-colors active:bg-white/5"
@@ -3941,7 +3941,7 @@ function HomeContent() {
                   {authLogin.length > 8
                     ? authLogin.slice(0, 7) + "…"
                     : authLogin}
-                  {streakData && streakData.streak > 0 && (
+                  {/* {streakData && streakData.streak > 0 && (
                     <span
                       className="flex items-center gap-0.5"
                       style={{ color: getStreakTierColor(streakData.streak) }}
@@ -3949,7 +3949,7 @@ function HomeContent() {
                       <span className="text-[8px]">🔥</span>
                       <span className="font-bold">{streakData.streak}</span>
                     </span>
-                  )}
+                  )} */}
                 </Link>
               </>
             )}
@@ -4087,7 +4087,7 @@ function HomeContent() {
       )}
 
       {/* ─── A12: Streak reward toast ─── */}
-      {streakData?.streak_reward && streakData.checked_in && (
+      {/* {streakData?.streak_reward && streakData.checked_in && (
         <div className="fixed top-20 left-1/2 z-50 -translate-x-1/2 w-[calc(100%-1.5rem)] max-w-xs animate-[slide-up_0.2s_ease-out]">
           <div
             className="border-[3px] bg-bg-raised/95 px-4 py-3 backdrop-blur-sm text-center"
@@ -4115,7 +4115,7 @@ function HomeContent() {
             </Link>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* ─── Building Profile Card ─── */}
       {/* Desktop: right edge, vertically centered. Mobile: bottom sheet, centered. */}
@@ -5439,7 +5439,7 @@ function HomeContent() {
       )}
 
       {/* ─── Daily Missions (quest tracker, right side) ─── */}
-      {session &&
+      {/* {session &&
         myBuilding?.claimed &&
         !flyMode &&
         !introMode &&
@@ -5453,10 +5453,10 @@ function HomeContent() {
             onClaim={claimDailies}
             onRefresh={refreshDailies}
           />
-        )}
+        )} */}
 
       {/* ─── Daily mission progress toasts (top-center, always visible) ─── */}
-      {dailyToasts.length > 0 && (
+      {/* {dailyToasts.length > 0 && (
         <div className="pointer-events-none fixed left-1/2 top-4 z-[60] flex -translate-x-1/2 flex-col items-center gap-1.5">
           {dailyToasts.map((t) => (
             <div
@@ -5497,15 +5497,15 @@ function HomeContent() {
             }
           `}</style>
         </div>
-      )}
+      )} */}
 
       {/* ─── Level Up Toast ─── */}
-      {levelUpLevel !== null && (
+      {/* {levelUpLevel !== null && (
         <LevelUpToast
           level={levelUpLevel}
           onDone={() => setLevelUpLevel(null)}
         />
-      )}
+      )} */}
 
       {/* ─── Activity Ticker ─── */}
       {!flyMode && !introMode && !rabbitCinematic && feedEvents.length >= 1 && (
@@ -5531,7 +5531,7 @@ function HomeContent() {
       )}
 
       {/* ─── Gift Modal ─── */}
-      {giftModalOpen && selectedBuilding && (
+      {/* {giftModalOpen && selectedBuilding && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div
             className="absolute inset-0 bg-bg/70 backdrop-blur-sm"
@@ -5541,7 +5541,7 @@ function HomeContent() {
             }}
           />
           <div className="relative z-10 w-full max-w-[280px] border-[3px] border-border bg-bg-raised">
-            {/* Header */}
+    
             <div className="flex items-center justify-between border-b border-border px-4 py-3">
               <div>
                 <h3 className="text-xs" style={{ color: theme.accent }}>
@@ -5562,7 +5562,7 @@ function HomeContent() {
               </button>
             </div>
 
-            {/* Items */}
+
             {giftItems === null ? (
               <p className="py-8 text-center text-[9px] text-dim normal-case animate-pulse">
                 Loading...
@@ -5605,7 +5605,7 @@ function HomeContent() {
             )}
           </div>
         </div>
-      )}
+      )} */}
 
       {/* ─── Activity Panel (slide-in) ─── */}
       <ActivityPanel
@@ -5755,7 +5755,7 @@ function HomeContent() {
               >
                 Fly Again
               </button>
-              <Link
+              {/* <Link
                 href="/leaderboard?mode=game"
                 onClick={() => {
                   setShowFlyResults(null);
@@ -5765,7 +5765,7 @@ function HomeContent() {
                 style={{ color: theme.accent }}
               >
                 See Leaderboard
-              </Link>
+              </Link> */}
               <button
                 onClick={() => {
                   setShowFlyResults(null);
@@ -5781,20 +5781,20 @@ function HomeContent() {
       )}
 
       {/* ─── Free Gift Celebration Modal ─── */}
-      {giftClaimed && !flyMode && !exploreMode && (
+      {/* {giftClaimed && !flyMode && !exploreMode && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-          {/* Backdrop */}
+       
           <div
             className="absolute inset-0 bg-bg/70 backdrop-blur-sm"
             onClick={() => setGiftClaimed(false)}
           />
 
-          {/* Modal */}
+       
           <div
             className="relative mx-3 border-[3px] border-border bg-bg-raised p-5 text-center sm:mx-0 sm:p-7 animate-[gift-bounce_0.5s_ease-out]"
             style={{ borderColor: theme.accent + "60" }}
           >
-            {/* Close */}
+        
             <button
               onClick={() => setGiftClaimed(false)}
               className="absolute top-2 right-3 text-[10px] text-muted transition-colors hover:text-cream"
@@ -5816,7 +5816,7 @@ function HomeContent() {
               </div>
             </div>
 
-            {/* Upsell strip */}
+        
             <div className="mt-5 w-full max-w-[280px]">
               <p className="mb-2 text-[9px] tracking-widest text-muted uppercase">
                 Upgrade your building
@@ -5848,7 +5848,7 @@ function HomeContent() {
               </div>
             </div>
 
-            {/* Actions */}
+       
             <div className="mt-4 flex flex-col items-center gap-2 sm:flex-row sm:justify-center sm:gap-3">
               <button
                 onClick={() => {
@@ -5865,7 +5865,7 @@ function HomeContent() {
                   boxShadow: `3px 3px 0 0 ${theme.shadow}`,
                 }}
               >
-                View in City
+                Veja na cidade
               </button>
               <Link
                 href={shopHref}
@@ -5877,12 +5877,12 @@ function HomeContent() {
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Mark streak achievements as seen on check-in */}
 
       {/* Raid Preview Modal */}
-      {raidState.phase === "preview" && raidState.previewData && (
+      {/* {raidState.phase === "preview" && raidState.previewData && (
         <RaidPreviewModal
           preview={raidState.previewData}
           loading={raidState.loading}
@@ -5892,17 +5892,17 @@ function HomeContent() {
           }
           onCancel={raidActions.exitRaid}
         />
-      )}
+      )} */}
 
       {/* Raid Overlay (cinema bars + text + share) */}
-      {raidState.phase !== "idle" && raidState.phase !== "preview" && (
+      {/* {raidState.phase !== "idle" && raidState.phase !== "preview" && (
         <RaidOverlay
           phase={raidState.phase}
           raidData={raidState.raidData}
           onSkip={raidActions.skipToShare}
           onExit={raidActions.exitRaid}
         />
-      )}
+      )} */}
 
       {/* District chooser modal */}
       {/* {districtChooserOpen && myBuilding && (
