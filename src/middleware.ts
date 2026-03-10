@@ -74,7 +74,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // ── 0. Shop routes temporarily unavailable → redirect to root ─────────
-  if (pathname === "/shop" || pathname.startsWith("/shop/")) {
+  if (pathname === "/shop" || pathname.startsWith("/shop/") || pathname === "/advertise" || pathname.startsWith("/advertise/")) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
