@@ -4007,13 +4007,12 @@ function HomeContent() {
                 Veja o vídeo completo no instagram
               </a>{" "}
               <br /> 1 - Logue no app dash para criar o seu edifício <br /> 2 -
-              No menu do dash vá em "Empreender city" <br /> 3 - clique em
-              autorizar uso <br /> 4 - Pronto!, se você tiver loja em alguma
-              plataforma, você poderá ver o seu edifício na cidade.
+              clique em autorizar uso <br /> 4 - Pronto!, se você tiver loja em
+              alguma plataforma, você poderá ver o seu edifício na cidade.
             </p>
             <button
               onClick={() => {
-                window.open("https://app.dash.com.br");
+                window.open("https://app.dash.com.br/city");
               }}
               className="btn-press w-full py-2 text-[10px] text-bg"
               style={{
