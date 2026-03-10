@@ -5,6 +5,10 @@ import { rateLimit } from "@/lib/rate-limit";
 import { VALID_INTEGRATIONS } from "@/lib/integrations";
 
 export async function POST(request: Request) {
+
+  // desabilitado por enquanto
+  return NextResponse.json({ error: "Not found" }, { status: 404 });
+
   const supabase = await createServerSupabase();
   const {
     data: { user },

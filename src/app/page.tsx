@@ -2125,14 +2125,14 @@ function HomeContent() {
   const shouldShowDistrictChooser =
     !!session && !!myBuilding?.claimed && !myBuilding.district_chosen;
 
-  useEffect(() => {
-    if (
-      shouldShowDistrictChooser &&
-      !sessionStorage.getItem("district_dismissed")
-    ) {
-      setDistrictChooserOpen(true);
-    }
-  }, [shouldShowDistrictChooser]);
+  // useEffect(() => {
+  //   if (
+  //     shouldShowDistrictChooser &&
+  //     !sessionStorage.getItem("district_dismissed")
+  //   ) {
+  //     setDistrictChooserOpen(true);
+  //   }
+  // }, [shouldShowDistrictChooser]);
 
   // Streak auto check-in (1x per browser session)
   const { streakData } = useStreakCheckin(session, !!myBuilding?.claimed);
@@ -5905,7 +5905,7 @@ function HomeContent() {
       )}
 
       {/* District chooser modal */}
-      {districtChooserOpen && myBuilding && (
+      {/* {districtChooserOpen && myBuilding && (
         <DistrictChooser
           currentDistrict={myBuilding.district ?? null}
           inferredDistrict={myBuilding.district ?? null}
@@ -5926,7 +5926,7 @@ function HomeContent() {
             );
           }}
         />
-      )}
+      )} */}
 
       {/* Founder's Landmark modals */}
       {/* {pillModalOpen && (
