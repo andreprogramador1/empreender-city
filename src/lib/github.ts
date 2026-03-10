@@ -468,7 +468,7 @@ export const DISTRICT_COLORS: Record<string, string> = {
   yampi: "#ab62ef",
   nuvemshop: "#0855c5",
   kiwify: "#09b36e",
-  tray: "#141057",
+  tray: "#379aff",
   googleanalytics4: "#f27e0a",
   meta: "#0a69d4",
   empreender: "#a16bf9",
