@@ -1031,8 +1031,11 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
 
     let devIdx = 0;
     let spiralIdx = 0;
+    // Safety guard: prevent pathological infinite spirals if Voronoi /
+    // occupancy logic ever fails to find valid cells for all devs.
+    const maxSpiralSteps = clusterDevs.length * 50 + 1000;
 
-    while (devIdx < clusterDevs.length) {
+    while (devIdx < clusterDevs.length && spiralIdx < maxSpiralSteps) {
       const [bx, by] = spiralCoord(spiralIdx);
       const gx = ogx + bx;
       const gz = ogz + by;

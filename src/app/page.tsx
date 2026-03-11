@@ -1609,8 +1609,6 @@ function HomeContent() {
           }
         }
 
-        allDevs = allDevs.slice(0, 53);
-
         // Fallback to chunked API
         if (allDevs.length === 0) {
           const CHUNK = 1000;
