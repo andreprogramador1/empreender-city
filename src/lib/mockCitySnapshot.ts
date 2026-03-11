@@ -33,10 +33,10 @@ export function getMockCitySnapshot(): MockCitySnapshot {
   const now = new Date().toISOString();
 
   for (const district of MOCK_DISTRICTS) {
-    const count = 15 + Math.floor(Math.random() * 25);
+    const count = 200 + Math.floor(Math.random() * 25);
     for (let i = 0; i < count; i++) {
       const contributions = Math.floor(Math.random() * 5000);
-      const totalStars = Math.floor(Math.random() * 2000);
+      const totalStars = 0;
       const publicRepos = 5 + Math.floor(Math.random() * 80);
       totalContributions += contributions;
       const login = `dev-${district}-${i + 1}-${Math.random().toString(36).slice(2, 8)}`;
@@ -50,9 +50,7 @@ export function getMockCitySnapshot(): MockCitySnapshot {
         contributions,
         public_repos: publicRepos,
         total_stars: totalStars,
-        primary_language: ["TypeScript", "JavaScript", "Python", "Go", "Rust", null][
-          Math.floor(Math.random() * 6)
-        ],
+        primary_language: [],
         rank: id,
         fetched_at: now,
         created_at: now,
@@ -68,27 +66,27 @@ export function getMockCitySnapshot(): MockCitySnapshot {
         billboard_images: [],
         achievements: [],
         loadout: null,
-        contributions_total: contributions + Math.floor(Math.random() * 500),
-        contribution_years: [2023, 2024],
-        total_prs: Math.floor(Math.random() * 200),
-        total_reviews: Math.floor(Math.random() * 100),
-        repos_contributed_to: Math.floor(Math.random() * 50),
-        followers: Math.floor(Math.random() * 500),
-        following: Math.floor(Math.random() * 200),
-        organizations_count: Math.floor(Math.random() * 5),
+        contributions_total: 0,
+        contribution_years: [],
+        total_prs: 0,
+        total_reviews: 0,
+        repos_contributed_to: 0,
+        followers: 0,
+        following: 0,
+        organizations_count: 0,
         account_created_at: "2020-01-01T00:00:00Z",
-        current_streak: Math.floor(Math.random() * 30),
-        active_days_last_year: Math.floor(Math.random() * 200),
-        language_diversity: 1 + Math.floor(Math.random() * 5),
+        current_streak: 0,
+        active_days_last_year: 0,
+        language_diversity: 0,
         app_streak: 0,
         raid_xp: 0,
-        current_week_contributions: Math.floor(Math.random() * 50),
+        current_week_contributions: 0,
         current_week_kudos_given: 0,
         current_week_kudos_received: 0,
         active_raid_tag: null,
         rabbit_completed: false,
-        xp_total: Math.floor(Math.random() * 5000),
-        xp_level: 1 + Math.floor(Math.random() * 10),
+        xp_total: 0,
+        xp_level: 1,
       });
     }
   }
