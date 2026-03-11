@@ -9,12 +9,12 @@ const ACCENT = "#c8e64a";
 function relativeTime(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins} min ago`;
+  if (mins < 1) return "agora";
+  if (mins < 60) return `${mins} min atrás`;
   const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
+  if (hours < 24) return `${hours}h atrás`;
   const days = Math.floor(hours / 24);
-  return `${days}d ago`;
+  return `${days}d atrás`;
 }
 
 interface Props {
@@ -24,7 +24,12 @@ interface Props {
   onNavigate?: (login: string) => void;
 }
 
-export default function ActivityPanel({ initialEvents, open, onClose, onNavigate }: Props) {
+export default function ActivityPanel({
+  initialEvents,
+  open,
+  onClose,
+  onNavigate,
+}: Props) {
   const [events, setEvents] = useState<FeedEvent[]>(initialEvents);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -73,7 +78,7 @@ export default function ActivityPanel({ initialEvents, open, onClose, onNavigate
       {/* Header */}
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <h2 className="text-sm" style={{ color: ACCENT }}>
-          CITY ACTIVITY
+          ATIVIDADE DA CIDADE
         </h2>
         <button
           onClick={onClose}
@@ -98,7 +103,9 @@ export default function ActivityPanel({ initialEvents, open, onClose, onNavigate
                 key={e.id}
                 className="border-b border-border/30 px-4 py-3 hover:bg-bg-card/50 transition-colors"
               >
-                <p className="text-[9px] text-dim">{relativeTime(e.created_at)}</p>
+                <p className="text-[9px] text-dim">
+                  {relativeTime(e.created_at)}
+                </p>
                 <div className="mt-1 flex items-start gap-2">
                   {avatarUrl ? (
                     <img
@@ -120,7 +127,7 @@ export default function ActivityPanel({ initialEvents, open, onClose, onNavigate
                     className="mt-1 ml-7 text-[9px] hover:underline"
                     style={{ color: ACCENT }}
                   >
-                    View building →
+                    Ver edifício →
                   </button>
                 )}
               </div>
