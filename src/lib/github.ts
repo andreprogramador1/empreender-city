@@ -682,19 +682,28 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
   // Origens: empreender em (0,0); demais em círculo de raio OUTER_DISTRICT_RADIUS. Voronoi ponderado só entre os externos.
   type OriginWithWeight = { ogx: number; ogz: number; weight: number };
   const districtOrigins: OriginWithWeight[] = [{ ogx: 0, ogz: 0, weight: 1 }];
+  // Peso mínimo alto o suficiente para que distritos com poucos devs (ex.: googleanalytics4, tiktokshop)
+  // tenham uma fatia Voronoi utilizável; com peso baixo a fatia fica tão estreita que o espiral
+  // em grade quase nunca cai dentro dela (milhares de "célula não pertence ao distrito").
+  const MIN_DISTRICT_WEIGHT = 1.2;
   for (let di = 0; di < districtDevArrays.length; di++) {
     const angle = (di / districtDevArrays.length) * Math.PI * 2 - Math.PI / 2;
     const devCount = districtDevArrays[di].devs.length;
     districtOrigins.push({
       ogx: Math.round(Math.cos(angle) * OUTER_DISTRICT_RADIUS),
       ogz: Math.round(Math.sin(angle) * OUTER_DISTRICT_RADIUS),
-      weight: Math.max(0.5, Math.sqrt(devCount) * 0.4),
+      weight: Math.max(MIN_DISTRICT_WEIGHT, Math.sqrt(devCount) * 0.4),
     });
   }
 
+  // Raio reservado em torno da origem de cada distrito: células dentro dele sempre pertencem
+  // a esse distrito (evita que a fatia Voronoi fique tão estreita que o espiral nunca ache célula).
+  const DISTRICT_RESERVED_RADIUS2 = 2; // distância ao quadrado: 2 cobre (1,1) e vizinhos imediatos
+
   /** True se a célula (gx, gz) pertence ao território da origem no índice thisOriginIdx.
    * Empreender (índice 0): apenas células dentro do disco exclusivo; ignorado no Voronoi.
-   * Outros distritos: nunca entram no disco do centro; fora dele, Voronoi ponderado entre si. */
+   * Outros distritos: nunca entram no disco do centro; fora dele, disco reservado em volta da origem
+   * e depois Voronoi ponderado entre si. */
   function cellBelongsToOrigin(
     gx: number,
     gz: number,
@@ -713,6 +722,8 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
 
     const oThis = origins[thisOriginIdx];
     const dist2This = (gx - oThis.ogx) ** 2 + (gz - oThis.ogz) ** 2;
+    // Células muito próximas da origem deste distrito sempre pertencem a ele (evita wedge estreito)
+    if (dist2This <= DISTRICT_RESERVED_RADIUS2) return true;
     const scoreThis = dist2This / (oThis.weight * oThis.weight);
     for (let i = 1; i < origins.length; i++) {
       if (i === thisOriginIdx) continue;
@@ -1045,11 +1056,12 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
         spiralIdx++;
         continue;
       }
-      // Só coloca bloco se a célula pertencer ao território deste distrito (Voronoi)
+      // Só coloca bloco se a célula pertencer ao território deste distrito (Voronoi + disco reservado)
       if (!cellBelongsToOrigin(gx, gz, originIndex, origins)) {
         spiralIdx++;
         continue;
       }
+
       occupiedCells.add(key);
 
       let [blockCX, blockCZ] = gridToWorld(gx, gz);
