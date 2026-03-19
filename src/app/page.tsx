@@ -4334,7 +4334,7 @@ function HomeContent() {
                     </div>
 
                     {/* XP Level badge + progress */}
-                    {(() => {
+                    {/* {(() => {
                       const bTier = tierFromLevel(
                         selectedBuilding.xp_level ?? 1,
                       );
@@ -4397,7 +4397,7 @@ function HomeContent() {
                           </div>
                         </div>
                       );
-                    })()}
+                    })()} */}
 
                     {/* District badge */}
                     {selectedBuilding.district && (
@@ -4464,7 +4464,7 @@ function HomeContent() {
                     </div> */}
 
                     {/* Achievements with tier colors, sorted by tier */}
-                    {selectedBuilding.achievements &&
+                    {/* {selectedBuilding.achievements &&
                       selectedBuilding.achievements.length > 0 && (
                         <div className="mx-4 mb-3 flex flex-wrap gap-1">
                           {[...selectedBuilding.achievements]
@@ -4517,10 +4517,10 @@ function HomeContent() {
                             </Link>
                           )}
                         </div>
-                      )}
+                      )} */}
 
                     {/* A7: Show equipped items on other devs' buildings (mimetic desire) */}
-                    {selectedBuilding.login !== authLogin &&
+                    {/* {selectedBuilding.login !== authLogin &&
                       (() => {
                         const equipped: string[] = [];
                         if (selectedBuilding.loadout?.crown)
@@ -4579,12 +4579,12 @@ function HomeContent() {
                             )}
                           </div>
                         );
-                      })()}
+                      })()} */}
 
                     {/* Kudos: give kudos (other's building, logged in) */}
-                    {session && selectedBuilding.login !== authLogin && (
+                    {/* {session && selectedBuilding.login !== authLogin && (
                       <div className="relative mx-4 mb-3">
-                        {/* Floating emoji animation on success */}
+                        
                         {kudosSent && (
                           <div className="pointer-events-none absolute inset-0 overflow-visible">
                             {Array.from({ length: 6 }).map((_, i) => (
@@ -4637,7 +4637,7 @@ function HomeContent() {
                         >
                           Send Gift
                         </button>
-                        {/* Raid button */}
+                        
                         {raidState.phase === "idle" && raidState.error && (
                           <p className="mt-1.5 text-center text-[10px] text-red-400">
                             {raidState.error}
@@ -4661,10 +4661,10 @@ function HomeContent() {
                             : "\u2694\ufe0f BATTLE \u2014 Win +50 XP"}
                         </button>
                       </div>
-                    )}
+                    )} */}
 
                     {/* A3: Disabled action buttons for non-logged users */}
-                    {!session && (
+                    {/* {!session && (
                       <div className="mx-4 mb-3 space-y-1.5">
                         <button
                           onClick={() => {
@@ -4694,7 +4694,7 @@ function HomeContent() {
                           &#x1F512; &#x2694;&#xFE0F; BATTLE
                         </button>
                       </div>
-                    )}
+                    )} */}
 
                     {/* Own building: copy invite link */}
                     {selectedBuilding.login === authLogin && (
@@ -4715,7 +4715,7 @@ function HomeContent() {
                     )}
 
                     {/* Compare button */}
-                    {!flyMode && (
+                    {/* {!flyMode && (
                       <div className="mx-4 mb-3">
                         <button
                           onClick={() => {
@@ -4728,7 +4728,7 @@ function HomeContent() {
                           Compare
                         </button>
                       </div>
-                    )}
+                    )} */}
 
                     {/* Actions */}
                     <div className="flex gap-2 p-4 pt-0 pb-5 sm:pb-4">
